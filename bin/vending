@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+// NOTE: Slot and button index 3 and 5 are physically disconnected
+const BUTTON_PINS = [7, 2, 0, 3, 4]
+const SLOT_PINS = [21, 22, 23, 24, 25]
+const MOTOR_PIN = 29
+
+const products = [
+  {name: 'Munkholm 0,33L'},
+  {name: 'Club Mate 0,5L'},
+  null,
+  {name: 'Tuborg 0,33L'},
+  null
+]
+
+const buttons = require('../buttons.js')(BUTTON_PINS)
+const vend = require('../motor.js')(MOTOR_PIN, SLOT_PINS)
+const log = require('../logger.js')
+
+function waitForProductSelection () {
+  log.info('Waiting for product selection')
+
+  buttons.once('pressed', (button) => {
+    const slot = button
+    const item = products[slot]
+    
+    log.info(`Vending a '${item.name}' from slot ${slot}`)
+    vend(slot, (err) => {
+      if (err) {
+        log.error('Failed to vend product')
+        throw err
+      }
+
+      log.info('Vending complete!')
+      waitForProductSelection()
+    })
+  })
+}
+
+waitForProductSelection()

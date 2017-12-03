@@ -1,0 +1,15 @@
+{
+  "name": "vending",
+  "version": "0.0.1",
+  "description": "Soda vending machine daemon",
+  "bin": "bin/vending",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "sshow",
+  "license": "CC0-1.0",
+  "dependencies": {
+    "event-stream": "^3.3.4",
+    "winston": "^2.4.0"
+  }
+}
