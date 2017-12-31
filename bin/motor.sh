@@ -19,8 +19,8 @@ motor=$1
 slot=$2
 
 # Keeping the motor up for 5 seconds has proven to be a good value
-motor_active_sec=7
-slot_wait_sec=2
+motor_active_sec=8
+slot_wait_sec=1
 slot_active_sec=1
 
 # Because of the way the relays are wired, on/off logic is flipped
