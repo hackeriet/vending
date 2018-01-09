@@ -22,8 +22,14 @@ function waitForProductSelection () {
   buttons.once('pressed', (button) => {
     const slot = button
     const item = products[slot]
-    
-    log.info(`Vending a '${item.name}' from slot ${slot}`)
+
+    if (!item) {
+      log.info(`No item in slot #${slot}. Not doing anything.`)
+      return
+    }
+
+    log.info(`Vending '${item.name}' from slot ${slot}`)
+
     vend(slot, (err) => {
       if (err) {
         log.error('Failed to vend product')
