@@ -14,32 +14,47 @@ const products = [
 
 const buttons = require('../buttons.js')(BUTTON_PINS)
 const vend = require('../motor.js')(MOTOR_PIN, SLOT_PINS)
+const cardreader = require('../cardreader.js')()
 const log = require('../logger.js')
 
-function waitForProductSelection () {
-  log.info('Waiting for product selection')
+function waitForCard () {
+  log.info('Waiting for card')
 
-  buttons.once('pressed', (button) => {
-    const slot = button
-    const item = products[slot]
+  cardreader.once('card', (cardId) => {
+    log.info('Waiting for product selection')
 
-    if (!item) {
-      log.info(`No item in slot #${slot}. Not doing anything.`)
-      return
-    }
+    // Act within 10 seconds or drop current action
+    let cancelTimeoutId = setTimeout(function cancel () {
+      cardreader.removeAllListeners()
+      buttons.removeAllListeners()
+      waitForCard()
+    }, 10 * 1000)
 
-    log.info(`Vending '${item.name}' from slot ${slot}`)
+    // Wait for a single button press
+    buttons.once('pressed', (button) => {
+      clearTimeout(cancelTimeoutId)
 
-    vend(slot, (err) => {
-      if (err) {
-        log.error('Failed to vend product')
-        throw err
+      const slot = button
+      const item = products[slot]
+
+      if (!item) {
+        log.info(`No item in slot #${slot}. Not doing anything.`)
+        return
       }
 
-      log.info('Vending complete!')
-      waitForProductSelection()
+      log.info(`Vending '${item.name}' from slot ${slot}`)
+
+      vend(slot, (err) => {
+        if (err) {
+          log.error('Failed to vend product')
+          throw err
+        }
+
+        log.info(`Charged ${user.username} for ${item.name}!`)
+        waitForCard()
+      })
     })
   })
 }
 
-waitForProductSelection()
+waitForCard()
