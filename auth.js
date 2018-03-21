@@ -26,11 +26,11 @@ function updateCardUsers () {
     .set('Accept', 'application/json')
     .then((res) => {
       const newcards = res.data
-      if (typeof newcards !== 'object' || !Array.isArray(newcards)) }
+      if (typeof newcards !== 'object' || !Array.isArray(newcards)) {
         console.error('New card data was not a JSON array:', typeof newcard)
         return
       }
-      
+
       // Update card array
       cardUsers.splice(0, cardUsers.length, ...newcards)
       console.log('Updated card data (%n total cards)', cardUsers.length)

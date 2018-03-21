@@ -1,0 +1,2775 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: machine; Type: TABLE; Schema: public; Owner: brus; Tablespace: 
+--
+
+CREATE TABLE machine (
+    machine text NOT NULL,
+    key text
+);
+
+
+ALTER TABLE machine OWNER TO brus;
+
+--
+-- Name: product; Type: TABLE; Schema: public; Owner: brus; Tablespace: 
+--
+
+CREATE TABLE product (
+    pid integer NOT NULL,
+    product text,
+    price integer
+);
+
+
+ALTER TABLE product OWNER TO brus;
+
+--
+-- Name: product_pid_seq; Type: SEQUENCE; Schema: public; Owner: brus
+--
+
+CREATE SEQUENCE product_pid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE product_pid_seq OWNER TO brus;
+
+--
+-- Name: product_pid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: brus
+--
+
+ALTER SEQUENCE product_pid_seq OWNED BY product.pid;
+
+
+--
+-- Name: slot_product; Type: TABLE; Schema: public; Owner: brus; Tablespace: 
+--
+
+CREATE TABLE slot_product (
+    spid integer NOT NULL,
+    slot integer,
+    machine text,
+    product integer
+);
+
+
+ALTER TABLE slot_product OWNER TO brus;
+
+--
+-- Name: slot_product_spid_seq; Type: SEQUENCE; Schema: public; Owner: brus
+--
+
+CREATE SEQUENCE slot_product_spid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE slot_product_spid_seq OWNER TO brus;
+
+--
+-- Name: slot_product_spid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: brus
+--
+
+ALTER SEQUENCE slot_product_spid_seq OWNED BY slot_product.spid;
+
+
+--
+-- Name: transactions; Type: TABLE; Schema: public; Owner: brus; Tablespace: 
+--
+
+CREATE TABLE transactions (
+    tid integer NOT NULL,
+    uid integer,
+    value integer,
+    descr text,
+    "timestamp" timestamp without time zone DEFAULT now(),
+    machine text,
+    product integer,
+    "user" text,
+    username text
+);
+
+
+ALTER TABLE transactions OWNER TO brus;
+
+--
+-- Name: transactions_tid_seq; Type: SEQUENCE; Schema: public; Owner: brus
+--
+
+CREATE SEQUENCE transactions_tid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE transactions_tid_seq OWNER TO brus;
+
+--
+-- Name: transactions_tid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: brus
+--
+
+ALTER SEQUENCE transactions_tid_seq OWNED BY transactions.tid;
+
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: brus; Tablespace: 
+--
+
+CREATE TABLE users (
+    uid integer NOT NULL,
+    username text NOT NULL,
+    card_data text,
+    enabled integer DEFAULT 1 NOT NULL,
+    admin integer DEFAULT 0 NOT NULL,
+    access_areas text,
+    phone text,
+    email text,
+    address text,
+    realname text,
+    password text,
+    sshkey text,
+    stripe_id text
+);
+
+
+ALTER TABLE users OWNER TO brus;
+
+--
+-- Name: users_uid_seq; Type: SEQUENCE; Schema: public; Owner: brus
+--
+
+CREATE SEQUENCE users_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE users_uid_seq OWNER TO brus;
+
+--
+-- Name: users_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: brus
+--
+
+ALTER SEQUENCE users_uid_seq OWNED BY users.uid;
+
+
+--
+-- Name: pid; Type: DEFAULT; Schema: public; Owner: brus
+--
+
+ALTER TABLE ONLY product ALTER COLUMN pid SET DEFAULT nextval('product_pid_seq'::regclass);
+
+
+--
+-- Name: spid; Type: DEFAULT; Schema: public; Owner: brus
+--
+
+ALTER TABLE ONLY slot_product ALTER COLUMN spid SET DEFAULT nextval('slot_product_spid_seq'::regclass);
+
+
+--
+-- Name: tid; Type: DEFAULT; Schema: public; Owner: brus
+--
+
+ALTER TABLE ONLY transactions ALTER COLUMN tid SET DEFAULT nextval('transactions_tid_seq'::regclass);
+
+
+--
+-- Name: uid; Type: DEFAULT; Schema: public; Owner: brus
+--
+
+ALTER TABLE ONLY users ALTER COLUMN uid SET DEFAULT nextval('users_uid_seq'::regclass);
+
+
+--
+-- Data for Name: machine; Type: TABLE DATA; Schema: public; Owner: brus
+--
+
+COPY machine (machine, key) FROM stdin;
+brusautomat	tuiquaichoo9J
+\.
+
+
+--
+-- Data for Name: product; Type: TABLE DATA; Schema: public; Owner: brus
+--
+
+COPY product (pid, product, price) FROM stdin;
+1	Club-Mate	35
+2	Munkholm	20
+3	Tuborg	25
+4	Sagene	35
+5	Cider	35
+7	Farris	20
+6	Julebrus	17
+8	Club-Mate Cola	35
+9	Munkholm 0.33	15
+\.
+
+
+--
+-- Name: product_pid_seq; Type: SEQUENCE SET; Schema: public; Owner: brus
+--
+
+SELECT pg_catalog.setval('product_pid_seq', 7, true);
+
+
+--
+-- Data for Name: slot_product; Type: TABLE DATA; Schema: public; Owner: brus
+--
+
+COPY slot_product (spid, slot, machine, product) FROM stdin;
+3	2	brusautomat	1
+5	4	brusautomat	4
+2	1	brusautomat	1
+4	3	brusautomat	3
+1	0	brusautomat	9
+\.
+
+
+--
+-- Name: slot_product_spid_seq; Type: SEQUENCE SET; Schema: public; Owner: brus
+--
+
+SELECT pg_catalog.setval('slot_product_spid_seq', 5, true);
+
+
+--
+-- Data for Name: transactions; Type: TABLE DATA; Schema: public; Owner: brus
+--
+
+COPY transactions (tid, uid, value, descr, "timestamp", machine, product, "user", username) FROM stdin;
+24	8	100	Transfer with Stripe.	2015-09-10 18:18:44	\N	\N	\N	atluxity
+25	8	-35	En Club-Mate	2015-09-10 18:19:14	\N	\N	\N	atluxity
+62	8	-35	En Club-Mate	2015-09-17 16:30:01	\N	\N	\N	atluxity
+63	8	110	Transfer with Stripe.	2015-09-17 16:39:03	\N	\N	\N	atluxity
+64	8	-35	En Club-Mate	2015-09-17 16:39:18	\N	\N	\N	atluxity
+65	8	-35	En Voksenbrus	2015-09-17 16:39:50	\N	\N	\N	atluxity
+77	8	-35	En Club-Mate	2015-09-19 21:31:38	\N	\N	\N	atluxity
+1276	8	-35	Club-Mate	2016-08-06 22:45:38.862457	\N	\N	\N	atluxity
+36	9	100	Transfer with Stripe.	2015-09-10 21:09:45	\N	\N	\N	karltk
+37	9	-35	En Club-Mate	2015-09-10 21:10:08	\N	\N	\N	karltk
+585	9	-35	En Club-Mate	2016-01-16 17:34:46	\N	\N	\N	karltk
+569	10	350	Transfer with Stripe.	2016-01-09 18:53:17	\N	\N	\N	sjn
+570	10	-35	En Club-Mate	2016-01-09 18:54:02	\N	\N	\N	sjn
+572	10	-20	En Munkholm	2016-01-09 20:09:19	\N	\N	\N	sjn
+573	10	-30	En Tuborg	2016-01-09 20:14:18	\N	\N	\N	sjn
+574	10	20	Manually added by krav.	2016-01-09 20:42:13	\N	\N	\N	sjn
+909	10	-35	En Club-Mate	2016-03-26 19:33:58	\N	\N	\N	sjn
+935	10	-35	En Club-Mate	2016-04-19 09:39:54	\N	\N	\N	sjn
+938	10	-35	En Club-Mate	2016-04-19 16:36:37	\N	\N	\N	sjn
+958	10	-35	En Club-Mate	2016-04-26 18:26:25	\N	\N	\N	sjn
+1764	\N	-35	Sagene	2017-01-31 19:18:37.946852	\N	\N	\N	krav
+2051	\N	-35	Club-Mate	2017-05-30 18:21:11.089158	\N	\N	\N	capitol
+1213	10	335	Transfer with Stripe.	2016-07-09 17:26:05.341798	\N	\N	\N	sjn
+1214	10	-35	Club-Mate	2016-07-09 17:26:14.391302	\N	\N	\N	sjn
+1215	10	-35	Club-Mate	2016-07-09 17:26:24.487281	\N	\N	\N	sjn
+1216	10	-35	Club-Mate	2016-07-09 18:52:39.450388	\N	\N	\N	sjn
+1219	10	-35	Club-Mate	2016-07-09 19:57:02.425422	\N	\N	\N	sjn
+1234	10	-35	Club-Mate	2016-07-12 20:09:55.694465	\N	\N	\N	sjn
+2052	\N	-25	Manuell Pils (0.3)	2017-05-30 19:10:21.00052	\N	\N	\N	bezaban
+2053	\N	-50	2 små øl	2017-05-30 19:10:24.983936	\N	\N	\N	enrico
+2054	\N	-25	en liten øl til	2017-05-30 19:38:09.185075	\N	\N	\N	enrico
+2055	\N	-25	Manuell Pils (0.3)	2017-05-30 20:17:29.363307	\N	\N	\N	bezaban
+2056	\N	-35		2017-05-30 20:17:34.06795	\N	\N	\N	krav
+2057	\N	-50	Manuell Pils (0.3) x2	2017-05-30 20:54:15.731535	\N	\N	\N	bezaban
+2058	\N	-35	Club Mate	2017-06-01 13:34:52.47292	\N	\N	\N	sshow
+2059	\N	342		2017-06-02 17:34:33.505597	\N	\N	\N	sshow
+2060	\N	-35	Club Mate	2017-06-02 17:42:00.523064	\N	\N	\N	sshow
+2061	\N	-35	Club-Mate	2017-06-02 23:28:38.378021	\N	\N	\N	sshow
+2062	\N	-75		2017-06-03 00:42:10.355425	\N	\N	\N	krav
+2063	\N	-25	Tuborg	2017-06-03 16:51:12.78126	\N	\N	\N	bezaban
+2064	\N	-25	Tuborg	2017-06-03 16:51:27.097775	\N	\N	\N	bezaban
+2065	\N	-25	Tuborg	2017-06-03 17:28:41.353027	\N	\N	\N	sshow
+2066	\N	-25	Tuborg	2017-06-03 17:31:46.228253	\N	\N	\N	bezaban
+2067	\N	-25	Tuborg	2017-06-03 17:31:53.278456	\N	\N	\N	bezaban
+2068	\N	-25	Tuborg	2017-06-03 19:26:39.886126	\N	\N	\N	sshow
+2069	\N	-25	Tuborg	2017-06-03 20:24:23.740926	\N	\N	\N	bezaban
+2070	\N	-25	Tuborg	2017-06-03 20:24:40.688948	\N	\N	\N	bezaban
+2071	\N	-35	Club Mate	2017-06-03 20:30:22.834073	\N	\N	\N	sshow
+2072	\N	-35	Club-Mate	2017-06-03 21:17:24.805838	\N	\N	\N	enrico
+2073	\N	-15	Munkholm 0.33	2017-06-03 23:23:54.115822	\N	\N	\N	bezaban
+2074	\N	70		2017-06-04 23:20:07.608627	\N	\N	\N	tazjin
+2075	\N	-35	Club-Mate	2017-06-04 23:29:12.131723	\N	\N	\N	tazjin
+2076	\N	-35	Club-Mate	2017-06-06 18:10:09.835904	\N	\N	\N	capitol
+2077	\N	691		2017-06-06 21:08:00.015539	\N	\N	\N	krav
+2078	\N	-35	Club-Mate	2017-06-06 22:31:56.668176	\N	\N	\N	krav
+2079	\N	-35	Club Mate	2017-06-09 18:13:43.904039	\N	\N	\N	sshow
+2080	\N	-25	Tuborg	2017-06-09 23:02:08.516757	\N	\N	\N	sshow
+2081	\N	-35	Club-Mate	2017-06-10 17:12:44.470141	\N	\N	\N	capitol
+2082	\N	-35	Club-Mate	2017-06-10 17:40:24.817556	\N	\N	\N	enrico
+2083	\N	-35	Club-Mate	2017-06-10 18:17:14.888604	\N	\N	\N	capitol
+2084	\N	-200		2017-06-10 19:10:19.149087	\N	\N	\N	krav
+2085	\N	270		2017-06-10 19:11:01.17839	\N	\N	\N	krav
+2086	\N	-35	Club-Mate	2017-06-10 19:17:57.244426	\N	\N	\N	krav
+2087	\N	-15	Munkholm 0.33	2017-06-10 21:05:53.633427	\N	\N	\N	capitol
+2088	\N	-35	Club-Mate	2017-06-10 23:11:29.486855	\N	\N	\N	krav
+22	1	350	Transfer with Stripe.	2015-09-10 16:44:52	\N	\N	\N	capitol
+23	1	-35	En Club-Mate	2015-09-10 16:45:27	\N	\N	\N	capitol
+41	1	-35	En Club-Mate	2015-09-12 14:56:05	\N	\N	\N	capitol
+42	1	-35	En Club-Mate	2015-09-12 16:49:32	\N	\N	\N	capitol
+50	1	-35	En Club-Mate	2015-09-12 20:24:18	\N	\N	\N	capitol
+52	1	-35	En Club-Mate	2015-09-15 16:12:06	\N	\N	\N	capitol
+17	3	500	Transfer with Stripe.	2015-09-08 18:12:11	\N	\N	\N	aevin
+18	3	-245	Kritebok (7 x club mate)	2015-09-08 18:19:56	\N	\N	\N	aevin
+19	3	-35	En Club-Mate	2015-09-08 18:24:01	\N	\N	\N	aevin
+57	3	-35	En Club-Mate	2015-09-15 17:43:45	\N	\N	\N	aevin
+7	4	700	Transfer with Stripe.	2015-09-07 16:17:06	\N	\N	\N	alpha60
+8	4	-70	Gjorde opp kritebok	2015-09-07 16:24:30	\N	\N	\N	alpha60
+11	4	-80	gjorde opp krite Fritz kola	2015-09-07 17:39:00	\N	\N	\N	alpha60
+16	4	-35	En Club-Mate	2015-09-08 16:04:42	\N	\N	\N	alpha60
+29	4	-35	En Club-Mate	2015-09-10 19:26:56	\N	\N	\N	alpha60
+32	4	-35	En Club-Mate	2015-09-10 20:13:39	\N	\N	\N	alpha60
+33	4	-35	En Voksenbrus	2015-09-10 20:13:56	\N	\N	\N	alpha60
+34	4	-35	En Voksenbrus	2015-09-10 20:14:03	\N	\N	\N	alpha60
+95	5	500	Transfer with Stripe.	2015-09-22 19:10:57	\N	\N	\N	lkarsten
+1	6	100	Transfer with Stripe.	2015-09-05 18:32:26	\N	\N	\N	krav
+2	6	200	Transfer with Stripe.	2015-09-05 20:32:07	\N	\N	\N	krav
+3	6	-200	T-shirt	2015-09-05 20:32:21	\N	\N	\N	krav
+4	6	-35	En Club-Mate	2015-09-06 12:02:55	\N	\N	\N	krav
+5	6	-35	En Club-Mate	2015-09-06 12:03:05	\N	\N	\N	krav
+6	6	-910	Kritebok	2015-09-07 16:03:19	\N	\N	\N	krav
+9	6	1899	Kjøpt inn øl	2015-09-07 16:55:41	\N	\N	\N	krav
+10	6	-10	Fritzl kola	2015-09-07 17:07:18	\N	\N	\N	krav
+12	6	-15	Fritzl cola	2015-09-08 12:01:08	\N	\N	\N	krav
+13	6	-35	En Club-Mate	2015-09-08 14:42:28	\N	\N	\N	krav
+15	6	-190	Til comotion	2015-09-08 15:07:40	\N	\N	\N	krav
+21	6	-35	En Club-Mate	2015-09-10 16:42:40	\N	\N	\N	krav
+26	6	-35	En Club-Mate	2015-09-10 18:23:00	\N	\N	\N	krav
+28	6	-35	En Voksenbrus	2015-09-10 18:42:02	\N	\N	\N	krav
+150	8	-35	En Club-Mate	2015-10-03 16:29:55	\N	\N	\N	atluxity
+1765	\N	-35	Sagene	2017-01-31 19:19:46.544767	\N	\N	\N	krav
+2099	\N	-35	Club-Mate	2017-06-20 19:03:44.951654	\N	\N	\N	enrico
+225	8	105	Transfer with Stripe.	2015-10-17 17:33:00	\N	\N	\N	atluxity
+227	8	-35	En Club-Mate	2015-10-17 17:52:12	\N	\N	\N	atluxity
+2100	\N	-35	Club-Mate	2017-06-20 19:41:47.572405	\N	\N	\N	aevin
+222	9	-35	En Club-Mate	2015-10-17 16:03:18	\N	\N	\N	karltk
+2101	\N	-35	Club-Mate	2017-06-20 19:58:11.272075	\N	\N	\N	sjn
+2102	\N	-35	Club-Mate	2017-06-20 22:38:17.539475	\N	\N	\N	sjn
+2103	\N	-35	Club Mate	2017-06-20 22:45:15.814574	\N	\N	\N	sshow
+224	9	200	Transfer with Stripe.	2015-10-17 17:01:22	\N	\N	\N	karltk
+2104	\N	-25	Tuborg	2017-06-20 22:58:12.135554	\N	\N	\N	enrico
+2105	\N	-25	Tuborg	2017-06-20 23:17:19.564339	\N	\N	\N	enrico
+139	10	105	Transfer with Stripe.	2015-10-02 15:57:01	\N	\N	\N	sjn
+141	10	-35	En Club-Mate	2015-10-02 16:05:22	\N	\N	\N	sjn
+2106	\N	100		2017-06-21 00:02:27.120056	\N	\N	\N	enrico
+142	10	-35	En Club-Mate	2015-10-02 19:00:21	\N	\N	\N	sjn
+2107	\N	-25	Tuborg	2017-06-21 00:03:08.373389	\N	\N	\N	enrico
+2108	\N	-25	Tuborg	2017-06-24 20:06:07.793652	\N	\N	\N	sjn
+2109	\N	-35	Club-Mate	2017-06-27 18:12:08.949203	\N	\N	\N	capitol
+2110	\N	-35	Club-Mate	2017-06-27 19:28:36.521056	\N	\N	\N	sjn
+2111	\N	-35	Club-Mate	2017-06-27 19:30:36.686489	\N	\N	\N	sjn
+2112	\N	-35	Club-Mate	2017-06-27 19:51:31.219029	\N	\N	\N	bezaban
+2113	\N	-15	Munkholm 0.33	2017-06-27 20:10:00.374604	\N	\N	\N	capitol
+157	10	-35	En Club-Mate	2015-10-03 19:56:23	\N	\N	\N	sjn
+1236	10	-35	Club-Mate	2016-07-12 20:52:15.224954	\N	\N	\N	sjn
+2114	\N	400		2017-06-27 21:04:29.725579	\N	\N	\N	bezaban
+1246	10	-35	Club-Mate	2016-07-12 22:29:09.695265	\N	\N	\N	sjn
+2115	\N	-25	Tuborg	2017-06-27 21:06:48.02525	\N	\N	\N	bezaban
+2116	\N	-25	Tuborg	2017-06-27 22:07:15.572396	\N	\N	\N	bezaban
+1286	10	-35	Club-Mate	2016-08-16 19:50:27.595426	\N	\N	\N	sjn
+2117	\N	-25	Tuborg	2017-06-27 22:51:44.684382	\N	\N	\N	bezaban
+2118	\N	-25	Tuborg	2017-06-27 22:58:23.676392	\N	\N	\N	bezaban
+1287	10	-35	Club-Mate	2016-08-16 21:49:41.338613	\N	\N	\N	sjn
+2119	\N	-25	Tuborg	2017-06-27 23:24:01.101204	\N	\N	\N	bezaban
+2120	\N	-25	Tuborg	2017-06-27 23:54:53.161584	\N	\N	\N	bezaban
+1295	10	-35	Club-Mate	2016-08-27 16:28:31.322812	\N	\N	\N	sjn
+1316	10	350	Transfer with Stripe.	2016-09-06 19:06:46.995591	\N	\N	\N	sjn
+2121	\N	-25	Tuborg	2017-06-28 00:13:52.35347	\N	\N	\N	bezaban
+2122	\N	-25	Tuborg	2017-06-28 00:39:33.458465	\N	\N	\N	bezaban
+2123	\N	-25	Tuborg	2017-06-28 00:53:28.509172	\N	\N	\N	bezaban
+2124	\N	-25	Tuborg	2017-06-28 01:12:53.283494	\N	\N	\N	bezaban
+2125	\N	-25	Tuborg	2017-06-28 01:34:32.562302	\N	\N	\N	bezaban
+1317	10	-35	Club-Mate	2016-09-06 19:23:27.140037	\N	\N	\N	sjn
+1711	10	-35	Manually added by krav.	2017-01-14 20:42:34.64052	\N	\N	\N	sjn
+2126	\N	-25	Tuborg	2017-06-28 01:55:57.763123	\N	\N	\N	bezaban
+2127	\N	-25	Tuborg	2017-06-28 02:31:14.27608	\N	\N	\N	bezaban
+2128	\N	-25	Tuborg	2017-06-28 02:31:21.309126	\N	\N	\N	bezaban
+2129	\N	-25	Tuborg	2017-06-28 02:31:32.301084	\N	\N	\N	bezaban
+2130	\N	-25	Tuborg	2017-06-28 02:31:42.275173	\N	\N	\N	bezaban
+2131	\N	-35	Club-Mate	2017-06-29 17:11:03.635846	\N	\N	\N	tazjin
+2132	\N	-35	Club-Mate	2017-07-01 18:40:56.343758	\N	\N	\N	sjn
+2133	\N	-35	Club-Mate	2017-07-01 20:44:14.517121	\N	\N	\N	sjn
+2134	\N	-35	Club-Mate	2017-07-01 20:44:25.347895	\N	\N	\N	sjn
+2135	\N	-200	T-skjorte	2017-07-02 16:52:02.945857	\N	\N	\N	lassegs
+2136	\N	-120		2017-07-03 16:16:55.179495	\N	\N	\N	krav
+2137	\N	-35	Club-Mate	2017-07-04 18:21:58.663038	\N	\N	\N	capitol
+2138	\N	-20	Munkholm	2017-07-04 20:10:35.905125	\N	\N	\N	sshow
+2139	\N	350		2017-07-06 18:06:16.832169	\N	\N	\N	lassegs
+2140	\N	-35	Club-Mate	2017-07-06 18:06:34.593545	\N	\N	\N	lassegs
+2141	\N	-35	Club-Mate	2017-07-08 17:11:36.122288	\N	\N	\N	capitol
+2142	\N	-15	Munkholm 0.33	2017-07-08 19:59:01.649619	\N	\N	\N	capitol
+2143	\N	340		2017-07-08 20:53:56.32553	\N	\N	\N	sjn
+2144	\N	-35	Club-Mate	2017-07-08 20:55:13.092046	\N	\N	\N	sjn
+2145	\N	-25	Tuborg	2017-07-08 21:09:59.765037	\N	\N	\N	sshow
+2146	\N	-25	Tuborg	2017-07-09 22:30:39.362548	\N	\N	\N	sshow
+126	1	-35	En Club-Mate	2015-09-29 15:56:10	\N	\N	\N	capitol
+132	1	-200	tshirt	2015-09-29 18:06:08	\N	\N	\N	capitol
+146	1	-35	En Club-Mate	2015-10-03 13:02:52	\N	\N	\N	capitol
+148	1	-35	En Club-Mate	2015-10-03 15:40:02	\N	\N	\N	capitol
+152	1	-35	En Club-Mate	2015-10-03 17:06:42	\N	\N	\N	capitol
+163	1	500	Transfer with Stripe.	2015-10-04 13:59:37	\N	\N	\N	capitol
+164	1	-35	En Club-Mate	2015-10-04 14:00:12	\N	\N	\N	capitol
+168	1	-35	En Club-Mate	2015-10-06 15:36:28	\N	\N	\N	capitol
+176	1	-35	En Club-Mate	2015-10-06 20:35:55	\N	\N	\N	capitol
+127	3	-35	En Club-Mate	2015-09-29 16:34:16	\N	\N	\N	aevin
+171	3	-35	En Club-Mate	2015-10-06 17:46:16	\N	\N	\N	aevin
+186	3	-35	En Club-Mate	2015-10-10 17:35:11	\N	\N	\N	aevin
+197	3	-35	En Club-Mate	2015-10-10 21:12:08	\N	\N	\N	aevin
+125	4	-35	En Club-Mate	2015-09-29 13:02:58	\N	\N	\N	alpha60
+155	4	-35	En Club-Mate	2015-10-03 18:53:14	\N	\N	\N	alpha60
+169	4	-35	En Club-Mate	2015-10-06 16:11:06	\N	\N	\N	alpha60
+195	4	-35	En Club-Mate	2015-10-10 18:55:05	\N	\N	\N	alpha60
+206	4	-35	En Club-Mate	2015-10-13 18:23:37	\N	\N	\N	alpha60
+216	4	-35	En Voksenbrus	2015-10-13 21:17:43	\N	\N	\N	alpha60
+217	4	-35	En Voksenbrus	2015-10-13 21:20:24	\N	\N	\N	alpha60
+143	5	-35	En Voksenbrus	2015-10-02 19:02:27	\N	\N	\N	lkarsten
+144	5	-35	En Voksenbrus	2015-10-02 19:10:40	\N	\N	\N	lkarsten
+179	5	-35	En Voksenbrus	2015-10-09 18:34:09	\N	\N	\N	lkarsten
+207	5	-35	En Voksenbrus	2015-10-13 19:46:53	\N	\N	\N	lkarsten
+209	5	-35	En Voksenbrus	2015-10-13 19:49:38	\N	\N	\N	lkarsten
+223	5	-35	En Club-Mate	2015-10-17 17:00:11	\N	\N	\N	lkarsten
+226	5	-35	En Club-Mate	2015-10-17 17:49:02	\N	\N	\N	lkarsten
+124	6	-35	En Club-Mate	2015-09-29 11:49:45	\N	\N	\N	krav
+134	6	-35	En Club-Mate	2015-09-29 18:30:56	\N	\N	\N	krav
+138	6	-35	En Club-Mate	2015-10-02 11:52:50	\N	\N	\N	krav
+140	6	-10	Kaffe	2015-10-02 16:00:48	\N	\N	\N	krav
+147	6	-35	En Club-Mate	2015-10-03 13:40:53	\N	\N	\N	krav
+149	6	-35	En Club-Mate	2015-10-03 15:45:13	\N	\N	\N	krav
+154	6	-35	En Club-Mate	2015-10-03 18:05:24	\N	\N	\N	krav
+198	6	-15		2015-10-13 15:55:56	\N	\N	\N	krav
+1766	\N	70		2017-01-31 19:23:50.641426	\N	\N	\N	krav
+1767	\N	-1		2017-01-31 19:24:04.1466	\N	\N	\N	krav
+1768	\N	1		2017-01-31 19:24:12.559686	\N	\N	\N	krav
+2147	\N	-200	Tuborg x 8	2017-07-11 19:07:01.307872	\N	\N	\N	sshow
+2148	\N	-50	Tuborg x 2	2017-07-11 19:07:09.618252	\N	\N	\N	sshow
+2149	\N	-35	Club-Mate	2017-07-11 19:10:50.210788	\N	\N	\N	capitol
+2150	\N	-35	Club Mate	2017-07-11 19:55:29.622566	\N	\N	\N	sshow
+267	8	-35	En Club-Mate	2015-10-24 19:18:35	\N	\N	\N	atluxity
+2151	\N	200		2017-07-11 22:35:16.56259	\N	\N	\N	bezaban
+2152	\N	-25	Ringnes	2017-07-11 22:35:31.742706	\N	\N	\N	bezaban
+2153	\N	-25	Øl	2017-07-11 22:35:39.854287	\N	\N	\N	bezaban
+2154	\N	-25	Tuborg	2017-07-11 23:09:59.592761	\N	\N	\N	bezaban
+2155	\N	-25	Tuborg	2017-07-11 23:10:26.16283	\N	\N	\N	bezaban
+2156	\N	-35	Club-Mate	2017-07-15 19:29:38.557891	\N	\N	\N	capitol
+2157	\N	300		2017-07-29 18:48:22.394883	\N	\N	\N	enrico
+295	8	-35	En Club-Mate	2015-10-31 16:19:57	\N	\N	\N	atluxity
+350	9	-30	En Julmust	2015-11-10 19:33:45	\N	\N	\N	karltk
+1728	10	-35	Sagene	2017-01-17 20:52:48.305269	\N	\N	\N	sjn
+1762	10	-35	Sagene	2017-01-28 23:09:30.776043	\N	\N	\N	sjn
+89	11	500	Transfer with Stripe.	2015-09-22 15:08:53	\N	\N	\N	enrico
+90	11	-35	En Voksenbrus	2015-09-22 15:09:08	\N	\N	\N	enrico
+92	11	-35	En Voksenbrus	2015-09-22 17:32:26	\N	\N	\N	enrico
+93	11	-35	En Voksenbrus	2015-09-22 18:07:35	\N	\N	\N	enrico
+2158	\N	-70	to mate	2017-07-29 18:48:36.857531	\N	\N	\N	enrico
+2159	\N	-25	Tuborg	2017-07-29 23:18:36.099309	\N	\N	\N	enrico
+94	11	-35	En Voksenbrus	2015-09-22 18:46:31	\N	\N	\N	enrico
+96	11	-35	En Voksenbrus	2015-09-22 19:11:52	\N	\N	\N	enrico
+100	11	-35	En Club-Mate	2015-09-26 12:02:57	\N	\N	\N	enrico
+101	11	-35	En Club-Mate	2015-09-26 13:14:05	\N	\N	\N	enrico
+102	11	-35	En Club-Mate	2015-09-26 13:14:45	\N	\N	\N	enrico
+103	11	-35	En Voksenbrus	2015-09-26 15:35:05	\N	\N	\N	enrico
+2160	\N	-105	3 x club mates	2017-08-01 18:50:30.405706	\N	\N	\N	lassegs
+2161	\N	100		2017-08-01 18:51:27.580963	\N	\N	\N	lassegs
+2162	\N	-35	Club-Mate	2017-08-01 19:36:15.095469	\N	\N	\N	aevin
+2163	\N	-80	1mate+1øl+1claustraler	2017-08-02 00:14:33.816207	\N	\N	\N	enrico
+104	11	-35	En Voksenbrus	2015-09-26 16:09:54	\N	\N	\N	enrico
+2164	\N	-25	Tuborg	2017-08-02 00:15:36.153517	\N	\N	\N	aevin
+105	11	-35	En Voksenbrus	2015-09-26 16:33:15	\N	\N	\N	enrico
+106	11	-35	En Voksenbrus	2015-09-26 17:12:34	\N	\N	\N	enrico
+2165	\N	-35	Club-Mate	2017-08-05 23:49:56.311966	\N	\N	\N	aevin
+107	11	200	Transfer with Stripe.	2015-09-26 17:17:22	\N	\N	\N	enrico
+2166	\N	-105	tre mate	2017-08-06 17:43:46.354328	\N	\N	\N	enrico
+109	11	-35	En Voksenbrus	2015-09-26 18:43:03	\N	\N	\N	enrico
+2167	\N	-35	Club-Mate	2017-08-12 18:49:44.091843	\N	\N	\N	atluxity
+110	11	-35	En Voksenbrus	2015-09-26 19:01:24	\N	\N	\N	enrico
+2168	\N	-35	Club-Mate	2017-08-19 16:13:54.949722	\N	\N	\N	aevin
+2169	\N	500		2017-08-19 18:39:28.420733	\N	\N	\N	aevin
+2170	\N	-35	Club-Mate	2017-08-19 19:00:17.334366	\N	\N	\N	aevin
+2222	\N	0	javascript test	2017-12-19 21:26:06.683985	\N	\N	\N	sshow
+264	1	-35	En Club-Mate	2015-10-24 15:53:51	\N	\N	\N	capitol
+271	1	-35	En Club-Mate	2015-10-27 17:38:10	\N	\N	\N	capitol
+294	1	-35	En Club-Mate	2015-10-31 15:12:36	\N	\N	\N	capitol
+296	1	-35	En Club-Mate	2015-10-31 18:05:26	\N	\N	\N	capitol
+297	1	-35	En Club-Mate	2015-10-31 18:05:45	\N	\N	\N	capitol
+270	3	-35	En Club-Mate	2015-10-27 16:18:51	\N	\N	\N	aevin
+306	3	600	Transfer with Stripe.	2015-11-03 17:49:28	\N	\N	\N	aevin
+307	3	-35	En Club-Mate	2015-11-03 17:50:38	\N	\N	\N	aevin
+340	3	-35	En Club-Mate	2015-11-10 17:15:47	\N	\N	\N	aevin
+347	3	-30	En Julmust	2015-11-10 19:25:00	\N	\N	\N	aevin
+242	4	-35	En Club-Mate	2015-10-20 14:55:37	\N	\N	\N	alpha60
+260	4	-35	En Voksenbrus	2015-10-22 21:55:51	\N	\N	\N	alpha60
+266	4	-35	En Club-Mate	2015-10-24 16:49:40	\N	\N	\N	alpha60
+269	4	-35	En Club-Mate	2015-10-26 14:34:35	\N	\N	\N	alpha60
+273	4	-35	En Club-Mate	2015-10-27 19:44:22	\N	\N	\N	alpha60
+275	4	-35	Spanderte en mate	2015-10-28 14:24:33	\N	\N	\N	alpha60
+272	5	-35	En Club-Mate	2015-10-27 17:59:51	\N	\N	\N	lkarsten
+285	5	-35	En Voksenbrus	2015-10-30 21:08:45	\N	\N	\N	lkarsten
+300	5	-35	En Voksenbrus	2015-11-01 22:14:46	\N	\N	\N	lkarsten
+305	5	-35	En Club-Mate	2015-11-03 17:46:14	\N	\N	\N	lkarsten
+346	5	500	Manually added by krav.	2015-11-10 19:24:18	\N	\N	\N	lkarsten
+348	5	-40	En Voksenbrus	2015-11-10 19:25:11	\N	\N	\N	lkarsten
+352	5	-35	En Voksenbrus	2015-11-10 20:29:02	\N	\N	\N	lkarsten
+356	5	-30	En Julmust	2015-11-11 20:17:12	\N	\N	\N	lkarsten
+239	6	-35	En Club-Mate	2015-10-18 17:07:25	\N	\N	\N	krav
+241	6	-35	En Club-Mate	2015-10-19 17:23:35	\N	\N	\N	krav
+243	6	-35	En Club-Mate	2015-10-20 14:57:33	\N	\N	\N	krav
+244	6	-35	En Club-Mate	2015-10-22 14:40:20	\N	\N	\N	krav
+248	6	-35	En Voksenbrus	2015-10-22 16:22:06	\N	\N	\N	krav
+249	6	35	kilt seg	2015-10-22 16:23:22	\N	\N	\N	krav
+252	6	35	izettle test	2015-10-22 18:25:43	\N	\N	\N	krav
+255	6	-35	En Club-Mate	2015-10-22 20:56:11	\N	\N	\N	krav
+389	8	500	Transfer with Stripe.	2015-11-17 19:32:26	\N	\N	\N	atluxity
+390	8	-35	Mordi	2015-11-17 19:32:51	\N	\N	\N	atluxity
+391	8	-35	En Club-Mate	2015-11-17 19:38:14	\N	\N	\N	atluxity
+1769	\N	1		2017-01-31 19:30:07.961038	\N	\N	\N	krav
+2171	\N	-35	Club-Mate	2017-08-29 21:34:48.202663	\N	\N	\N	aevin
+2172	\N	-20	Clausthaler	2017-08-29 21:35:19.580134	\N	\N	\N	aevin
+2173	\N	-35	Club-Mate fuck yeah	2017-09-01 19:14:18.459818	\N	\N	\N	atluxity
+2174	\N	-35	Mate	2017-09-14 19:00:28.351791	\N	\N	\N	enrico
+393	8	-35	En Club-Mate	2015-11-17 20:44:49	\N	\N	\N	atluxity
+430	8	-35	En Club-Mate	2015-11-28 15:18:07	\N	\N	\N	atluxity
+440	8	-35	En Club-Mate	2015-11-29 12:02:19	\N	\N	\N	atluxity
+2175	\N	-35	Club-Mate	2017-09-19 18:01:08.398562	\N	\N	\N	aevin
+2176	\N	-35	Club-Mate	2017-09-23 23:42:40.899765	\N	\N	\N	aevin
+2177	\N	-20	Munkholm	2017-09-23 23:43:23.10015	\N	\N	\N	aevin
+442	8	-35	En Club-Mate	2015-11-29 14:08:53	\N	\N	\N	atluxity
+2178	\N	-35	Club-Mate	2017-10-03 22:23:02.958105	\N	\N	\N	aevin
+111	11	-35	En Voksenbrus	2015-09-26 19:24:59	\N	\N	\N	enrico
+2179	\N	-25	tuborg	2017-10-07 22:21:39.961541	\N	\N	\N	sshow
+2180	\N	-25	tuborg	2017-10-07 22:21:47.935584	\N	\N	\N	sshow
+2181	\N	-25	tuborg	2017-10-14 15:07:31.376933	\N	\N	\N	sshow
+112	11	-35	En Voksenbrus	2015-09-26 20:03:14	\N	\N	\N	enrico
+113	11	-35	En Club-Mate	2015-09-26 20:03:21	\N	\N	\N	enrico
+2186	\N	-35	Club-Mate	2017-10-17 22:45:34.277105	\N	\N	\N	aevin
+114	11	-35	En Voksenbrus	2015-09-26 20:03:33	\N	\N	\N	enrico
+2187	\N	-35	Club Mate	2017-10-17 22:53:07.245285	\N	\N	\N	sshow
+2188	\N	-25	Tuborg	2017-10-17 22:53:12.325271	\N	\N	\N	sshow
+2189	\N	-70	Tuborg * 2	2017-10-22 23:32:49.882189	\N	\N	\N	sshow
+2190	\N	-50	2x Tuborg	2017-10-24 18:33:49.030227	\N	\N	\N	bezaban
+115	11	-35	En Voksenbrus	2015-09-26 21:12:34	\N	\N	\N	enrico
+118	11	-35	En Club-Mate	2015-09-26 21:40:34	\N	\N	\N	enrico
+120	11	200	Transfer with Stripe.	2015-09-26 23:19:51	\N	\N	\N	enrico
+121	11	-35	En Voksenbrus	2015-09-26 23:20:18	\N	\N	\N	enrico
+128	11	-35	En Club-Mate	2015-09-29 17:01:27	\N	\N	\N	enrico
+2191	\N	400		2017-10-24 20:04:11.342423	\N	\N	\N	bezaban
+2192	\N	-25	tuborg	2017-10-24 20:11:38.782361	\N	\N	\N	bezaban
+2193	\N	-35	tuborg	2017-10-24 20:26:54.27935	\N	\N	\N	sshow
+2194	\N	-35	club mate	2017-10-24 20:27:00.282812	\N	\N	\N	sshow
+2195	\N	-35	Club mate	2017-10-28 22:55:25.283143	\N	\N	\N	sshow
+2196	\N	-25	Tuborg	2017-10-31 19:13:39.800674	\N	\N	\N	bezaban
+2197	\N	280		2017-11-11 18:38:32.955209	\N	\N	\N	sjn
+2198	\N	-175	Club-Mate	2017-11-11 18:38:59.808828	\N	\N	\N	sjn
+2199	\N	-25	Tuborg	2017-11-11 18:39:21.379249	\N	\N	\N	sjn
+2200	\N	-105	Club Mate	2017-11-13 13:09:07.305241	\N	\N	\N	sshow
+2201	\N	500		2017-11-21 19:50:47.397453	\N	\N	\N	sshow
+2202	\N	-35	Mate	2017-11-21 19:51:23.670927	\N	\N	\N	sshow
+2203	\N	-35	Tuborg	2017-11-21 21:25:21.633352	\N	\N	\N	bezaban
+2204	\N	-15	Munkholm	2017-11-28 19:47:19.307947	\N	\N	\N	bezaban
+2205	\N	-35	Club Mate	2017-11-28 21:31:42.629576	\N	\N	\N	sshow
+2206	\N	-15	Munkholm	2017-11-28 21:33:07.833986	\N	\N	\N	bezaban
+2207	\N	-35	Club-Mate	2017-11-29 00:47:18.437793	\N	\N	\N	aevin
+2208	\N	-70	Tuborg x 2	2017-12-02 20:11:40.719662	\N	\N	\N	sshow
+2209	\N	-70	Tuborg x 2	2017-12-02 22:44:37.878213	\N	\N	\N	sshow
+2210	\N	-35	Club-Mate	2017-12-05 21:05:07.878697	\N	\N	\N	aevin
+2211	\N	-35	Club-Mate	2017-12-05 21:05:18.789414	\N	\N	\N	aevin
+2212	\N	-35	Club Mate	2017-12-05 21:37:07.722154	\N	\N	\N	sshow
+2213	\N	-70	Club Mate	2017-12-12 21:53:11.18659	\N	\N	\N	sshow
+2214	\N	-70	Tuborg x 2	2017-12-18 00:10:29.237993	\N	\N	\N	sshow
+2215	\N	-35	Club Mate	2017-12-18 00:10:41.713145	\N	\N	\N	sshow
+2223	\N	-35	Club Mate	2018-01-06 20:49:05.717119	\N	\N	\N	sshow
+2224	\N	-35	Club-Mate	2018-01-09 21:17:31.270371	\N	\N	\N	aevin
+378	1	500	Transfer with Stripe.	2015-11-16 18:38:56	\N	\N	\N	capitol
+379	1	-30	En Julmust	2015-11-16 18:39:49	\N	\N	\N	capitol
+381	1	-35	En Club-Mate	2015-11-17 16:28:58	\N	\N	\N	capitol
+398	1	-35	En Club-Mate	2015-11-21 16:09:02	\N	\N	\N	capitol
+400	1	-35	En Club-Mate	2015-11-21 18:35:47	\N	\N	\N	capitol
+412	1	-30	En Julmust	2015-11-24 16:49:11	\N	\N	\N	capitol
+420	1	-35	En Club-Mate	2015-11-25 16:25:01	\N	\N	\N	capitol
+383	3	-35	En Club-Mate	2015-11-17 17:29:21	\N	\N	\N	aevin
+388	3	-35	En Voksenbrus	2015-11-17 19:26:42	\N	\N	\N	aevin
+394	3	-30	En Julmust	2015-11-17 20:48:48	\N	\N	\N	aevin
+452	3	-35	En Club-Mate	2015-12-01 19:08:45	\N	\N	\N	aevin
+454	3	-30	En Julmust	2015-12-01 21:15:48	\N	\N	\N	aevin
+372	4	-35	En Voksenbrus	2015-11-14 21:32:30	\N	\N	\N	alpha60
+385	4	-35	En Club-Mate	2015-11-17 18:24:48	\N	\N	\N	alpha60
+395	4	-35	En Club-Mate	2015-11-19 17:03:09	\N	\N	\N	alpha60
+397	4	-35	En Club-Mate	2015-11-21 15:34:05	\N	\N	\N	alpha60
+411	4	-30	En Julmust	2015-11-23 17:27:29	\N	\N	\N	alpha60
+416	4	-35	En Club-Mate	2015-11-24 19:20:32	\N	\N	\N	alpha60
+433	4	-35	En Club-Mate	2015-11-28 17:06:23	\N	\N	\N	alpha60
+445	4	-35	En Club-Mate	2015-11-30 14:42:53	\N	\N	\N	alpha60
+448	4	-35	En Club-Mate	2015-12-01 13:42:30	\N	\N	\N	alpha60
+456	4	178	Manually added by krav.	2015-12-03 14:31:03	\N	\N	\N	alpha60
+457	4	-35	En Club-Mate	2015-12-03 15:14:09	\N	\N	\N	alpha60
+359	5	-30	En Julmust	2015-11-12 20:21:47	\N	\N	\N	lkarsten
+369	5	-30	En Julmust	2015-11-14 19:43:14	\N	\N	\N	lkarsten
+376	5	-35	En Voksenbrus	2015-11-14 22:33:33	\N	\N	\N	lkarsten
+386	5	-35	En Club-Mate	2015-11-17 18:25:17	\N	\N	\N	lkarsten
+403	5	-35	En Club-Mate	2015-11-21 20:13:41	\N	\N	\N	lkarsten
+406	5	-35	En Voksenbrus	2015-11-21 22:51:29	\N	\N	\N	lkarsten
+417	5	-35	En Voksenbrus	2015-11-24 20:38:31	\N	\N	\N	lkarsten
+443	5	-30	En Julmust	2015-11-29 21:16:16	\N	\N	\N	lkarsten
+453	5	-30	En Julmust	2015-12-01 21:12:04	\N	\N	\N	lkarsten
+363	6	-35	En Club-Mate	2015-11-14 17:06:45	\N	\N	\N	krav
+373	6	500	Transfer with Stripe.	2015-11-14 21:34:16	\N	\N	\N	krav
+374	6	-35	En Voksenbrus	2015-11-14 21:34:27	\N	\N	\N	krav
+377	6	-35	En Club-Mate	2015-11-16 14:37:39	\N	\N	\N	krav
+384	6	-35	En Club-Mate	2015-11-17 18:23:53	\N	\N	\N	krav
+396	6	-35	En Club-Mate	2015-11-20 15:27:41	\N	\N	\N	krav
+1770	\N	10		2017-01-31 19:56:12.209275	\N	\N	\N	krav
+2182	\N	777		2017-10-14 15:23:06.79698	\N	\N	\N	sshow
+2183	\N	-25	Manuell	2017-10-14 21:02:16.15536	\N	\N	\N	bezaban
+2184	\N	-25	Manuell	2017-10-14 21:02:22.852902	\N	\N	\N	bezaban
+2185	\N	-245	Club-Mate	2017-10-17 18:47:57.386106	\N	\N	\N	sjn
+2216	\N	0	javascript test	2017-12-19 21:17:33.323617	\N	\N	\N	sshow
+2225	\N	-35	Club-Mate	2018-01-09 21:17:45.253034	\N	\N	\N	aevin
+564	8	-35	En Club-Mate	2016-01-09 17:30:16	\N	\N	\N	atluxity
+565	8	-35	En Club-Mate	2016-01-09 17:30:28	\N	\N	\N	atluxity
+566	8	-35	En Club-Mate	2016-01-09 17:31:29	\N	\N	\N	atluxity
+567	8	35	Manually added by krav.	2016-01-09 18:35:20	\N	\N	\N	atluxity
+568	8	-35	En Club-Mate	2016-01-09 18:42:39	\N	\N	\N	atluxity
+580	8	-35	En Club-Mate	2016-01-13 18:35:25	\N	\N	\N	atluxity
+582	8	-35	En Club-Mate	2016-01-16 15:59:17	\N	\N	\N	atluxity
+600	8	-35	En Club-Mate	2016-01-17 00:03:35	\N	\N	\N	atluxity
+485	9	-35	En Club-Mate	2015-12-05 16:34:35	\N	\N	\N	karltk
+584	9	-35	En Club-Mate	2016-01-16 17:34:37	\N	\N	\N	karltk
+503	1	500	Transfer with Stripe.	2015-12-07 15:31:05	\N	\N	\N	capitol
+504	1	-35	En Club-Mate	2015-12-07 15:33:52	\N	\N	\N	capitol
+505	1	-35	En Club-Mate	2015-12-07 17:49:13	\N	\N	\N	capitol
+508	1	-35	En Club-Mate	2015-12-08 18:39:28	\N	\N	\N	capitol
+512	1	-30	En Julmust	2015-12-09 16:21:03	\N	\N	\N	capitol
+513	1	-30	En Julmust	2015-12-10 15:34:37	\N	\N	\N	capitol
+490	3	-35	En Club-Mate	2015-12-05 17:48:02	\N	\N	\N	aevin
+491	3	-35	En Club-Mate	2015-12-05 18:28:46	\N	\N	\N	aevin
+509	3	-35	En Club-Mate	2015-12-08 18:40:54	\N	\N	\N	aevin
+536	3	-35	En Voksenbrus	2015-12-15 18:17:15	\N	\N	\N	aevin
+548	3	-35	En Club-Mate	2016-01-05 17:08:32	\N	\N	\N	aevin
+557	3	500	Transfer with Stripe.	2016-01-05 20:35:23	\N	\N	\N	aevin
+577	3	-35	En Club-Mate	2016-01-12 17:56:27	\N	\N	\N	aevin
+578	3	-35	En Club-Mate	2016-01-12 17:58:43	\N	\N	\N	aevin
+594	3	-35	En Club-Mate	2016-01-16 21:28:54	\N	\N	\N	aevin
+598	3	-35	En Club-Mate	2016-01-16 23:59:18	\N	\N	\N	aevin
+599	3	-35	En Club-Mate	2016-01-16 23:59:34	\N	\N	\N	aevin
+502	4	-35	En Club-Mate	2015-12-07 12:24:07	\N	\N	\N	alpha60
+511	4	-35	En Club-Mate	2015-12-09 12:48:41	\N	\N	\N	alpha60
+547	4	-35	En Club-Mate	2016-01-05 16:58:48	\N	\N	\N	alpha60
+488	5	-35	En Club-Mate	2015-12-05 17:03:49	\N	\N	\N	lkarsten
+495	5	-35	En Voksenbrus	2015-12-05 21:09:31	\N	\N	\N	lkarsten
+507	5	-35	En Club-Mate	2015-12-08 18:24:53	\N	\N	\N	lkarsten
+489	6	-35	En Club-Mate	2015-12-05 17:45:02	\N	\N	\N	krav
+500	6	-35	En Club-Mate	2015-12-05 22:12:28	\N	\N	\N	krav
+501	6	-35	En Club-Mate	2015-12-07 10:28:47	\N	\N	\N	krav
+510	6	-35	En Club-Mate	2015-12-09 12:46:21	\N	\N	\N	krav
+514	6	-35	En Club-Mate	2015-12-10 19:23:40	\N	\N	\N	krav
+516	6	-35	En Club-Mate	2015-12-11 16:08:18	\N	\N	\N	krav
+518	6	-30	En Julmust	2015-12-12 13:37:09	\N	\N	\N	krav
+519	6	-30	En Julmust	2015-12-12 17:21:52	\N	\N	\N	krav
+522	6	-30	En Julmust	2015-12-12 18:20:23	\N	\N	\N	krav
+550	6	-35	En Club-Mate	2016-01-05 17:22:34	\N	\N	\N	krav
+551	6	-20	En Munkholm	2016-01-05 17:24:34	\N	\N	\N	krav
+684	8	-35	En Club-Mate	2016-01-29 18:36:43	\N	\N	\N	atluxity
+1771	\N	-35	Sagene	2017-01-31 20:03:07.277198	\N	\N	\N	krav
+1772	\N	35		2017-01-31 20:03:26.308358	\N	\N	\N	krav
+1773	\N	-20	Munkholm	2017-01-31 20:04:54.057432	\N	\N	\N	aevin
+1774	\N	500		2017-01-31 20:18:17.748979	\N	\N	\N	aevin
+1775	\N	-35	Club-Mate	2017-01-31 20:18:54.766934	\N	\N	\N	aevin
+685	8	-35	En Club-Mate	2016-01-29 21:50:29	\N	\N	\N	atluxity
+2217	\N	0	javascript test	2017-12-19 21:17:39.198807	\N	\N	\N	sshow
+2226	\N	-30	Tuborg	2018-01-13 18:02:39.766032	\N	\N	\N	bezaban
+2227	\N	-60	Tuborg x2	2018-01-13 18:03:13.282271	\N	\N	\N	bezaban
+2228	\N	-60	2x Tuborg	2018-01-16 20:02:32.075866	\N	\N	\N	bezaban
+2229	\N	-70	Club Mate x 2	2018-01-23 20:42:20.690297	\N	\N	\N	sshow
+2230	\N	350		2018-01-23 21:30:44.840173	\N	\N	\N	sjn
+2231	\N	-350	10 Club-mate	2018-01-23 21:31:40.774359	\N	\N	\N	sjn
+2232	\N	-105	3 Club-Mate	2018-01-29 21:10:29.030532	\N	\N	\N	sjn
+2233	\N	-35	Club Mate	2018-02-05 09:40:03.059663	\N	\N	\N	sshow
+2234	\N	-43	Pant	2018-02-05 09:40:11.67774	\N	\N	\N	sshow
+2235	\N	-35	Club-Mate	2018-02-06 20:00:58.492262	\N	\N	\N	aevin
+2236	\N	500		2018-02-06 20:02:00.867803	\N	\N	\N	aevin
+2237	\N	-35	Club-Mate	2018-02-06 21:08:38.031118	\N	\N	\N	aevin
+688	8	500	Transfer with Stripe.	2016-01-30 23:17:40	\N	\N	\N	atluxity
+2238	\N	-35	Club-Mate	2018-02-13 18:28:32.463399	\N	\N	\N	aevin
+2239	\N	-35	Club-Mate	2018-02-13 21:11:36.963934	\N	\N	\N	aevin
+2240	\N	-35	Tuborg	2018-02-13 21:56:10.052531	\N	\N	\N	sshow
+689	8	-35	En Club-Mate	2016-01-30 23:18:04	\N	\N	\N	atluxity
+2241	\N	-35	Club Mate	2018-02-27 20:30:49.634713	\N	\N	\N	sshow
+2242	\N	-70	Tuborg	2018-02-27 20:30:55.079858	\N	\N	\N	sshow
+2243	\N	-35	Club-Mate	2018-02-27 22:18:39.959448	\N	\N	\N	aevin
+2244	\N	-35	Tuborg	2018-03-06 19:16:18.675915	\N	\N	\N	bezaban
+2245	\N	-35	Club-Mate	2018-03-08 16:58:09.160534	\N	\N	\N	aevin
+2246	\N	-35	Club Mate	2018-03-13 18:00:24.222357	\N	\N	\N	sshow
+2247	\N	-35	Club-Mate	2018-03-13 20:24:26.311022	\N	\N	\N	aevin
+133	11	-35	En Club-Mate	2015-09-29 18:09:45	\N	\N	\N	enrico
+174	11	-35	En Voksenbrus	2015-10-06 19:49:03	\N	\N	\N	enrico
+2248	\N	700		2018-03-13 21:15:12.053996	\N	\N	\N	sjn
+175	11	-35	En Voksenbrus	2015-10-06 20:34:10	\N	\N	\N	enrico
+182	11	250	Transfer with Stripe.	2015-10-10 15:06:14	\N	\N	\N	enrico
+183	11	-35	En Club-Mate	2015-10-10 15:06:33	\N	\N	\N	enrico
+187	11	-35	En Club-Mate	2015-10-10 17:36:17	\N	\N	\N	enrico
+2249	\N	-420	12 Club mate	2018-03-13 21:15:37.412797	\N	\N	\N	sjn
+204	11	-35	En Club-Mate	2015-10-13 16:30:46	\N	\N	\N	enrico
+205	11	-35	En Club-Mate	2015-10-13 17:50:49	\N	\N	\N	enrico
+208	11	-35	En Voksenbrus	2015-10-13 19:47:12	\N	\N	\N	enrico
+232	11	-35	En Club-Mate	2015-10-18 13:46:07	\N	\N	\N	enrico
+235	11	-35	En Club-Mate	2015-10-18 15:05:48	\N	\N	\N	enrico
+601	1	-20	En Munkholm	2016-01-19 16:04:40	\N	\N	\N	capitol
+603	1	-35	En Club-Mate	2016-01-19 18:14:09	\N	\N	\N	capitol
+614	1	-20	En Munkholm	2016-01-21 16:30:01	\N	\N	\N	capitol
+651	1	-35	En Club-Mate	2016-01-23 15:23:52	\N	\N	\N	capitol
+663	1	-20	En Munkholm	2016-01-26 17:14:59	\N	\N	\N	capitol
+677	1	-20	En Munkholm	2016-01-26 20:22:58	\N	\N	\N	capitol
+686	1	-35	En Club-Mate	2016-01-30 15:40:08	\N	\N	\N	capitol
+687	1	-20	En Munkholm	2016-01-30 17:41:09	\N	\N	\N	capitol
+690	1	-35	En Club-Mate	2016-02-01 16:20:40	\N	\N	\N	capitol
+602	3	-35	En Club-Mate	2016-01-19 17:58:01	\N	\N	\N	aevin
+605	3	-35	En Club-Mate	2016-01-19 20:36:31	\N	\N	\N	aevin
+606	3	-35	En Club-Mate	2016-01-19 20:36:43	\N	\N	\N	aevin
+619	3	-35	En Club-Mate	2016-01-21 17:35:49	\N	\N	\N	aevin
+630	3	-35	En Club-Mate	2016-01-21 19:33:37	\N	\N	\N	aevin
+637	3	-30	En Tuborg	2016-01-21 21:09:10	\N	\N	\N	aevin
+666	3	-35	En Club-Mate	2016-01-26 17:35:46	\N	\N	\N	aevin
+670	3	-20	En Munkholm	2016-01-26 18:42:44	\N	\N	\N	aevin
+695	3	-35	En Club-Mate	2016-02-02 17:16:53	\N	\N	\N	aevin
+699	3	-20	En Munkholm	2016-02-02 18:42:35	\N	\N	\N	aevin
+674	4	-35	En Club-Mate	2016-01-26 19:44:39	\N	\N	\N	alpha60
+701	4	500	Transfer with Stripe.	2016-02-02 19:33:58	\N	\N	\N	alpha60
+702	4	-35	En Club-Mate	2016-02-02 19:34:36	\N	\N	\N	alpha60
+720	4	-35	En Club-Mate	2016-02-06 18:01:04	\N	\N	\N	alpha60
+631	5	200	Manually added by krav.	2016-01-21 19:50:41	\N	\N	\N	lkarsten
+661	5	-20	En Munkholm	2016-01-23 22:41:36	\N	\N	\N	lkarsten
+662	5	-30	En Tuborg	2016-01-23 22:42:03	\N	\N	\N	lkarsten
+672	5	-35	En Club-Mate	2016-01-26 19:12:10	\N	\N	\N	lkarsten
+679	5	-20	En Munkholm	2016-01-26 20:35:58	\N	\N	\N	lkarsten
+682	5	-20	En Munkholm	2016-01-26 22:34:29	\N	\N	\N	lkarsten
+691	5	-35	En Club-Mate	2016-02-01 20:47:51	\N	\N	\N	lkarsten
+625	6	500	Transfer with Stripe.	2016-01-21 18:25:40	\N	\N	\N	krav
+627	6	-35	En Club-Mate	2016-01-21 18:36:49	\N	\N	\N	krav
+628	6	3	Manually added by krav.	2016-01-21 18:37:20	\N	\N	\N	krav
+641	6	-30	En Tuborg	2016-01-21 21:52:54	\N	\N	\N	krav
+647	6	-35	En Club-Mate	2016-01-21 22:44:26	\N	\N	\N	krav
+1776	\N	-20	Munkholm	2017-01-31 20:34:04.536466	\N	\N	\N	sshow
+1777	\N	-35	Sagene	2017-01-31 20:34:39.76019	\N	\N	\N	sshow
+1778	\N	-35	Sagene	2017-01-31 20:39:54.513677	\N	\N	\N	lkarsten
+1779	\N	-35	Club-Mate	2017-01-31 20:43:20.462146	\N	\N	\N	aevin
+1780	\N	-35	Sagene	2017-02-04 17:31:17.360433	\N	\N	\N	capitol
+1781	\N	-35	Sagene	2017-02-04 20:17:29.258044	\N	\N	\N	sshow
+1782	\N	-35	Sagene	2017-02-04 20:46:23.445398	\N	\N	\N	sshow
+1783	\N	-35	Sagene	2017-02-05 19:21:27.627904	\N	\N	\N	atluxity
+724	8	-35	En Club-Mate	2016-02-06 22:32:58	\N	\N	\N	atluxity
+739	8	-35	En Club-Mate	2016-02-09 21:03:50	\N	\N	\N	atluxity
+1784	\N	-35	Sagene	2017-02-07 14:45:50.014228	\N	\N	\N	krav
+1785	\N	-35	Club-Mate	2017-02-07 18:04:00.089619	\N	\N	\N	enrico
+745	8	-35	En Club-Mate	2016-02-13 21:05:17	\N	\N	\N	atluxity
+1786	\N	-35	Sagene	2017-02-07 18:04:25.917087	\N	\N	\N	sjn
+1787	\N	-35	Sagene	2017-02-07 18:13:50.45045	\N	\N	\N	capitol
+1788	\N	-20	Munkholm	2017-02-07 19:03:25.407753	\N	\N	\N	lkarsten
+1789	\N	150		2017-02-07 19:54:17.560589	\N	\N	\N	enrico
+763	8	-35	En Club-Mate	2016-02-20 18:29:10	\N	\N	\N	atluxity
+785	8	-35	En Club-Mate	2016-02-26 15:10:00	\N	\N	\N	atluxity
+791	8	-35	En Club-Mate	2016-02-27 17:55:07	\N	\N	\N	atluxity
+1790	\N	-35	Club-Mate	2017-02-07 19:55:48.050223	\N	\N	\N	enrico
+1791	\N	-35	Sagene	2017-02-08 19:30:20.675683	\N	\N	\N	krav
+1792	\N	-35	Sagene	2017-02-11 15:49:32.229121	\N	\N	\N	capitol
+1793	\N	-20	Munkholm	2017-02-11 16:01:50.011977	\N	\N	\N	capitol
+1794	\N	-35	Club-Mate	2017-02-11 18:23:11.214245	\N	\N	\N	capitol
+1795	\N	-35	Mate	2017-02-11 18:23:17.16928	\N	\N	\N	sshow
+792	9	-35	En Club-Mate	2016-02-27 18:03:21	\N	\N	\N	karltk
+1796	\N	-20	Farris	2017-02-11 23:29:25.03664	\N	\N	\N	sshow
+2218	\N	0	javascript test	2017-12-19 21:20:21.789455	\N	\N	\N	sshow
+236	11	200	Transfer with Stripe.	2015-10-18 15:21:44	\N	\N	\N	enrico
+726	1	-35	En Club-Mate	2016-02-08 16:53:16	\N	\N	\N	capitol
+729	1	-35	En Club-Mate	2016-02-09 16:36:13	\N	\N	\N	capitol
+735	1	-20	En Munkholm	2016-02-09 20:04:23	\N	\N	\N	capitol
+747	1	500	Transfer with Stripe.	2016-02-16 17:01:04	\N	\N	\N	capitol
+748	1	-35	En Club-Mate	2016-02-16 17:01:23	\N	\N	\N	capitol
+755	1	-35	En Club-Mate	2016-02-20 11:30:59	\N	\N	\N	capitol
+756	1	-35	En Club-Mate	2016-02-20 13:49:23	\N	\N	\N	capitol
+757	1	-20	En Munkholm	2016-02-20 16:17:41	\N	\N	\N	capitol
+746	3	-35	En Club-Mate	2016-02-16 16:46:57	\N	\N	\N	aevin
+750	3	-35	En Club-Mate	2016-02-16 18:21:18	\N	\N	\N	aevin
+781	3	-35	En Club-Mate	2016-02-23 18:15:14	\N	\N	\N	aevin
+783	3	-35	En Sagene p1lz	2016-02-23 19:41:19	\N	\N	\N	aevin
+784	3	500	Transfer with Stripe.	2016-02-23 19:47:01	\N	\N	\N	aevin
+808	3	-35	En Club-Mate	2016-03-01 19:02:58	\N	\N	\N	aevin
+836	3	-35	En Club-Mate	2016-03-08 18:15:04	\N	\N	\N	aevin
+788	4	-35	En Club-Mate	2016-02-27 17:20:21	\N	\N	\N	alpha60
+805	4	-35	En Club-Mate	2016-03-01 17:56:24	\N	\N	\N	alpha60
+793	6	300	Transfer with Stripe.	2016-02-27 18:12:56	\N	\N	\N	krav
+794	6	-35	En Club-Mate	2016-02-27 18:14:14	\N	\N	\N	krav
+797	6	-35	En Club-Mate	2016-02-27 22:07:04	\N	\N	\N	krav
+798	6	-35	En Club-Mate	2016-02-27 22:07:17	\N	\N	\N	krav
+804	6	-35	En Club-Mate	2016-03-01 17:56:06	\N	\N	\N	krav
+814	6	-35	En Club-Mate	2016-03-01 21:53:48	\N	\N	\N	krav
+828	6	-35	En Club-Mate	2016-03-04 12:40:13	\N	\N	\N	krav
+841	6	-35	En Club-Mate	2016-03-12 13:25:14	\N	\N	\N	krav
+842	6	-35	En Club-Mate	2016-03-12 13:35:38	\N	\N	\N	krav
+1797	\N	-20	Munkholm	2017-02-14 17:43:21.479966	\N	\N	\N	krav
+1798	\N	20		2017-02-14 17:43:35.451903	\N	\N	\N	krav
+1799	\N	-20	Munkholm	2017-02-14 17:44:17.54141	\N	\N	\N	capitol
+895	8	-35	En Club-Mate	2016-03-19 16:00:34	\N	\N	\N	atluxity
+1800	\N	-35	Club-Mate	2017-02-14 17:52:41.458712	\N	\N	\N	enrico
+900	8	-35	En Club-Mate	2016-03-19 19:17:41	\N	\N	\N	atluxity
+1801	\N	-35	Club-Mate	2017-02-14 18:58:26.846034	\N	\N	\N	enrico
+1802	\N	-17	Julebrus	2017-02-14 20:05:42.674093	\N	\N	\N	sshow
+1803	\N	-3	Farris (mellomlegg)	2017-02-14 20:25:24.82769	\N	\N	\N	sshow
+1804	\N	-35	Sagene	2017-02-14 20:55:24.40596	\N	\N	\N	aevin
+914	8	-35	En Club-Mate	2016-03-26 20:53:12	\N	\N	\N	atluxity
+899	9	-35	En Club-Mate	2016-03-19 18:49:39	\N	\N	\N	karltk
+2219	\N	0	javascript test	2017-12-19 21:25:04.108585	\N	\N	\N	sshow
+867	10	-35	En Club-Mate	2016-03-15 18:07:20	\N	\N	\N	sjn
+870	10	-35	En Club-Mate	2016-03-15 20:52:22	\N	\N	\N	sjn
+893	10	-35	En Club-Mate	2016-03-19 14:23:25	\N	\N	\N	sjn
+903	10	-35	En Club-Mate	2016-03-22 18:25:29	\N	\N	\N	sjn
+901	15	-20	En Munkholm	2016-03-19 21:16:47	\N	\N	\N	tazjin
+868	3	-35	En Club-Mate	2016-03-15 18:32:42	\N	\N	\N	aevin
+916	3	-20	En Munkholm	2016-04-05 17:12:58	\N	\N	\N	aevin
+920	3	-30	En Tuborg	2016-04-05 18:57:56	\N	\N	\N	aevin
+951	3	-35	En Club-Mate	2016-04-23 18:09:24	\N	\N	\N	aevin
+954	3	-20	En Munkholm	2016-04-23 21:17:13	\N	\N	\N	aevin
+961	3	-35	En Club-Mate	2016-04-26 19:27:43	\N	\N	\N	aevin
+962	3	-35	En Club-Mate	2016-04-26 19:40:06	\N	\N	\N	aevin
+849	4	-35	En Sagene p1lz	2016-03-12 17:13:00	\N	\N	\N	alpha60
+850	4	-35	En Sagene p1lz	2016-03-12 17:14:36	\N	\N	\N	alpha60
+855	4	-35	En Sagene p1lz	2016-03-12 19:58:17	\N	\N	\N	alpha60
+860	4	-35	En Club-Mate	2016-03-12 22:26:27	\N	\N	\N	alpha60
+861	4	-35	En Club-Mate	2016-03-12 22:26:40	\N	\N	\N	alpha60
+862	4	-35	En Club-Mate	2016-03-12 22:26:58	\N	\N	\N	alpha60
+863	4	-35	En Club-Mate	2016-03-12 22:28:23	\N	\N	\N	alpha60
+864	4	-35	En Club-Mate	2016-03-12 22:28:37	\N	\N	\N	alpha60
+853	5	500	Transfer with Stripe.	2016-03-12 18:30:27	\N	\N	\N	lkarsten
+854	5	-35	En Sagene p1lz	2016-03-12 18:48:33	\N	\N	\N	lkarsten
+856	5	-35	En Club-Mate	2016-03-12 20:03:41	\N	\N	\N	lkarsten
+859	5	-35	En Sagene p1lz	2016-03-12 22:10:36	\N	\N	\N	lkarsten
+869	5	-35	En Club-Mate	2016-03-15 20:29:44	\N	\N	\N	lkarsten
+896	5	-35	En Club-Mate	2016-03-19 17:07:09	\N	\N	\N	lkarsten
+897	5	-35	En Club-Mate	2016-03-19 17:10:45	\N	\N	\N	lkarsten
+932	5	-35	En Club-Mate	2016-04-16 19:59:09	\N	\N	\N	lkarsten
+933	5	-35	En Club-Mate	2016-04-16 20:31:12	\N	\N	\N	lkarsten
+847	6	-35	En Sagene p1lz	2016-03-12 15:37:59	\N	\N	\N	krav
+880	6	500	Transfer with Stripe.	2016-03-17 20:18:45	\N	\N	\N	krav
+881	6	-35	En Club-Mate	2016-03-17 20:20:16	\N	\N	\N	krav
+882	6	-35	En Club-Mate	2016-03-17 20:20:27	\N	\N	\N	krav
+883	6	-35	En Club-Mate	2016-03-17 20:20:40	\N	\N	\N	krav
+888	6	-35	En Club-Mate	2016-03-18 12:01:23	\N	\N	\N	krav
+925	6	-35	En Club-Mate	2016-04-15 06:52:31	\N	\N	\N	krav
+941	6	-35	En Club-Mate	2016-04-19 17:43:45	\N	\N	\N	krav
+945	6	-35	En Club-Mate	2016-04-19 19:11:53	\N	\N	\N	krav
+1805	\N	-20	Munkholm	2017-02-14 22:41:39.186681	\N	\N	\N	aevin
+980	8	-35	En Club-Mate	2016-04-30 17:26:17	\N	\N	\N	atluxity
+1806	\N	-20	Farris	2017-02-17 18:07:52.049448	\N	\N	\N	enrico
+988	8	-35	En Club-Mate	2016-04-30 19:35:45	\N	\N	\N	atluxity
+991	8	-35	En Club-Mate	2016-04-30 21:03:36	\N	\N	\N	atluxity
+1016	8	-35	En Club-Mate	2016-05-07 21:05:20	\N	\N	\N	atluxity
+1021	8	500	Transfer with Stripe.	2016-05-07 21:20:25	\N	\N	\N	atluxity
+1807	\N	-20	Farris	2017-02-17 19:11:14.063404	\N	\N	\N	enrico
+1808	\N	-35	Club-Mate	2017-02-18 20:23:31.637115	\N	\N	\N	capitol
+1809	\N	-35	Club-Mate	2017-02-18 20:40:16.666097	\N	\N	\N	capitol
+1810	\N	-35	Club-Mate	2017-02-18 20:40:26.030288	\N	\N	\N	capitol
+1811	\N	-35	Club-Mate	2017-02-21 19:09:08.443695	\N	\N	\N	capitol
+1812	\N	-20	Farris	2017-02-21 21:33:05.604409	\N	\N	\N	sshow
+1813	\N	-35	Mate	2017-02-21 21:33:32.120077	\N	\N	\N	sshow
+1814	\N	500		2017-02-21 21:34:15.411037	\N	\N	\N	sshow
+1815	\N	-20	Munkholm	2017-02-21 21:55:17.751848	\N	\N	\N	sshow
+1816	\N	-20	Munkholm	2017-02-21 21:58:13.711887	\N	\N	\N	aevin
+1817	\N	-90		2017-02-24 16:34:10.91928	\N	\N	\N	krav
+1022	8	-105	Took manually 1bear and 2club mate 	2016-05-07 21:21:51	\N	\N	\N	atluxity
+1818	\N	-35	Club-Mate	2017-02-25 13:27:15.770126	\N	\N	\N	capitol
+1040	8	-35	En Club-Mate	2016-05-14 15:02:35	\N	\N	\N	atluxity
+2220	\N	0	javascript test	2017-12-19 21:25:54.554131	\N	\N	\N	sshow
+1041	8	-35	En Club-Mate	2016-05-14 15:03:06	\N	\N	\N	atluxity
+1047	8	-35	En Club-Mate	2016-05-14 21:42:03	\N	\N	\N	atluxity
+967	10	500	Transfer with Stripe.	2016-04-29 11:55:00	\N	\N	\N	sjn
+1002	10	-35	En Club-Mate	2016-05-03 16:00:30	\N	\N	\N	sjn
+1004	10	-35	En Club-Mate	2016-05-03 17:38:10	\N	\N	\N	sjn
+1008	10	-35	En Club-Mate	2016-05-05 12:19:59	\N	\N	\N	sjn
+1010	10	-35	En Club-Mate	2016-05-07 15:29:31	\N	\N	\N	sjn
+1017	10	-35	En Club-Mate	2016-05-07 21:10:00	\N	\N	\N	sjn
+1023	10	-35	En Club-Mate	2016-05-08 15:33:15	\N	\N	\N	sjn
+1024	10	-35	En Club-Mate	2016-05-08 17:32:30	\N	\N	\N	sjn
+1027	10	-35	En Club-Mate	2016-05-10 16:42:52	\N	\N	\N	sjn
+1062	10	-35	En Club-Mate	2016-05-21 18:58:46	\N	\N	\N	sjn
+1066	10	-35	En Club-Mate	2016-05-21 20:04:30	\N	\N	\N	sjn
+1070	10	-35	En Club-Mate	2016-05-23 17:42:19	\N	\N	\N	sjn
+1080	10	-35	En Club-Mate	2016-05-24 19:21:51	\N	\N	\N	sjn
+237	11	-35	En Club-Mate	2015-10-18 15:21:50	\N	\N	\N	enrico
+238	11	-35	En Club-Mate	2015-10-18 16:52:47	\N	\N	\N	enrico
+240	11	-35	En Voksenbrus	2015-10-18 18:48:06	\N	\N	\N	enrico
+245	11	-35	En Club-Mate	2015-10-22 15:23:29	\N	\N	\N	enrico
+1003	3	-35	En Club-Mate	2016-05-03 16:12:17	\N	\N	\N	aevin
+1060	3	-35	En Club-Mate	2016-05-21 16:27:49	\N	\N	\N	aevin
+1065	3	-35	En Club-Mate	2016-05-21 19:10:32	\N	\N	\N	aevin
+1067	3	-35	En Sagene p1lz	2016-05-21 20:10:19	\N	\N	\N	aevin
+1068	3	-35	En Sagene p1lz	2016-05-21 20:40:39	\N	\N	\N	aevin
+1069	3	-35	En Sagene p1lz	2016-05-21 20:40:51	\N	\N	\N	aevin
+1077	3	-35	En Club-Mate	2016-05-24 17:41:00	\N	\N	\N	aevin
+976	4	-35	En Club-Mate	2016-04-30 15:24:13	\N	\N	\N	alpha60
+1053	4	-35	En Club-Mate	2016-05-20 18:15:49	\N	\N	\N	alpha60
+1059	4	500	Transfer with Stripe.	2016-05-21 16:25:22	\N	\N	\N	alpha60
+1061	4	-35	En Club-Mate	2016-05-21 16:40:55	\N	\N	\N	alpha60
+1074	4	-35	En Club-Mate	2016-05-24 17:00:28	\N	\N	\N	alpha60
+1079	5	-35	En Club-Mate	2016-05-24 18:24:57	\N	\N	\N	lkarsten
+964	6	-35	En Club-Mate	2016-04-27 18:03:25	\N	\N	\N	krav
+965	6	-35	En Club-Mate	2016-04-27 18:51:18	\N	\N	\N	krav
+966	6	-35	En Club-Mate	2016-04-28 06:54:12	\N	\N	\N	krav
+974	6	-35	En Club-Mate	2016-04-30 13:42:09	\N	\N	\N	krav
+975	6	-35	En Club-Mate	2016-04-30 13:42:25	\N	\N	\N	krav
+985	6	300	Transfer with Stripe.	2016-04-30 19:25:29	\N	\N	\N	krav
+986	6	-35	En Club-Mate	2016-04-30 19:26:37	\N	\N	\N	krav
+987	6	-35	En Club-Mate	2016-04-30 19:26:53	\N	\N	\N	krav
+992	6	-35	En Club-Mate	2016-04-30 21:11:23	\N	\N	\N	krav
+993	6	-35	En Club-Mate	2016-04-30 21:11:36	\N	\N	\N	krav
+996	6	-35	En Club-Mate	2016-04-30 22:27:48	\N	\N	\N	krav
+1819	\N	35		2017-02-25 14:43:55.370115	\N	\N	\N	krav
+1820	\N	-35	Sagene	2017-02-25 14:44:02.919297	\N	\N	\N	krav
+1821	\N	-35	Sagene	2017-02-25 15:20:18.944455	\N	\N	\N	atluxity
+1822	\N	250		2017-02-25 15:23:00.905361	\N	\N	\N	tazjin
+1823	\N	-35	Sagene	2017-02-25 15:23:08.91959	\N	\N	\N	tazjin
+1091	8	-35	En Club-Mate	2016-05-31 15:32:26	\N	\N	\N	atluxity
+1097	8	-35	En Club-Mate	2016-05-31 16:18:49	\N	\N	\N	atluxity
+1824	\N	-35	Sagene	2017-02-25 16:42:27.663354	\N	\N	\N	tazjin
+1825	\N	-35	Club-Mate	2017-02-25 18:03:55.792352	\N	\N	\N	krav
+1104	8	-35	En Club-Mate	2016-06-03 08:28:22	\N	\N	\N	atluxity
+1120	8	-35	En Club-Mate	2016-06-07 16:47:14	\N	\N	\N	atluxity
+1121	8	-35	En Club-Mate	2016-06-07 16:52:30	\N	\N	\N	atluxity
+1122	8	35	Manually added by krav.	2016-06-07 16:52:49	\N	\N	\N	atluxity
+1826	\N	-35	Sagene	2017-02-25 18:05:01.891443	\N	\N	\N	sjn
+1827	\N	-35	Sagene	2017-02-25 18:05:39.218219	\N	\N	\N	capitol
+1123	8	-35	En Club-Mate	2016-06-07 16:58:23	\N	\N	\N	atluxity
+1134	8	-35	En Club-Mate	2016-06-07 19:41:05	\N	\N	\N	atluxity
+1155	8	-35	En Club-Mate	2016-06-18 13:14:29	\N	\N	\N	atluxity
+1828	\N	-35	Sagene	2017-02-25 18:58:33.500872	\N	\N	\N	atluxity
+1157	8	-35	En Club-Mate	2016-06-18 15:37:48	\N	\N	\N	atluxity
+1186	8	500	Transfer with Stripe.	2016-06-26 15:35:44.307584	\N	\N	\N	atluxity
+1829	\N	-35	Sagene	2017-02-25 21:40:50.295766	\N	\N	\N	sshow
+1187	8	-35	En Club-Mate	2016-06-26 15:36:21.577271	\N	\N	\N	atluxity
+1188	8	-35	Club-Mate	2016-06-26 15:37:12.007918	\N	\N	\N	atluxity
+1830	\N	-35	Sagene	2017-02-28 18:01:17.762135	\N	\N	\N	capitol
+1831	\N	-20	Munkholm	2017-02-28 18:28:35.131505	\N	\N	\N	
+1832	\N	-20	Munkholm	2017-02-28 18:29:27.729105	\N	\N	\N	bezaban
+1833	\N	-20	Munkholm	2017-02-28 20:45:18.290966	\N	\N	\N	aevin
+1189	8	-35	Club-Mate	2016-06-26 15:37:23.865084	\N	\N	\N	atluxity
+1834	\N	375		2017-02-28 20:59:04.641238	\N	\N	\N	enrico
+1835	\N	-35	Club-Mate	2017-02-28 20:59:07.099436	\N	\N	\N	enrico
+1836	\N	-35	Club-Mate	2017-02-28 21:18:59.434489	\N	\N	\N	enrico
+1837	\N	-35	Club-Mate	2017-02-28 22:05:21.152707	\N	\N	\N	enrico
+1114	10	-35	En Club-Mate	2016-06-04 16:45:42	\N	\N	\N	sjn
+1115	10	-35	En Club-Mate	2016-06-04 17:27:03	\N	\N	\N	sjn
+246	11	-35	En Club-Mate	2015-10-22 15:24:28	\N	\N	\N	enrico
+1838	\N	-35	Club-Mate	2017-02-28 22:05:44.269546	\N	\N	\N	aevin
+247	11	-35	En Club-Mate	2015-10-22 15:24:37	\N	\N	\N	enrico
+250	11	70	kilt seg	2015-10-22 16:23:27	\N	\N	\N	enrico
+251	11	-35	En Club-Mate	2015-10-22 16:29:41	\N	\N	\N	enrico
+253	11	-35	En Voksenbrus	2015-10-22 19:35:36	\N	\N	\N	enrico
+256	11	50	Transfer with Stripe.	2015-10-22 21:31:58	\N	\N	\N	enrico
+257	11	-35	En Voksenbrus	2015-10-22 21:32:07	\N	\N	\N	enrico
+261	11	-35	En Voksenbrus	2015-10-22 22:26:21	\N	\N	\N	enrico
+314	11	500	Transfer with Stripe.	2015-11-04 18:22:06	\N	\N	\N	enrico
+1839	\N	-35	Club-Mate	2017-02-28 23:18:59.383209	\N	\N	\N	enrico
+1840	\N	-35	Sagene	2017-03-04 17:47:22.138568	\N	\N	\N	capitol
+1841	\N	-35	Club-Mate	2017-03-04 18:39:15.810199	\N	\N	\N	enrico
+1842	\N	-35	Sagene	2017-03-04 19:55:48.652777	\N	\N	\N	tazjin
+1843	\N	-35	Club-Mate	2017-03-04 20:20:49.850208	\N	\N	\N	enrico
+1844	\N	-20	Munkholm	2017-03-04 20:56:55.293308	\N	\N	\N	capitol
+1845	\N	500		2017-03-04 20:58:54.146919	\N	\N	\N	capitol
+1846	\N	-35	Sagene	2017-03-04 20:59:08.589751	\N	\N	\N	capitol
+1081	3	500	Transfer with Stripe.	2016-05-24 19:23:10	\N	\N	\N	aevin
+1847	\N	-20	Munkholm	2017-03-04 20:59:20.617258	\N	\N	\N	capitol
+1848	\N	-20	Farris	2017-03-05 01:18:57.213998	\N	\N	\N	enrico
+1849	\N	-20	Farris	2017-03-05 02:11:46.427204	\N	\N	\N	sshow
+1850	\N	-20	Farris	2017-03-07 17:19:35.923154	\N	\N	\N	aevin
+1851	\N	-35	Sagene	2017-03-07 17:21:30.060954	\N	\N	\N	aevin
+1852	\N	-35	Sagene	2017-03-07 17:32:39.772232	\N	\N	\N	sshow
+1853	\N	-35	Club-Mate	2017-03-07 18:05:37.343013	\N	\N	\N	enrico
+1854	\N	-35	Sagene	2017-03-07 18:19:09.59046	\N	\N	\N	capitol
+1855	\N	-35	Sagene	2017-03-07 18:27:27.817746	\N	\N	\N	aevin
+1856	\N	-35	Club-Mate	2017-03-07 18:41:55.786414	\N	\N	\N	enrico
+1857	\N	-35	Club-Mate	2017-03-07 19:15:29.531848	\N	\N	\N	enrico
+1858	\N	-35	Sagene	2017-03-07 20:27:56.693741	\N	\N	\N	sshow
+1859	\N	-20	Munkholm	2017-03-07 22:50:58.889251	\N	\N	\N	aevin
+1860	\N	-35	Sagene	2017-03-11 17:49:50.49103	\N	\N	\N	sshow
+1861	\N	-35	Sagene	2017-03-11 19:35:20.651335	\N	\N	\N	capitol
+1083	3	-35	En Club-Mate	2016-05-24 20:07:33	\N	\N	\N	aevin
+1098	3	-35	En Club-Mate	2016-05-31 17:10:33	\N	\N	\N	aevin
+1127	3	-35	En Club-Mate	2016-06-07 17:23:58	\N	\N	\N	aevin
+1151	3	-35	En Club-Mate	2016-06-14 17:44:17	\N	\N	\N	aevin
+1152	3	-20	En Munkholm	2016-06-14 18:50:02	\N	\N	\N	aevin
+1180	3	-35	Club-Mate	2016-06-21 19:17:39.49383	\N	\N	\N	aevin
+1092	4	-35	En Club-Mate	2016-05-31 15:38:43	\N	\N	\N	alpha60
+1093	4	-35	En Club-Mate	2016-05-31 15:40:24	\N	\N	\N	alpha60
+1094	4	35	Manually added by krav.	2016-05-31 15:41:09	\N	\N	\N	alpha60
+1102	4	-35	En Club-Mate	2016-05-31 18:50:34	\N	\N	\N	alpha60
+1129	4	-35	En Club-Mate	2016-06-07 17:52:54	\N	\N	\N	alpha60
+1145	4	-35	En Club-Mate	2016-06-12 17:58:37	\N	\N	\N	alpha60
+1146	4	-35	En Club-Mate	2016-06-13 13:00:34	\N	\N	\N	alpha60
+1193	4	-35	Club-Mate	2016-06-28 18:07:10.214248	\N	\N	\N	alpha60
+1194	4	-35	Club-Mate	2016-06-28 18:07:23.042334	\N	\N	\N	alpha60
+1085	5	-35	En Club-Mate	2016-05-24 21:16:32	\N	\N	\N	lkarsten
+1103	5	-35	En Club-Mate	2016-05-31 19:12:33	\N	\N	\N	lkarsten
+1126	5	-35	En Club-Mate	2016-06-07 17:23:40	\N	\N	\N	lkarsten
+1198	5	200	Transfer with Stripe.	2016-06-28 20:18:02.16572	\N	\N	\N	lkarsten
+1199	5	-35	en mate tatt ut manuelt	2016-06-28 20:19:39.939827	\N	\N	\N	lkarsten
+1084	6	-35	En Club-Mate	2016-05-24 20:24:47	\N	\N	\N	krav
+1090	6	-35	En Club-Mate	2016-05-31 15:30:47	\N	\N	\N	krav
+1101	6	-35	En Club-Mate	2016-05-31 18:47:07	\N	\N	\N	krav
+1107	6	-35	En Club-Mate	2016-06-04 11:40:18	\N	\N	\N	krav
+1109	6	-35	En Club-Mate	2016-06-04 13:51:43	\N	\N	\N	krav
+1110	6	-35	En Club-Mate	2016-06-04 14:20:05	\N	\N	\N	krav
+1111	6	-35	En Club-Mate	2016-06-04 15:27:57	\N	\N	\N	krav
+1113	6	-35	En Club-Mate	2016-06-04 16:31:53	\N	\N	\N	krav
+1124	6	-35	En Club-Mate	2016-06-07 17:10:00	\N	\N	\N	krav
+1125	6	-35	En Club-Mate	2016-06-07 17:23:10	\N	\N	\N	krav
+1862	\N	-35	Sagene	2017-03-11 21:09:55.977913	\N	\N	\N	enrico
+1202	8	-35	Club-Mate	2016-07-03 18:47:30.920363	\N	\N	\N	atluxity
+1231	8	-35	Club-Mate	2016-07-12 18:19:17.724247	\N	\N	\N	atluxity
+1863	\N	100		2017-03-11 21:27:27.943542	\N	\N	\N	fnords
+1232	8	-35	Club-Mate	2016-07-12 18:19:52.724987	\N	\N	\N	atluxity
+1864	\N	-35	Sagene	2017-03-11 21:28:32.19238	\N	\N	\N	fnords
+1865	\N	-20	Farris	2017-03-11 21:30:49.991208	\N	\N	\N	lkarsten
+1866	\N	-20	Munkholm	2017-03-11 21:58:24.210594	\N	\N	\N	capitol
+1867	\N	70		2017-03-11 22:44:50.333867	\N	\N	\N	eyolv
+1868	\N	-70		2017-03-11 22:45:06.89799	\N	\N	\N	eyolv
+1869	\N	70		2017-03-11 22:45:12.291576	\N	\N	\N	krav
+1870	\N	-20	Farris	2017-03-11 22:45:17.227577	\N	\N	\N	krav
+1233	8	-35	Club-Mate	2016-07-12 18:28:06.180914	\N	\N	\N	atluxity
+1871	\N	-70		2017-03-11 22:45:37.720829	\N	\N	\N	krav
+1872	\N	174		2017-03-11 22:52:04.885104	\N	\N	\N	krav
+1873	\N	-20	Farris	2017-03-11 22:59:10.395104	\N	\N	\N	enrico
+1874	\N	-20	Farris	2017-03-12 00:45:47.449473	\N	\N	\N	sshow
+1240	8	-25	Tuborg	2016-07-12 21:24:55.439389	\N	\N	\N	atluxity
+1875	\N	-35	Sagene	2017-03-12 16:06:28.983495	\N	\N	\N	comotion
+1876	\N	-35	Sagene	2017-03-14 17:37:16.412108	\N	\N	\N	capitol
+1877	\N	-35	Sagene	2017-03-14 22:25:59.129703	\N	\N	\N	sshow
+1878	\N	-35	Sagene	2017-03-18 17:45:34.490302	\N	\N	\N	capitol
+1879	\N	-35	Sagene	2017-03-21 17:18:53.675817	\N	\N	\N	capitol
+1880	\N	-20	Munkholm	2017-03-21 20:08:45.564593	\N	\N	\N	capitol
+1881	\N	-20	Munkholm	2017-03-21 20:21:49.307289	\N	\N	\N	bezaban
+1882	\N	-35	Sagene	2017-03-24 22:20:00.289486	\N	\N	\N	krav
+1241	8	-35	Club-Mate	2016-07-12 21:29:08.756115	\N	\N	\N	atluxity
+1883	\N	-35	Sagene	2017-03-25 15:10:18.576254	\N	\N	\N	capitol
+1884	\N	-20	Munkholm	2017-03-25 18:17:34.951872	\N	\N	\N	capitol
+1885	\N	-35	Sagene	2017-03-25 20:39:39.267079	\N	\N	\N	sshow
+1243	8	-35	Club-Mate	2016-07-12 21:40:53.143465	\N	\N	\N	atluxity
+1244	8	-35	Club-Mate	2016-07-12 21:57:35.752343	\N	\N	\N	atluxity
+1249	8	-35	Club-Mate	2016-07-15 19:45:26.54726	\N	\N	\N	atluxity
+1251	8	145	Indizk	2016-07-15 20:11:25.395391	\N	\N	\N	atluxity
+1254	8	-35	Club-Mate	2016-07-15 20:49:32.749307	\N	\N	\N	atluxity
+1256	8	-35	Club-Mate	2016-07-16 13:18:44.421566	\N	\N	\N	atluxity
+1257	8	-35	Club-Mate	2016-07-16 14:02:01.75394	\N	\N	\N	atluxity
+1886	\N	-35	Sagene	2017-03-28 18:37:10.265431	\N	\N	\N	capitol
+1263	8	-35	Club-Mate	2016-08-04 21:44:35.741879	\N	\N	\N	atluxity
+1268	8	-35	Club-Mate	2016-08-06 15:03:08.334015	\N	\N	\N	atluxity
+1269	8	-35	Club-Mate	2016-08-06 15:03:16.571411	\N	\N	\N	atluxity
+1270	8	-35	Club-Mate	2016-08-06 15:03:25.809187	\N	\N	\N	atluxity
+1271	8	500	Transfer with Stripe.	2016-08-06 16:49:39.431812	\N	\N	\N	atluxity
+1272	8	-35	Club-Mate	2016-08-06 16:49:45.981714	\N	\N	\N	atluxity
+1887	\N	-20	Munkholm	2017-03-28 20:33:11.642746	\N	\N	\N	bezaban
+1888	\N	-20	Munkholm	2017-03-28 21:23:34.559208	\N	\N	\N	capitol
+1273	8	-35	Club-Mate	2016-08-06 17:31:22.140292	\N	\N	\N	atluxity
+1889	\N	-20	Munkholm	2017-03-28 21:43:17.826412	\N	\N	\N	sshow
+1890	\N	-35	Sagene	2017-04-01 15:26:07.935628	\N	\N	\N	capitol
+1274	8	-35	Club-Mate	2016-08-06 18:01:24.912683	\N	\N	\N	atluxity
+1891	\N	-35	Sagene	2017-04-01 15:41:08.693164	\N	\N	\N	enrico
+1892	\N	-20	Munkholm	2017-04-01 15:50:07.434037	\N	\N	\N	bezaban
+1893	\N	200		2017-04-01 17:00:56.006246	\N	\N	\N	enrico
+1894	\N	-20	Farris	2017-04-01 17:01:11.59034	\N	\N	\N	enrico
+1895	\N	-20	Munkholm	2017-04-01 17:08:00.27283	\N	\N	\N	capitol
+1896	\N	-20	Munkholm	2017-04-01 17:41:51.104273	\N	\N	\N	aevin
+1897	\N	-20	Farris	2017-04-01 17:52:50.564369	\N	\N	\N	sshow
+1898	\N	-20	Farris	2017-04-01 17:54:35.348324	\N	\N	\N	enrico
+1899	\N	-35	Sagene	2017-04-01 18:22:36.190251	\N	\N	\N	fnords
+1900	\N	-35	Sagene	2017-04-01 19:46:41.897305	\N	\N	\N	capitol
+1901	\N	-35	Sagene	2017-04-01 20:31:48.882773	\N	\N	\N	aevin
+1902	\N	-20	Farris	2017-04-01 20:41:22.411701	\N	\N	\N	enrico
+1903	\N	-35	Sagene	2017-04-02 14:00:31.716809	\N	\N	\N	atluxity
+1904	\N	-35	Sagene	2017-04-02 14:50:37.086293	\N	\N	\N	comotion
+1905	\N	-20	Farris	2017-04-04 17:36:32.290348	\N	\N	\N	enrico
+1906	\N	-20	Munkholm	2017-04-04 17:38:09.276117	\N	\N	\N	enrico
+1907	\N	-35	Sagene	2017-04-04 18:31:52.744091	\N	\N	\N	aevin
+1908	\N	-35	Sagene	2017-04-04 18:34:05.665319	\N	\N	\N	capitol
+1909	\N	-35	Sagene	2017-04-04 19:18:17.719769	\N	\N	\N	sshow
+1910	\N	-20	Farris	2017-04-04 19:26:59.507986	\N	\N	\N	fnords
+1911	\N	-35	Sagene	2017-04-04 22:12:10.97245	\N	\N	\N	aevin
+1208	3	-35	Club-Mate	2016-07-05 18:28:53.400715	\N	\N	\N	aevin
+1242	3	-35	Club-Mate	2016-07-12 21:34:00.2982	\N	\N	\N	aevin
+1245	3	-35	Club-Mate	2016-07-12 22:19:04.386706	\N	\N	\N	aevin
+1280	3	-35	Club-Mate	2016-08-09 21:14:56.055926	\N	\N	\N	aevin
+1315	3	-35	Club-Mate	2016-09-06 18:40:53.588393	\N	\N	\N	aevin
+1318	3	-35	Club-Mate	2016-09-06 20:34:44.770738	\N	\N	\N	aevin
+1323	3	-35	Club-Mate	2016-09-10 20:10:42.504838	\N	\N	\N	aevin
+1326	3	450	Transfer with Stripe.	2016-09-10 20:42:46.006128	\N	\N	\N	aevin
+1334	3	-35	Club-Mate	2016-09-13 21:09:46.634014	\N	\N	\N	aevin
+1281	4	-35	Club-Mate	2016-08-09 21:27:31.835252	\N	\N	\N	alpha60
+1283	4	-35	Club-Mate	2016-08-13 18:35:29.47684	\N	\N	\N	alpha60
+1289	4	-35	Club-Mate	2016-08-21 20:37:42.964387	\N	\N	\N	alpha60
+1293	4	-35	Club-Mate	2016-08-23 20:27:53.998045	\N	\N	\N	alpha60
+1303	4	-35	Club-Mate	2016-08-30 19:52:23.21596	\N	\N	\N	alpha60
+1312	4	-35	Club-Mate	2016-09-06 17:47:34.237651	\N	\N	\N	alpha60
+1321	4	346	Manually added by krav.	2016-09-10 16:57:52.778795	\N	\N	\N	alpha60
+1322	4	-35	Club-Mate	2016-09-10 17:00:43.021274	\N	\N	\N	alpha60
+1220	5	-35	Club-Mate	2016-07-09 20:09:28.032958	\N	\N	\N	lkarsten
+1224	5	-25	Tuborg	2016-07-09 22:44:41.178437	\N	\N	\N	lkarsten
+1235	5	-35	Club-Mate	2016-07-12 20:49:54.644833	\N	\N	\N	lkarsten
+1325	5	-35	Club-Mate	2016-09-10 20:41:37.1548	\N	\N	\N	lkarsten
+1331	5	-25	Tuborg	2016-09-13 20:19:30.508397	\N	\N	\N	lkarsten
+1203	6	-35		2016-07-04 17:07:02.284492	\N	\N	\N	krav
+1206	6	500	Kæsj	2016-07-05 17:39:17.42449	\N	\N	\N	krav
+1207	6	-35	Club-Mate	2016-07-05 17:39:29.390173	\N	\N	\N	krav
+1210	6	-35	Club-Mate	2016-07-08 09:21:32.757659	\N	\N	\N	krav
+1211	6	-25	Tuborg	2016-07-08 17:11:07.70879	\N	\N	\N	krav
+1222	6	-25	Tuborg	2016-07-09 21:58:39.214655	\N	\N	\N	krav
+1223	6	21	kæsj	2016-07-09 21:59:34.74816	\N	\N	\N	krav
+1225	6	-25	Tuborg	2016-07-09 22:58:12.070457	\N	\N	\N	krav
+1248	6	-35	Club-Mate	2016-07-15 16:21:18.376803	\N	\N	\N	krav
+1250	6	-35	Club-Mate	2016-07-15 19:53:33.925705	\N	\N	\N	krav
+1252	6	-145	Hp	2016-07-15 20:11:41.131305	\N	\N	\N	krav
+1912	\N	-35	Sagene	2017-04-06 17:45:40.976439	\N	\N	\N	enrico
+1913	\N	-20	Munkholm	2017-04-06 18:55:40.272885	\N	\N	\N	bezaban
+1914	\N	-20	Munkholm	2017-04-06 19:20:32.171845	\N	\N	\N	enrico
+1915	\N	-35	Sagene	2017-04-06 20:19:21.761163	\N	\N	\N	bezaban
+1916	\N	-35	Sagene	2017-04-06 20:53:52.113624	\N	\N	\N	sjn
+1917	\N	500		2017-04-08 17:15:06.181184	\N	\N	\N	capitol
+1918	\N	-35	Sagene	2017-04-08 17:15:59.143606	\N	\N	\N	capitol
+1919	\N	-20	Munkholm	2017-04-08 20:41:15.994644	\N	\N	\N	capitol
+1920	\N	-20	Munkholm	2017-04-11 18:28:10.953355	\N	\N	\N	bezaban
+1418	8	-35	Club-Mate	2016-10-11 18:53:24.848831	\N	\N	\N	atluxity
+1447	8	-35	Club-Mate	2016-10-18 18:37:36.322804	\N	\N	\N	atluxity
+1921	\N	-35	Sagene	2017-04-17 14:24:10.953458	\N	\N	\N	tazjin
+1461	8	-35	Club-Mate	2016-10-22 18:31:15.172814	\N	\N	\N	atluxity
+1345	10	-35	Club-Mate	2016-09-20 16:44:46.951423	\N	\N	\N	sjn
+1922	\N	-35	Sagene	2017-04-17 14:24:20.645432	\N	\N	\N	tazjin
+1923	\N	-35	Club Mate	2017-04-17 14:26:25.307384	\N	\N	\N	tazjin
+1924	\N	100		2017-04-17 15:24:38.929778	\N	\N	\N	tazjin
+1347	10	-35	Club-Mate	2016-09-20 18:08:40.036386	\N	\N	\N	sjn
+1925	\N	-70	2 x Club Mate	2017-04-17 15:24:56.422511	\N	\N	\N	tazjin
+1926	\N	-20	Farris	2017-04-17 18:40:28.91604	\N	\N	\N	sshow
+1927	\N	-35	Sagene	2017-04-17 20:14:23.022357	\N	\N	\N	sjn
+1928	\N	-35	Sagene	2017-04-18 17:48:13.875417	\N	\N	\N	capitol
+1421	10	-35	Club-Mate	2016-10-11 20:31:46.569289	\N	\N	\N	sjn
+1929	\N	-35	Sagene	2017-04-18 17:48:24.288318	\N	\N	\N	capitol
+1930	\N	-35	Club-Mate Cola	2017-04-18 19:09:29.724891	\N	\N	\N	aevin
+1931	\N	-30	Manuell Pils (0.3)	2017-04-18 19:09:34.616228	\N	\N	\N	bezaban
+1932	\N	290		2017-04-18 19:11:56.308735	\N	\N	\N	bezaban
+1933	\N	385		2017-04-18 19:35:57.400458	\N	\N	\N	sjn
+1934	\N	-35	Sagene	2017-04-18 19:37:03.018149	\N	\N	\N	sjn
+1423	10	-35	Club-Mate	2016-10-12 18:59:42.714058	\N	\N	\N	sjn
+1935	\N	500		2017-04-18 21:54:35.133854	\N	\N	\N	enrico
+1429	10	-35	Club-Mate	2016-10-15 18:02:51.711367	\N	\N	\N	sjn
+1432	10	-35	Sagene	2016-10-15 19:45:19.337146	\N	\N	\N	sjn
+1449	10	-35	Club-Mate	2016-10-18 19:11:34.259452	\N	\N	\N	sjn
+1451	10	-35	Club-Mate	2016-10-18 19:36:48.143689	\N	\N	\N	sjn
+1936	\N	-500	Enrico cabaret April beers	2017-04-18 21:55:02.614199	\N	\N	\N	enrico
+1937	\N	-20	Munkholm	2017-04-18 23:04:49.992948	\N	\N	\N	aevin
+1458	10	-35	Club-Mate	2016-10-21 21:03:00.842608	\N	\N	\N	sjn
+1462	10	350	Transfer with Stripe.	2016-10-22 19:45:56.089722	\N	\N	\N	sjn
+315	11	-35	En Voksenbrus	2015-11-04 18:22:51	\N	\N	\N	enrico
+1938	\N	200		2017-04-19 17:02:10.556363	\N	\N	\N	enrico
+316	11	-35	En Voksenbrus	2015-11-04 19:23:19	\N	\N	\N	enrico
+317	11	-35	En Voksenbrus	2015-11-04 20:21:05	\N	\N	\N	enrico
+1939	\N	-35	Sagene	2017-04-19 17:02:18.989068	\N	\N	\N	enrico
+1940	\N	-35	Sagene	2017-04-19 17:02:29.610974	\N	\N	\N	enrico
+1941	\N	-20	Munkholm	2017-04-19 17:02:43.346552	\N	\N	\N	enrico
+1942	\N	200		2017-04-21 18:49:36.257531	\N	\N	\N	enrico
+1943	\N	-35	Club-Mate Cola	2017-04-21 19:12:42.492468	\N	\N	\N	sshow
+1944	\N	-35	Club-Mate Cola	2017-04-21 19:13:01.18066	\N	\N	\N	sshow
+1945	\N	-35	Sagene	2017-04-22 16:25:31.527685	\N	\N	\N	capitol
+1946	\N	-35	Sagene	2017-04-22 16:58:24.965887	\N	\N	\N	enrico
+1947	\N	500		2017-04-22 17:58:25.542056	\N	\N	\N	aevin
+337	11	-35	En Voksenbrus	2015-11-10 16:00:59	\N	\N	\N	enrico
+1948	\N	350		2017-04-22 18:55:29.37039	\N	\N	\N	sshow
+338	11	-35	En Voksenbrus	2015-11-10 16:25:25	\N	\N	\N	enrico
+342	11	-40	En Voksenbrus	2015-11-10 18:01:48	\N	\N	\N	enrico
+344	11	-35	En Club-Mate	2015-11-10 18:45:07	\N	\N	\N	enrico
+1949	\N	-35	Sagene	2017-04-22 19:07:39.37962	\N	\N	\N	aevin
+1950	\N	-20	Farris	2017-04-22 19:19:22.0058	\N	\N	\N	enrico
+1951	\N	-35	Club-Mate Cola	2017-04-22 19:19:43.815713	\N	\N	\N	sshow
+1952	\N	-35	club-mate cola 	2017-04-22 20:31:00.95227	\N	\N	\N	enrico
+1953	\N	-35	Sagene	2017-04-22 21:19:53.142421	\N	\N	\N	sjn
+1954	\N	-20	Munkholm	2017-04-22 22:42:38.309964	\N	\N	\N	capitol
+1955	\N	-35	Club-Mate Cola	2017-04-22 22:42:58.640834	\N	\N	\N	sshow
+1956	\N	-20	Farris	2017-04-22 23:47:48.191019	\N	\N	\N	sshow
+1957	\N	170		2017-04-23 22:48:37.806421	\N	\N	\N	tazjin
+1958	\N	-245	7 x Club Mate	2017-04-23 22:49:10.730009	\N	\N	\N	tazjin
+1959	\N	-35	Sagene	2017-04-25 18:20:34.278748	\N	\N	\N	capitol
+1960	\N	-35	Club-Mate Cola	2017-04-25 20:36:03.092519	\N	\N	\N	enrico
+1961	\N	-35	Club-Mate Cola	2017-04-25 21:13:48.345488	\N	\N	\N	enrico
+1962	\N	-35	Club-Mate Cola	2017-04-25 21:48:58.395586	\N	\N	\N	enrico
+1963	\N	-35	Club-Mate Cola	2017-04-25 22:16:57.3827	\N	\N	\N	aevin
+1964	\N	-35	Club-Mate Cola	2017-04-25 22:46:29.625162	\N	\N	\N	enrico
+1372	1	-35	Club-Mate	2016-09-24 16:22:43.878074	\N	\N	\N	capitol
+1382	1	-35	Club-Mate	2016-09-27 16:53:05.848262	\N	\N	\N	capitol
+1342	3	-35	Club-Mate	2016-09-17 20:31:42.163397	\N	\N	\N	aevin
+1343	3	-35	Club-Mate	2016-09-17 23:37:27.462843	\N	\N	\N	aevin
+1352	3	-25	Tuborg	2016-09-20 19:55:46.896645	\N	\N	\N	aevin
+1355	3	-35	Cider	2016-09-20 21:26:03.789934	\N	\N	\N	aevin
+1387	3	-35	Club-Mate	2016-09-27 19:11:48.224138	\N	\N	\N	aevin
+1391	3	-35	Club-Mate	2016-09-27 20:36:52.233962	\N	\N	\N	aevin
+1399	3	-35	Club-Mate	2016-10-04 18:51:40.77713	\N	\N	\N	aevin
+1402	3	-35	Cider	2016-10-04 21:37:28.030622	\N	\N	\N	aevin
+1420	3	-35	Club-Mate	2016-10-11 20:11:34.851917	\N	\N	\N	aevin
+1340	4	-35	Club-Mate	2016-09-17 20:28:05.028535	\N	\N	\N	alpha60
+1341	4	-35	Club-Mate	2016-09-17 20:28:16.24319	\N	\N	\N	alpha60
+1383	4	-35	Club-Mate	2016-09-27 18:20:54.415384	\N	\N	\N	alpha60
+1384	4	-35	Club-Mate	2016-09-27 18:21:07.279766	\N	\N	\N	alpha60
+1385	4	-35	Club-Mate	2016-09-27 18:21:18.827555	\N	\N	\N	alpha60
+1386	4	-35	Club-Mate	2016-09-27 18:21:30.040142	\N	\N	\N	alpha60
+1444	4	-35	Club-Mate	2016-10-17 19:01:25.859424	\N	\N	\N	alpha60
+1454	4	-35	Club-Mate	2016-10-18 20:41:56.007216	\N	\N	\N	alpha60
+1335	5	300	Transfer with Stripe.	2016-09-13 21:36:21.493198	\N	\N	\N	lkarsten
+1336	5	-25	Tuborg	2016-09-13 21:42:02.06436	\N	\N	\N	lkarsten
+1360	5	-25	Tuborg	2016-09-22 19:03:37.518096	\N	\N	\N	lkarsten
+1369	5	-35	Sagene	2016-09-23 23:45:50.732427	\N	\N	\N	lkarsten
+1370	5	-35	Sagene	2016-09-23 23:45:59.450717	\N	\N	\N	lkarsten
+1392	5	-35	Club-Mate	2016-09-27 20:39:31.510565	\N	\N	\N	lkarsten
+1346	6	-35	Club-Mate	2016-09-20 17:33:40.235774	\N	\N	\N	krav
+1353	6	1121	Kjøpt øl og cider	2016-09-20 20:09:20.887865	\N	\N	\N	krav
+1357	6	140	Kjøpt inn antibac	2016-09-22 15:47:43.525245	\N	\N	\N	krav
+1359	6	-25	Tuborg	2016-09-22 15:48:26.42361	\N	\N	\N	krav
+1361	6	-35	Sagene	2016-09-23 15:58:20.744803	\N	\N	\N	krav
+1362	6	-35	Cider	2016-09-23 16:53:17.851554	\N	\N	\N	krav
+1502	8	-35	Club-Mate	2016-11-01 17:52:26.369295	\N	\N	\N	atluxity
+1965	\N	-35	Sagene	2017-04-25 22:57:54.164938	\N	\N	\N	aevin
+1966	\N	-35	Club-Mate Cola	2017-04-27 21:32:53.472183	\N	\N	\N	sshow
+1967	\N	-35	Club-Mate Cola	2017-04-28 18:45:43.292454	\N	\N	\N	krav
+1511	8	-35	Club-Mate	2016-11-05 14:09:34.78105	\N	\N	\N	atluxity
+1968	\N	-35	Club-Mate Cola	2017-04-28 18:46:34.879963	\N	\N	\N	enrico
+1969	\N	-35	Club-Mate Cola	2017-04-29 17:56:11.316358	\N	\N	\N	enrico
+1970	\N	-35	Sagene	2017-04-29 18:20:21.278397	\N	\N	\N	capitol
+1971	\N	-35	Club-Mate	2017-04-29 18:21:36.482018	\N	\N	\N	capitol
+1972	\N	300		2017-04-29 18:27:33.474233	\N	\N	\N	enrico
+1973	\N	-35	Club-Mate	2017-04-29 19:56:45.935264	\N	\N	\N	capitol
+1974	\N	-35	Club-Mate	2017-04-29 21:19:17.608352	\N	\N	\N	sjn
+1975	\N	-35	Club-Mate	2017-04-29 22:05:25.644312	\N	\N	\N	sjn
+1515	8	-35	Club-Mate	2016-11-05 18:01:10.97414	\N	\N	\N	atluxity
+1517	8	-35	Club-Mate	2016-11-05 18:02:14.957004	\N	\N	\N	atluxity
+1518	8	-35	Club-Mate	2016-11-05 18:53:01.921385	\N	\N	\N	atluxity
+1976	\N	-35	Club-Mate	2017-04-30 15:25:48.269014	\N	\N	\N	sshow
+1977	\N	-35	Club-Mate Cola	2017-05-01 00:36:23.250845	\N	\N	\N	sshow
+1978	\N	-35	Club-Mate Cola	2017-05-01 00:50:39.477643	\N	\N	\N	sshow
+1979	\N	-35	Club-Mate Cola	2017-05-01 00:50:51.697092	\N	\N	\N	sshow
+1525	8	-35	Club-Mate	2016-11-05 23:16:55.626829	\N	\N	\N	atluxity
+1561	8	-35	Club-Mate	2016-11-15 18:50:10.205281	\N	\N	\N	atluxity
+1468	10	-35	Club-Mate	2016-10-22 20:13:08.093495	\N	\N	\N	sjn
+1980	\N	-35	Club-Mate Cola	2017-05-01 01:09:06.231241	\N	\N	\N	enrico
+1981	\N	-35	Club-Mate Cola	2017-05-01 01:23:37.289473	\N	\N	\N	enrico
+1982	\N	-35	Club-Mate Cola	2017-05-01 01:42:41.08229	\N	\N	\N	enrico
+1471	10	-35	Club-Mate	2016-10-22 21:43:27.663474	\N	\N	\N	sjn
+1493	10	-35	Cider	2016-10-28 19:20:02.561076	\N	\N	\N	sjn
+1510	10	-35	Club-Mate	2016-11-05 14:07:20.177649	\N	\N	\N	sjn
+1513	10	-35	Club-Mate	2016-11-05 16:26:14.836327	\N	\N	\N	sjn
+1983	\N	-35	Club-Mate Cola	2017-05-01 01:47:16.480958	\N	\N	\N	sshow
+1520	10	-35	Club-Mate	2016-11-05 20:01:44.328603	\N	\N	\N	sjn
+345	11	-40	En Voksenbrus	2015-11-10 19:23:21	\N	\N	\N	enrico
+354	11	-35	En Voksenbrus	2015-11-10 21:27:26	\N	\N	\N	enrico
+355	11	-35	En Voksenbrus	2015-11-10 22:28:33	\N	\N	\N	enrico
+413	11	-35	En Voksenbrus	2015-11-24 17:35:24	\N	\N	\N	enrico
+1984	\N	-35	Club-Mate Cola	2017-05-01 01:56:36.265475	\N	\N	\N	sshow
+1985	\N	-35	Club-Mate Cola	2017-05-01 02:33:29.798164	\N	\N	\N	enrico
+415	11	-35	En Voksenbrus	2015-11-24 19:15:35	\N	\N	\N	enrico
+418	11	-35	En Voksenbrus	2015-11-24 20:39:53	\N	\N	\N	enrico
+1986	\N	-35	Club-Mate	2017-05-02 17:58:03.655611	\N	\N	\N	capitol
+432	11	-35	En Club-Mate	2015-11-28 16:55:56	\N	\N	\N	enrico
+435	11	350	Transfer with Stripe.	2015-11-28 18:07:41	\N	\N	\N	enrico
+1987	\N	-35	Club-Mate Cola	2017-05-02 19:06:19.616964	\N	\N	\N	bezaban
+1988	\N	500		2017-05-02 19:28:04.190229	\N	\N	\N	enrico
+436	11	-35	En Club-Mate	2015-11-28 18:07:54	\N	\N	\N	enrico
+1989	\N	-300	beer natt til 1. mai	2017-05-02 19:28:31.080557	\N	\N	\N	enrico
+1990	\N	-35	Club-Mate Cola	2017-05-02 20:04:02.473143	\N	\N	\N	enrico
+1991	\N	-35	Club-Mate Cola	2017-05-02 20:32:24.107784	\N	\N	\N	bezaban
+1992	\N	-35	Club-Mate Cola	2017-05-02 21:49:58.967208	\N	\N	\N	enrico
+437	11	-35	En Club-Mate	2015-11-28 18:52:47	\N	\N	\N	enrico
+1993	\N	-35	Club-Mate Cola	2017-05-02 22:28:18.673448	\N	\N	\N	enrico
+1994	\N	-35	Club-Mate Cola	2017-05-02 22:49:18.53332	\N	\N	\N	enrico
+1995	\N	-35	Club-Mate	2017-05-02 23:48:18.654856	\N	\N	\N	sjn
+1996	\N	-175		2017-05-04 18:59:15.853871	\N	\N	\N	krav
+1997	\N	-35	Mate	2017-05-04 21:48:36.359145	\N	\N	\N	sshow
+1998	\N	-20	Farris	2017-05-04 21:48:45.011172	\N	\N	\N	sshow
+1999	\N	-35	Club-Mate	2017-05-06 13:34:14.440551	\N	\N	\N	sjn
+2000	\N	-35	Club-Mate	2017-05-06 15:18:06.797312	\N	\N	\N	capitol
+2001	\N	-35	Club-Mate	2017-05-06 15:21:53.42715	\N	\N	\N	capitol
+2002	\N	-35	Club-Mate	2017-05-06 15:22:05.71748	\N	\N	\N	capitol
+2003	\N	-35	Club-Mate	2017-05-06 15:22:15.608704	\N	\N	\N	capitol
+2004	\N	210		2017-05-06 20:25:47.93305	\N	\N	\N	capitol
+2005	\N	-35	Club-Mate	2017-05-06 20:25:57.963749	\N	\N	\N	capitol
+2006	\N	-35	Club-Mate	2017-05-06 22:25:26.701712	\N	\N	\N	capitol
+2007	\N	-35	Club-Mate	2017-05-09 17:42:33.919484	\N	\N	\N	capitol
+2008	\N	-70		2017-05-09 18:27:38.203736	\N	\N	\N	krav
+2009	\N	-35	Club-Mate	2017-05-09 19:32:05.053652	\N	\N	\N	aevin
+2010	\N	165		2017-05-09 20:49:18.385361	\N	\N	\N	sshow
+2011	\N	-20	Munkholm	2017-05-09 20:49:41.005535	\N	\N	\N	sshow
+2012	\N	-15	Munkholm 0.33	2017-05-09 21:10:44.941693	\N	\N	\N	aevin
+2013	\N	-20	Farris	2017-05-09 22:35:33.742054	\N	\N	\N	sshow
+2014	\N	-25	Tuborg	2017-05-12 21:23:55.096871	\N	\N	\N	sshow
+2015	\N	-25	Tuborg	2017-05-12 21:58:52.137619	\N	\N	\N	sshow
+1487	3	-35	Club-Mate	2016-10-25 19:26:12.12993	\N	\N	\N	aevin
+1519	3	-35	Club-Mate	2016-11-05 19:14:00.722209	\N	\N	\N	aevin
+1526	3	500	Transfer with Stripe.	2016-11-05 23:20:05.502643	\N	\N	\N	aevin
+1527	3	-35	Club-Mate	2016-11-05 23:20:48.126503	\N	\N	\N	aevin
+1531	3	-35	Club-Mate	2016-11-08 19:08:03.07158	\N	\N	\N	aevin
+1537	3	-35	Cider	2016-11-08 20:27:09.015631	\N	\N	\N	aevin
+1538	3	-35	Club-Mate	2016-11-08 21:41:29.206227	\N	\N	\N	aevin
+1565	3	-35	Club-Mate	2016-11-15 21:26:06.673092	\N	\N	\N	aevin
+1575	3	-35	Club-Mate	2016-11-22 19:03:47.685497	\N	\N	\N	aevin
+1579	3	-35	Sagene	2016-11-22 20:35:22.977779	\N	\N	\N	aevin
+1491	4	-35	Club-Mate	2016-10-27 20:16:05.771699	\N	\N	\N	alpha60
+1521	4	500	Transfer with Stripe.	2016-11-05 20:36:27.124481	\N	\N	\N	alpha60
+1522	4	-35	Club-Mate	2016-11-05 20:36:58.207722	\N	\N	\N	alpha60
+1560	4	-35	Club-Mate	2016-11-14 18:42:43.095966	\N	\N	\N	alpha60
+1580	4	-17	Julebrus	2016-11-22 20:42:40.698879	\N	\N	\N	alpha60
+1581	4	43	Manually added by krav.	2016-11-22 20:43:12.575366	\N	\N	\N	alpha60
+1506	5	-35	Club-Mate	2016-11-01 20:12:34.316731	\N	\N	\N	lkarsten
+1516	5	-35	Club-Mate	2016-11-05 18:01:27.751914	\N	\N	\N	lkarsten
+1528	5	156	Manually added by krav.	2016-11-06 12:36:15.907604	\N	\N	\N	lkarsten
+1535	5	-35	Club-Mate	2016-11-08 19:49:41.459622	\N	\N	\N	lkarsten
+1540	5	-35	Club-Mate	2016-11-11 17:58:14.94284	\N	\N	\N	lkarsten
+1564	5	-35	Club-Mate	2016-11-15 20:02:41.191209	\N	\N	\N	lkarsten
+1472	6	-35	Club-Mate	2016-10-22 22:40:14.299962	\N	\N	\N	krav
+1473	6	-35	Club-Mate	2016-10-22 22:40:24.934757	\N	\N	\N	krav
+1476	6	-35	Club-Mate	2016-10-22 23:38:01.734957	\N	\N	\N	krav
+1477	6	-35	Club-Mate	2016-10-24 19:57:46.240269	\N	\N	\N	krav
+1478	6	-35	Club-Mate	2016-10-25 13:37:27.41521	\N	\N	\N	krav
+1489	6	-35	Club-Mate	2016-10-25 19:56:19.704034	\N	\N	\N	krav
+2016	\N	-185		2017-05-13 18:22:37.777496	\N	\N	\N	krav
+2017	\N	-20	Farris	2017-05-14 00:52:16.737387	\N	\N	\N	sshow
+1634	8	100	Nettlaug	2016-12-12 13:36:39.189597	\N	\N	\N	atluxity
+2018	\N	-35	Club-Mate	2017-05-15 16:15:32.247249	\N	\N	\N	sjn
+2019	\N	-35	Club-Mate	2017-05-16 17:29:10.18502	\N	\N	\N	capitol
+2020	\N	-25	Tuborg	2017-05-17 17:53:08.375686	\N	\N	\N	sshow
+1684	8	-35	Sagene	2017-01-07 19:24:22.321966	\N	\N	\N	atluxity
+1685	8	-35	Sagene	2017-01-07 20:51:44.35677	\N	\N	\N	atluxity
+2021	\N	-25	Tuborg	2017-05-17 17:53:15.431254	\N	\N	\N	sshow
+2022	\N	-25	Tuborg	2017-05-17 20:26:42.731037	\N	\N	\N	sshow
+2023	\N	-25	Tuborg	2017-05-19 22:12:48.523437	\N	\N	\N	sshow
+2024	\N	-35	Club-Mate	2017-05-20 15:36:30.440644	\N	\N	\N	aevin
+2025	\N	-35	Club-Mate	2017-05-20 15:42:14.446283	\N	\N	\N	capitol
+2026	\N	-35	Club-Mate	2017-05-20 16:05:25.791553	\N	\N	\N	aevin
+2027	\N	-35	Club-Mate	2017-05-20 17:57:24.33883	\N	\N	\N	capitol
+2028	\N	-35	Club-Mate	2017-05-20 18:03:13.934832	\N	\N	\N	aevin
+2029	\N	500		2017-05-20 19:39:29.228908	\N	\N	\N	atluxity
+2030	\N	-105	manuelt club-mate kjøp	2017-05-20 19:43:41.444749	\N	\N	\N	atluxity
+2031	\N	-35	Club-Mate	2017-05-20 20:04:40.398516	\N	\N	\N	sjn
+2032	\N	500		2017-05-20 20:23:16.738729	\N	\N	\N	capitol
+2033	\N	-15	Munkholm 0.33	2017-05-20 21:36:34.684674	\N	\N	\N	capitol
+1686	8	-35	Sagene	2017-01-07 20:51:51.343313	\N	\N	\N	atluxity
+2034	\N	-35	Club-Mate	2017-05-20 21:37:08.304093	\N	\N	\N	sjn
+2035	\N	-35	Club Mate	2017-05-20 22:07:52.384414	\N	\N	\N	sshow
+1725	8	200	Transfer with Stripe.	2017-01-17 20:38:47.925876	\N	\N	\N	atluxity
+2036	\N	-35	Club-Mate	2017-05-20 22:12:59.96793	\N	\N	\N	lassegs
+2037	\N	-35	Club-Mate	2017-05-20 22:12:59.985309	\N	\N	\N	lassegs
+2038	\N	-35	Club-Mate	2017-05-20 22:13:00.000374	\N	\N	\N	lassegs
+1726	8	-35	Sagene	2017-01-17 20:39:01.176763	\N	\N	\N	atluxity
+1727	8	-35	Sagene	2017-01-17 20:39:16.55273	\N	\N	\N	atluxity
+2039	\N	-35	manuelt club-mate kjøp	2017-05-20 23:00:27.651578	\N	\N	\N	atluxity
+2221	\N	0	javascript test	2017-12-19 21:26:03.551357	\N	\N	\N	sshow
+1600	10	-35	Club-Mate	2016-11-26 21:11:35.580128	\N	\N	\N	sjn
+1629	10	-35	Club-Mate	2016-12-10 22:24:52.272232	\N	\N	\N	sjn
+1636	10	100	Nettlaug	2016-12-12 13:36:53.34253	\N	\N	\N	sjn
+1681	10	-35	Sagene	2017-01-07 18:43:32.332204	\N	\N	\N	sjn
+1683	10	-35	Sagene	2017-01-07 19:23:57.826862	\N	\N	\N	sjn
+1687	10	-35	Sagene	2017-01-07 21:24:47.132152	\N	\N	\N	sjn
+1705	10	-35	Sagene	2017-01-13 12:34:57.569055	\N	\N	\N	sjn
+1710	10	355	Transfer with Stripe.	2017-01-14 20:36:30.465526	\N	\N	\N	sjn
+1602	1	-35	Sagene	2016-11-29 18:09:47.987517	\N	\N	\N	capitol
+1606	1	-35	Sagene	2016-12-03 16:43:28.69863	\N	\N	\N	capitol
+1608	1	-35	Sagene	2016-12-03 18:58:00.574937	\N	\N	\N	capitol
+1720	3	-35	Sagene	2017-01-17 20:02:12.229862	\N	\N	\N	aevin
+1721	3	-35	Sagene	2017-01-17 20:02:30.169702	\N	\N	\N	aevin
+1709	4	-35	Sagene	2017-01-14 20:19:11.131205	\N	\N	\N	alpha60
+1632	5	100	Nettlaug	2016-12-12 13:36:27.440259	\N	\N	\N	lkarsten
+1641	5	-17	Julebrus	2016-12-13 18:47:21.187563	\N	\N	\N	lkarsten
+1643	5	-35	Sagene	2016-12-13 19:57:00.852518	\N	\N	\N	lkarsten
+1653	5	-20	Munkholm	2016-12-17 20:03:24.681769	\N	\N	\N	lkarsten
+1675	5	-20	Munkholm	2017-01-03 19:18:12.205892	\N	\N	\N	lkarsten
+1677	5	-20	Munkholm	2017-01-03 21:29:22.707374	\N	\N	\N	lkarsten
+1712	5	200	Manually added by krav.	2017-01-14 21:05:48.522387	\N	\N	\N	lkarsten
+1713	5	-35	Club-Mate	2017-01-14 21:25:43.758822	\N	\N	\N	lkarsten
+1729	5	-20	Munkholm	2017-01-17 21:35:44.211645	\N	\N	\N	lkarsten
+1601	6	-17	Julebrus	2016-11-28 14:16:05.173259	\N	\N	\N	krav
+1603	6	-35	Club-Mate	2016-12-01 14:34:52.618447	\N	\N	\N	krav
+1604	6	-17	Julebrus	2016-12-01 15:54:53.919184	\N	\N	\N	krav
+1621	6	-17	Julebrus	2016-12-09 19:34:32.524724	\N	\N	\N	krav
+1622	6	-35	Club-Mate	2016-12-09 19:43:07.395606	\N	\N	\N	krav
+1623	6	-35	Club-Mate	2016-12-09 21:41:53.931401	\N	\N	\N	krav
+1638	6	-17	Julebrus	2016-12-13 16:38:56.633782	\N	\N	\N	krav
+1640	6	-35	Club-Mate	2016-12-13 17:54:30.066649	\N	\N	\N	krav
+1644	6	-17	Julebrus	2016-12-14 17:01:10.509989	\N	\N	\N	krav
+1645	6	-35	Sagene	2016-12-17 12:19:20.962757	\N	\N	\N	krav
+1652	6	-35	Sagene	2016-12-17 18:07:10.270802	\N	\N	\N	krav
+1658	6	-35	Sagene	2016-12-20 18:39:44.168987	\N	\N	\N	krav
+1661	6	-35	Club-Mate	2016-12-21 19:07:08.474882	\N	\N	\N	krav
+1662	6	-35	Club-Mate	2016-12-22 18:40:01.824901	\N	\N	\N	krav
+2040	\N	-95		2017-05-23 12:57:51.137732	\N	\N	\N	krav
+2041	\N	-35	Club-Mate	2017-05-23 16:49:20.620688	\N	\N	\N	sjn
+1733	10	-35	Sagene	2017-01-17 22:10:11.199254	\N	\N	\N	sjn
+1756	10	-35	Sagene	2017-01-28 19:57:36.807386	\N	\N	\N	sjn
+2042	\N	-35	Club-Mate	2017-05-23 18:22:43.593092	\N	\N	\N	enrico
+2043	\N	-35	Club-Mate	2017-05-23 19:17:44.566206	\N	\N	\N	sjn
+2044	\N	-35		2017-05-25 15:25:00.446091	\N	\N	\N	krav
+1757	10	-35	Sagene	2017-01-28 19:57:50.930484	\N	\N	\N	sjn
+2089	\N	-25	Tuborg	2017-06-13 22:22:19.61477	\N	\N	\N	bezaban
+2090	\N	-35	Club Mate	2017-06-13 23:22:03.277076	\N	\N	\N	sshow
+1758	10	-35	Sagene	2017-01-28 20:11:19.977842	\N	\N	\N	sjn
+1759	10	-35	Sagene	2017-01-28 20:17:54.806373	\N	\N	\N	sjn
+2091	\N	-35	Club-Mate	2017-06-17 15:31:31.372321	\N	\N	\N	capitol
+2092	\N	-35	Club-Mate	2017-06-17 16:01:10.072504	\N	\N	\N	aevin
+2093	\N	-35	Club-Mate	2017-06-17 17:49:02.307397	\N	\N	\N	aevin
+2094	\N	-75	Tuborg x 3	2017-06-17 18:56:49.470983	\N	\N	\N	sshow
+2095	\N	385		2017-06-17 20:06:06.64002	\N	\N	\N	sjn
+2096	\N	-35	Club-Mate	2017-06-17 21:09:18.004031	\N	\N	\N	sjn
+2097	\N	-35	Club-Mate	2017-06-20 17:43:19.105475	\N	\N	\N	capitol
+2098	\N	-35	Club-Mate	2017-06-20 17:46:12.408948	\N	\N	\N	sjn
+14	2	190	Fra krav	2015-09-08 15:07:16	\N	\N	\N	comotion
+20	2	-70	fritz-limo	2015-09-09 12:00:09	\N	\N	\N	comotion
+27	2	-35	En Club-Mate	2015-09-10 18:23:39	\N	\N	\N	comotion
+30	2	-35	En Voksenbrus	2015-09-10 19:47:20	\N	\N	\N	comotion
+31	2	-35	En Voksenbrus	2015-09-10 19:47:31	\N	\N	\N	comotion
+108	2	1000	Transfer with Stripe.	2015-09-26 17:41:33	\N	\N	\N	comotion
+116	2	-35	En Voksenbrus	2015-09-26 21:33:12	\N	\N	\N	comotion
+117	2	-35	En Voksenbrus	2015-09-26 21:33:25	\N	\N	\N	comotion
+119	2	-35	En Voksenbrus	2015-09-26 23:03:50	\N	\N	\N	comotion
+122	2	-35	En Club-Mate	2015-09-28 17:09:15	\N	\N	\N	comotion
+123	2	-35	En Club-Mate	2015-09-28 17:11:09	\N	\N	\N	comotion
+129	2	-35	En Club-Mate	2015-09-29 17:14:55	\N	\N	\N	comotion
+135	2	-35	En Voksenbrus	2015-09-29 18:57:36	\N	\N	\N	comotion
+145	2	-35	En Voksenbrus	2015-10-02 21:53:14	\N	\N	\N	comotion
+151	2	-35	En Club-Mate	2015-10-03 16:33:48	\N	\N	\N	comotion
+156	2	-35	En Voksenbrus	2015-10-03 19:20:30	\N	\N	\N	comotion
+173	2	-35	En Voksenbrus	2015-10-06 19:48:06	\N	\N	\N	comotion
+185	2	-35	En Club-Mate	2015-10-10 17:25:17	\N	\N	\N	comotion
+201	2	-35	En Club-Mate	2015-10-13 16:06:27	\N	\N	\N	comotion
+202	2	-35	En Club-Mate	2015-10-13 16:07:26	\N	\N	\N	comotion
+254	2	-35	En Voksenbrus	2015-10-22 20:01:49	\N	\N	\N	comotion
+309	2	-40	En Voksenbrus	2015-11-03 19:05:11	\N	\N	\N	comotion
+311	2	-40	En Voksenbrus	2015-11-03 20:15:46	\N	\N	\N	comotion
+330	2	-35	En Club-Mate	2015-11-07 20:42:09	\N	\N	\N	comotion
+331	2	-40	En Voksenbrus	2015-11-07 22:43:34	\N	\N	\N	comotion
+349	2	-30	En Julmust	2015-11-10 19:25:57	\N	\N	\N	comotion
+358	2	-35	En Voksenbrus	2015-11-12 20:16:32	\N	\N	\N	comotion
+360	2	-30	En Julmust	2015-11-14 13:11:47	\N	\N	\N	comotion
+361	2	-35	En Club-Mate	2015-11-14 13:11:58	\N	\N	\N	comotion
+362	2	-35	En Club-Mate	2015-11-14 13:44:04	\N	\N	\N	comotion
+370	2	1000	Transfer with Stripe.	2015-11-14 20:24:05	\N	\N	\N	comotion
+371	2	-35	En Voksenbrus	2015-11-14 20:38:17	\N	\N	\N	comotion
+375	2	-35	En Voksenbrus	2015-11-14 22:23:38	\N	\N	\N	comotion
+392	2	-35	En Club-Mate	2015-11-17 20:35:58	\N	\N	\N	comotion
+407	2	-35	En Voksenbrus	2015-11-21 22:52:34	\N	\N	\N	comotion
+451	2	-35	En Club-Mate	2015-12-01 17:11:16	\N	\N	\N	comotion
+496	2	-35	En Voksenbrus	2015-12-05 21:21:59	\N	\N	\N	comotion
+497	2	-35	En Voksenbrus	2015-12-05 21:22:09	\N	\N	\N	comotion
+498	2	-35	En Voksenbrus	2015-12-05 21:22:18	\N	\N	\N	comotion
+499	2	70	Manually added by krav.	2015-12-05 21:24:59	\N	\N	\N	comotion
+506	2	-35	En Voksenbrus	2015-12-07 18:45:21	\N	\N	\N	comotion
+527	2	-35	En Voksenbrus	2015-12-12 19:31:58	\N	\N	\N	comotion
+530	2	-35	En Voksenbrus	2015-12-12 20:09:37	\N	\N	\N	comotion
+537	2	-100	fry heart kit	2015-12-16 01:02:37	\N	\N	\N	comotion
+604	2	-35	En Club-Mate	2016-01-19 20:18:02	\N	\N	\N	comotion
+612	2	-30	En Tuborg	2016-01-20 20:45:38	\N	\N	\N	comotion
+633	2	-35	En Club-Mate	2016-01-21 20:20:48	\N	\N	\N	comotion
+638	2	-35	En Club-Mate	2016-01-21 21:14:06	\N	\N	\N	comotion
+654	2	-35	En Club-Mate	2016-01-23 19:00:26	\N	\N	\N	comotion
+655	2	-35	En Club-Mate	2016-01-23 19:03:16	\N	\N	\N	comotion
+671	2	-35	En Club-Mate	2016-01-26 18:52:07	\N	\N	\N	comotion
+703	2	-35	En Voksenbrus	2016-02-02 19:52:06	\N	\N	\N	comotion
+705	2	-35	En Sagene p1lz	2016-02-02 20:52:10	\N	\N	\N	comotion
+706	2	-35	En Sagene p1lz	2016-02-02 21:05:13	\N	\N	\N	comotion
+711	2	-35	En Sagene p1lz	2016-02-02 21:45:23	\N	\N	\N	comotion
+712	2	-35	En Club-Mate	2016-02-02 21:58:59	\N	\N	\N	comotion
+736	2	-35	En Sagene p1lz	2016-02-09 20:35:10	\N	\N	\N	comotion
+737	2	-35	En Sagene p1lz	2016-02-09 20:36:03	\N	\N	\N	comotion
+741	2	-35	En Sagene p1lz	2016-02-09 21:25:14	\N	\N	\N	comotion
+751	2	-35	En Club-Mate	2016-02-16 18:58:28	\N	\N	\N	comotion
+752	2	-20	En Munkholm	2016-02-16 19:30:11	\N	\N	\N	comotion
+753	2	-35	En Club-Mate	2016-02-16 19:33:49	\N	\N	\N	comotion
+768	2	-35	En Sagene p1lz	2016-02-20 21:51:45	\N	\N	\N	comotion
+769	2	-35	En Sagene p1lz	2016-02-20 21:52:39	\N	\N	\N	comotion
+773	2	-35	En Sagene p1lz	2016-02-20 23:10:30	\N	\N	\N	comotion
+774	2	-35	En Sagene p1lz	2016-02-20 23:10:50	\N	\N	\N	comotion
+1356	2	140	Kjøpt inn antibac	2016-09-22 15:47:39.069234	\N	\N	\N	comotion
+1731	3	-20	Munkholm	2017-01-17 21:51:25.129942	\N	\N	\N	aevin
+1748	3	-35	Sagene	2017-01-24 21:57:28.457208	\N	\N	\N	aevin
+1749	3	-35	Club-Mate	2017-01-24 22:18:55.141154	\N	\N	\N	aevin
+1750	3	-35	Club-Mate	2017-01-24 22:19:04.186183	\N	\N	\N	aevin
+1751	3	-35	Club-Mate	2017-01-24 22:44:17.742165	\N	\N	\N	aevin
+1735	5	-35	Sagene	2017-01-18 15:58:00.65353	\N	\N	\N	lkarsten
+1358	2	-140	Det har du ikke	2016-09-22 15:47:49.378051	\N	\N	\N	comotion
+1633	2	100	Nettlaug	2016-12-12 13:36:34.109196	\N	\N	\N	comotion
+1667	2	200	Manually added by krav.	2016-12-22 21:57:14.378408	\N	\N	\N	comotion
+1668	2	-200	Manually added by krav.	2016-12-22 21:57:47.045901	\N	\N	\N	comotion
+1714	2	-35	Sagene	2017-01-15 12:34:29.175081	\N	\N	\N	comotion
+53	1	-35	En Club-Mate	2015-09-15 16:17:24	\N	\N	\N	capitol
+55	1	-35	En Club-Mate	2015-09-15 16:22:14	\N	\N	\N	capitol
+61	1	-35	En Club-Mate	2015-09-17 15:53:38	\N	\N	\N	capitol
+67	1	-35	En Club-Mate	2015-09-19 14:47:19	\N	\N	\N	capitol
+87	1	350	Transfer with Stripe.	2015-09-22 14:44:00	\N	\N	\N	capitol
+88	1	-35	En Club-Mate	2015-09-22 14:44:22	\N	\N	\N	capitol
+181	1	-35	En Club-Mate	2015-10-10 13:55:05	\N	\N	\N	capitol
+203	1	-35	En Club-Mate	2015-10-13 16:26:31	\N	\N	\N	capitol
+298	1	-35	En Club-Mate	2015-10-31 18:33:32	\N	\N	\N	capitol
+302	1	-35	En Club-Mate	2015-11-03 16:38:23	\N	\N	\N	capitol
+328	1	-35	En Club-Mate	2015-11-07 19:01:47	\N	\N	\N	capitol
+339	1	-30	En Julmust	2015-11-10 16:27:30	\N	\N	\N	capitol
+421	1	-35	En Club-Mate	2015-11-25 18:50:20	\N	\N	\N	capitol
+423	1	-35	En Club-Mate	2015-11-26 16:00:04	\N	\N	\N	capitol
+424	1	-35	En Club-Mate	2015-11-26 16:00:17	\N	\N	\N	capitol
+425	1	-35	En Club-Mate	2015-11-26 16:00:29	\N	\N	\N	capitol
+427	1	-30	En Julmust	2015-11-27 16:29:04	\N	\N	\N	capitol
+428	1	-30	En Julmust	2015-11-27 16:29:14	\N	\N	\N	capitol
+441	1	-35	En Club-Mate	2015-11-29 12:28:14	\N	\N	\N	capitol
+446	1	-30	En Julmust	2015-11-30 16:25:15	\N	\N	\N	capitol
+450	1	-35	En Club-Mate	2015-12-01 16:48:28	\N	\N	\N	capitol
+515	1	-35	En Club-Mate	2015-12-11 15:33:34	\N	\N	\N	capitol
+517	1	-30	En Julmust	2015-12-12 12:26:38	\N	\N	\N	capitol
+538	1	-20	Munkholm	2015-12-22 17:43:19	\N	\N	\N	capitol
+539	1	-20	Munkholm	2015-12-22 17:43:31	\N	\N	\N	capitol
+543	1	-20	En Munkholm	2016-01-02 19:23:47	\N	\N	\N	capitol
+549	1	-35	En Club-Mate	2016-01-05 17:18:00	\N	\N	\N	capitol
+561	1	-20	En Munkholm	2016-01-08 16:54:02	\N	\N	\N	capitol
+562	1	-35	En Club-Mate	2016-01-09 12:59:37	\N	\N	\N	capitol
+563	1	-35	En Club-Mate	2016-01-09 13:00:16	\N	\N	\N	capitol
+575	1	-35	En Club-Mate	2016-01-12 17:45:19	\N	\N	\N	capitol
+576	1	-35	En Club-Mate	2016-01-12 17:48:04	\N	\N	\N	capitol
+581	1	-35	En Club-Mate	2016-01-16 11:59:26	\N	\N	\N	capitol
+586	1	500	Transfer with Stripe.	2016-01-16 18:19:36	\N	\N	\N	capitol
+587	1	-20	En Munkholm	2016-01-16 18:20:03	\N	\N	\N	capitol
+696	1	-35	En Club-Mate	2016-02-02 17:20:36	\N	\N	\N	capitol
+704	1	-20	En Munkholm	2016-02-02 20:17:53	\N	\N	\N	capitol
+714	1	-20	En Munkholm	2016-02-05 17:10:35	\N	\N	\N	capitol
+715	1	-35	En Club-Mate	2016-02-06 15:02:54	\N	\N	\N	capitol
+717	1	-35	En Club-Mate	2016-02-06 18:00:04	\N	\N	\N	capitol
+764	1	-20	En Munkholm	2016-02-20 19:15:59	\N	\N	\N	capitol
+780	1	-35	En Club-Mate	2016-02-23 16:37:16	\N	\N	\N	capitol
+782	1	-20	En Munkholm	2016-02-23 18:34:13	\N	\N	\N	capitol
+786	1	-35	En Club-Mate	2016-02-27 11:20:28	\N	\N	\N	capitol
+787	1	-35	En Club-Mate	2016-02-27 15:47:35	\N	\N	\N	capitol
+795	1	-20	En Munkholm	2016-02-27 18:45:54	\N	\N	\N	capitol
+799	1	-35	En Club-Mate	2016-02-27 22:08:41	\N	\N	\N	capitol
+802	1	-35	En Club-Mate	2016-03-01 17:07:30	\N	\N	\N	capitol
+835	1	-35	En Club-Mate	2016-03-08 18:02:08	\N	\N	\N	capitol
+846	1	-35	En Club-Mate	2016-03-12 15:28:10	\N	\N	\N	capitol
+851	1	-20	En Munkholm	2016-03-12 17:32:10	\N	\N	\N	capitol
+866	1	-35	En Club-Mate	2016-03-15 16:15:19	\N	\N	\N	capitol
+871	1	-20	En Munkholm	2016-03-15 20:52:31	\N	\N	\N	capitol
+889	1	500	Transfer with Stripe.	2016-03-19 11:08:07	\N	\N	\N	capitol
+890	1	-35	En Club-Mate	2016-03-19 11:08:13	\N	\N	\N	capitol
+891	1	-35	En Club-Mate	2016-03-19 11:08:35	\N	\N	\N	capitol
+894	1	-35	En Club-Mate	2016-03-19 15:42:53	\N	\N	\N	capitol
+898	1	-35	En Club-Mate	2016-03-19 17:27:10	\N	\N	\N	capitol
+902	1	-20	En Munkholm	2016-03-22 16:07:25	\N	\N	\N	capitol
+915	1	-20	En Munkholm	2016-04-05 15:39:15	\N	\N	\N	capitol
+924	1	-20	En Munkholm	2016-04-12 16:14:53	\N	\N	\N	capitol
+926	1	-35	En Club-Mate	2016-04-16 14:06:40	\N	\N	\N	capitol
+929	1	-35	En Club-Mate	2016-04-16 17:30:19	\N	\N	\N	capitol
+930	1	-35	En Club-Mate	2016-04-16 17:53:30	\N	\N	\N	capitol
+937	1	-35	En Club-Mate	2016-04-19 15:31:19	\N	\N	\N	capitol
+942	1	-20	En Munkholm	2016-04-19 18:23:01	\N	\N	\N	capitol
+950	1	-35	En Club-Mate	2016-04-23 16:21:29	\N	\N	\N	capitol
+955	1	-35	En Club-Mate	2016-04-26 16:09:55	\N	\N	\N	capitol
+968	1	-35	En Club-Mate	2016-04-29 14:50:35	\N	\N	\N	capitol
+970	1	-35	En Club-Mate	2016-04-29 16:11:08	\N	\N	\N	capitol
+971	1	500	Transfer with Stripe.	2016-04-29 17:54:45	\N	\N	\N	capitol
+972	1	-35	En Club-Mate	2016-04-29 17:55:02	\N	\N	\N	capitol
+973	1	-35	En Club-Mate	2016-04-29 18:27:46	\N	\N	\N	capitol
+1001	1	-35	En Club-Mate	2016-05-03 15:14:15	\N	\N	\N	capitol
+1006	1	-35	En Club-Mate	2016-05-03 18:45:03	\N	\N	\N	capitol
+1009	1	-35	En Club-Mate	2016-05-07 11:26:36	\N	\N	\N	capitol
+1011	1	-35	En Club-Mate	2016-05-07 16:34:15	\N	\N	\N	capitol
+1012	1	-35	En Club-Mate	2016-05-07 17:05:58	\N	\N	\N	capitol
+1026	1	-35	En Club-Mate	2016-05-10 15:22:39	\N	\N	\N	capitol
+1029	1	-35	En Club-Mate	2016-05-14 08:24:14	\N	\N	\N	capitol
+1030	1	-35	En Club-Mate	2016-05-14 08:24:25	\N	\N	\N	capitol
+1031	1	-35	En Club-Mate	2016-05-14 08:24:42	\N	\N	\N	capitol
+1032	1	-35	En Club-Mate	2016-05-14 08:25:04	\N	\N	\N	capitol
+1035	1	-35	En Club-Mate	2016-05-14 12:08:02	\N	\N	\N	capitol
+1036	1	-35	En Club-Mate	2016-05-14 12:08:19	\N	\N	\N	capitol
+1037	1	350	Transfer with Stripe.	2016-05-14 12:12:20	\N	\N	\N	capitol
+1038	1	-35	En Club-Mate	2016-05-14 12:12:44	\N	\N	\N	capitol
+1039	1	-35	En Club-Mate	2016-05-14 13:05:44	\N	\N	\N	capitol
+1044	1	-35	En Club-Mate	2016-05-14 19:14:17	\N	\N	\N	capitol
+1045	1	-35	En Club-Mate	2016-05-14 19:14:27	\N	\N	\N	capitol
+1046	1	-35	En Club-Mate	2016-05-14 19:14:35	\N	\N	\N	capitol
+1048	1	105	Transfer with Stripe.	2016-05-15 08:34:11	\N	\N	\N	capitol
+1049	1	-35	En Club-Mate	2016-05-15 08:34:26	\N	\N	\N	capitol
+1050	1	-35	En Club-Mate	2016-05-15 08:34:38	\N	\N	\N	capitol
+1051	1	-35	En Club-Mate	2016-05-15 08:34:48	\N	\N	\N	capitol
+1052	1	-35	En Club-Mate	2016-05-15 08:35:17	\N	\N	\N	capitol
+1057	1	-35	En Club-Mate	2016-05-21 15:11:05	\N	\N	\N	capitol
+1063	1	-35	En Club-Mate	2016-05-21 19:03:37	\N	\N	\N	capitol
+1072	1	-35	En Club-Mate	2016-05-24 15:03:16	\N	\N	\N	capitol
+1078	1	-35	En Club-Mate	2016-05-24 17:48:18	\N	\N	\N	capitol
+1095	1	500	Transfer with Stripe.	2016-05-31 16:12:55	\N	\N	\N	capitol
+1096	1	-35	En Club-Mate	2016-05-31 16:13:09	\N	\N	\N	capitol
+1105	1	-20	En Munkholm	2016-06-03 14:53:53	\N	\N	\N	capitol
+1106	1	-20	En Munkholm	2016-06-03 14:54:03	\N	\N	\N	capitol
+1108	1	-35	En Club-Mate	2016-06-04 11:41:19	\N	\N	\N	capitol
+1112	1	-20	En Munkholm	2016-06-04 15:47:01	\N	\N	\N	capitol
+1118	1	-35	En Club-Mate	2016-06-04 17:37:40	\N	\N	\N	capitol
+1119	1	-35	En Club-Mate	2016-06-04 17:39:05	\N	\N	\N	capitol
+1136	1	-35	En Club-Mate	2016-06-11 14:16:23	\N	\N	\N	capitol
+1141	1	-35	En Club-Mate	2016-06-11 18:15:47	\N	\N	\N	capitol
+1148	1	-35	En Club-Mate	2016-06-14 15:34:38	\N	\N	\N	capitol
+1149	1	-20	En Munkholm	2016-06-14 17:10:07	\N	\N	\N	capitol
+1150	1	-35	En Club-Mate	2016-06-14 17:11:31	\N	\N	\N	capitol
+1154	1	-35	En Club-Mate	2016-06-18 12:31:10	\N	\N	\N	capitol
+1156	1	-35	En Club-Mate	2016-06-18 15:37:14	\N	\N	\N	capitol
+1169	1	0	Manually added by krav.	2016-06-20 19:44:33.112037	\N	\N	\N	capitol
+1179	1	-35	En Club-Mate	2016-06-21 18:50:25.2147	\N	\N	\N	capitol
+1181	1	-20	Munkholm	2016-06-21 19:53:02.679183	\N	\N	\N	capitol
+1183	1	500	Transfer with Stripe.	2016-06-25 14:58:20.529001	\N	\N	\N	capitol
+1184	1	-35	Club-Mate	2016-06-25 14:58:44.415084	\N	\N	\N	capitol
+1196	1	-35	Club-Mate	2016-06-28 20:04:17.123674	\N	\N	\N	capitol
+1204	1	-35	Club-Mate	2016-07-05 17:34:41.026061	\N	\N	\N	capitol
+1212	1	-35	Club-Mate	2016-07-09 15:44:12.768628	\N	\N	\N	capitol
+1221	1	-35	Club-Mate	2016-07-09 20:37:06.950615	\N	\N	\N	capitol
+1230	1	-35	Club-Mate	2016-07-12 17:48:09.285781	\N	\N	\N	capitol
+1255	1	-35	Club-Mate	2016-07-16 12:33:06.97534	\N	\N	\N	capitol
+1265	1	-35	Club-Mate	2016-08-05 17:02:57.868065	\N	\N	\N	capitol
+1267	1	-35	Club-Mate	2016-08-06 14:45:00.159453	\N	\N	\N	capitol
+1275	1	-35	Club-Mate	2016-08-06 20:36:03.21114	\N	\N	\N	capitol
+1285	1	-35	Club-Mate	2016-08-16 17:34:00.67932	\N	\N	\N	capitol
+1288	1	-35	Club-Mate	2016-08-20 14:34:06.093262	\N	\N	\N	capitol
+1292	1	-35	Club-Mate	2016-08-23 18:09:23.338832	\N	\N	\N	capitol
+1296	1	-35	Club-Mate	2016-08-27 17:49:46.937386	\N	\N	\N	capitol
+1297	1	-35	Club-Mate	2016-08-27 20:05:09.027757	\N	\N	\N	capitol
+1298	1	500	Transfer with Stripe.	2016-08-27 20:06:54.623704	\N	\N	\N	capitol
+1299	1	-35	Club-Mate	2016-08-27 20:07:21.466524	\N	\N	\N	capitol
+1300	1	-35	Club-Mate	2016-08-30 17:06:37.047602	\N	\N	\N	capitol
+1302	1	-35	Club-Mate	2016-08-30 19:00:10.187358	\N	\N	\N	capitol
+1304	1	-35	Club-Mate	2016-08-30 20:40:48.550197	\N	\N	\N	capitol
+1306	1	-35	Club-Mate	2016-09-03 16:40:11.474858	\N	\N	\N	capitol
+1307	1	-35	Club-Mate	2016-09-03 19:23:51.721189	\N	\N	\N	capitol
+1308	1	-35	Club-Mate	2016-09-03 19:45:02.550193	\N	\N	\N	capitol
+1309	1	-35	Club-Mate	2016-09-04 12:27:39.457167	\N	\N	\N	capitol
+1310	1	-35	Club-Mate	2016-09-06 17:09:15.534573	\N	\N	\N	capitol
+1394	1	-35	Club-Mate	2016-10-01 17:43:16.620813	\N	\N	\N	capitol
+1395	1	-35	Club-Mate	2016-10-01 20:19:26.14245	\N	\N	\N	capitol
+1397	1	-35	Club-Mate	2016-10-04 17:49:15.820923	\N	\N	\N	capitol
+1406	1	500	Transfer with Stripe.	2016-10-08 14:05:06.793557	\N	\N	\N	capitol
+1407	1	-35	Club-Mate	2016-10-08 14:25:58.222762	\N	\N	\N	capitol
+1417	1	-35	Club-Mate	2016-10-11 18:50:22.028911	\N	\N	\N	capitol
+1422	1	-35	Club-Mate	2016-10-12 17:42:23.603751	\N	\N	\N	capitol
+1428	1	-35	Club-Mate	2016-10-15 17:42:50.031361	\N	\N	\N	capitol
+1433	1	-35	Club-Mate	2016-10-15 19:53:33.121513	\N	\N	\N	capitol
+1446	1	-35	Club-Mate	2016-10-18 17:24:02.967301	\N	\N	\N	capitol
+1469	1	-35	Club-Mate	2016-10-22 20:18:12.570212	\N	\N	\N	capitol
+1479	1	-35	Club-Mate	2016-10-25 16:31:53.218161	\N	\N	\N	capitol
+1494	1	-35	Club-Mate	2016-10-29 17:50:28.873145	\N	\N	\N	capitol
+1509	1	-35	Club-Mate	2016-11-05 13:52:31.878549	\N	\N	\N	capitol
+1512	1	-35	Club-Mate	2016-11-05 16:05:55.22441	\N	\N	\N	capitol
+1524	1	-35	Club-Mate	2016-11-05 22:05:30.881388	\N	\N	\N	capitol
+1530	1	-35	Club-Mate	2016-11-08 17:31:44.060255	\N	\N	\N	capitol
+1536	1	-35	Club-Mate	2016-11-08 19:55:01.393899	\N	\N	\N	capitol
+1562	1	500	Transfer with Stripe.	2016-11-15 19:00:15.998119	\N	\N	\N	capitol
+1563	1	-35	Club-Mate	2016-11-15 19:00:31.680424	\N	\N	\N	capitol
+1568	1	-35	Club-Mate	2016-11-19 16:49:49.097818	\N	\N	\N	capitol
+1570	1	-35	Club-Mate	2016-11-19 19:19:22.367059	\N	\N	\N	capitol
+1571	1	-35	Club-Mate	2016-11-19 21:17:59.988091	\N	\N	\N	capitol
+1572	1	-35	Club-Mate	2016-11-22 17:30:48.474719	\N	\N	\N	capitol
+1576	1	-35	Club-Mate	2016-11-22 19:45:40.548545	\N	\N	\N	capitol
+1591	1	-35	Sagene	2016-11-26 18:00:20.045892	\N	\N	\N	capitol
+1609	1	-20	Munkholm	2016-12-03 18:58:26.570882	\N	\N	\N	capitol
+1613	1	-35	Sagene	2016-12-06 16:43:40.580129	\N	\N	\N	capitol
+1614	1	-20	Munkholm	2016-12-06 19:31:47.584535	\N	\N	\N	capitol
+1639	1	-35	Sagene	2016-12-13 17:27:02.889089	\N	\N	\N	capitol
+1648	1	-20	Munkholm	2016-12-17 17:14:39.770521	\N	\N	\N	capitol
+1649	1	-15	korrigering	2016-12-17 17:54:04.730108	\N	\N	\N	capitol
+1654	1	-20	Munkholm	2016-12-17 21:02:58.509314	\N	\N	\N	capitol
+1655	1	70	Manually added by krav.	2016-12-17 21:04:41.439898	\N	\N	\N	capitol
+1657	1	-35	Sagene	2016-12-20 17:47:14.928639	\N	\N	\N	capitol
+1660	1	-35	Sagene	2016-12-20 19:28:50.040642	\N	\N	\N	capitol
+1672	1	500	Transfer with Stripe.	2016-12-31 15:56:13.763009	\N	\N	\N	capitol
+1673	1	-35	Sagene	2016-12-31 16:19:53.16534	\N	\N	\N	capitol
+1674	1	-35	Club-Mate	2016-12-31 16:52:11.386818	\N	\N	\N	capitol
+1680	1	-35	Sagene	2017-01-07 16:54:38.434976	\N	\N	\N	capitol
+1682	1	-20	Munkholm	2017-01-07 19:12:53.930267	\N	\N	\N	capitol
+1696	1	-35	Sagene	2017-01-10 20:05:53.720119	\N	\N	\N	capitol
+1701	1	-35	Sagene	2017-01-12 17:43:26.963049	\N	\N	\N	capitol
+1702	1	-20	Munkholm	2017-01-12 19:23:26.388226	\N	\N	\N	capitol
+1706	1	-35	Sagene	2017-01-14 15:24:37.801457	\N	\N	\N	capitol
+1708	1	-20	Munkholm	2017-01-14 18:06:25.824148	\N	\N	\N	capitol
+1716	1	-35	Sagene	2017-01-17 18:25:08.977198	\N	\N	\N	capitol
+1736	1	-35	Sagene	2017-01-21 12:06:11.957054	\N	\N	\N	capitol
+1737	1	-35	Sagene	2017-01-21 15:08:32.128985	\N	\N	\N	capitol
+1741	1	-20	Munkholm	2017-01-21 18:56:31.726197	\N	\N	\N	capitol
+1744	1	-20	Munkholm	2017-01-24 17:54:49.130955	\N	\N	\N	capitol
+1745	1	-35	Sagene	2017-01-24 19:18:07.794813	\N	\N	\N	capitol
+1753	1	-35	Sagene	2017-01-28 17:00:44.673342	\N	\N	\N	capitol
+1754	1	500	Transfer with Stripe.	2017-01-28 19:46:16.944082	\N	\N	\N	capitol
+1755	1	-35	Sagene	2017-01-28 19:46:43.516853	\N	\N	\N	capitol
+1763	1	0	hei	2017-01-29 19:54:09.540912	\N	\N	\N	capitol
+1448	3	-35	Club-Mate	2016-10-18 18:59:57.658982	\N	\N	\N	aevin
+1452	3	-35	Cider	2016-10-18 20:16:34.005252	\N	\N	\N	aevin
+1456	3	-35	Cider	2016-10-18 21:24:10.249389	\N	\N	\N	aevin
+35	4	-35	En Voksenbrus	2015-09-10 20:30:41	\N	\N	\N	alpha60
+43	4	-35	En Club-Mate	2015-09-12 17:37:07	\N	\N	\N	alpha60
+44	4	-35	En Club-Mate	2015-09-12 17:37:49	\N	\N	\N	alpha60
+48	4	35	Kilt seg	2015-09-12 17:41:52	\N	\N	\N	alpha60
+69	4	-35	En Club-Mate	2015-09-19 15:20:15	\N	\N	\N	alpha60
+70	4	35	Manually added by krav.	2015-09-19 15:22:06	\N	\N	\N	alpha60
+79	4	-35	En Club-Mate	2015-09-20 15:01:14	\N	\N	\N	alpha60
+83	4	-35	En Club-Mate	2015-09-21 17:53:16	\N	\N	\N	alpha60
+84	4	-35	En Voksenbrus	2015-09-21 19:04:02	\N	\N	\N	alpha60
+85	4	-35	En Voksenbrus	2015-09-21 19:04:14	\N	\N	\N	alpha60
+91	4	500	Transfer with Stripe.	2015-09-22 15:33:14	\N	\N	\N	alpha60
+220	4	-35	En Club-Mate	2015-10-16 15:59:39	\N	\N	\N	alpha60
+233	4	-35	En Club-Mate	2015-10-18 14:12:44	\N	\N	\N	alpha60
+280	4	-35	En Club-Mate	2015-10-30 16:22:50	\N	\N	\N	alpha60
+283	4	500	Transfer with Stripe.	2015-10-30 19:30:55	\N	\N	\N	alpha60
+284	4	-35	En Voksenbrus	2015-10-30 20:45:10	\N	\N	\N	alpha60
+286	4	-35	Kjøpte øl fra åpen maskin	2015-10-30 21:20:53	\N	\N	\N	alpha60
+304	4	-35	En Club-Mate	2015-11-03 17:46:03	\N	\N	\N	alpha60
+322	4	-30	En Julmust	2015-11-06 16:07:23	\N	\N	\N	alpha60
+326	4	-35	En Club-Mate	2015-11-07 16:50:36	\N	\N	\N	alpha60
+343	4	-35	En Club-Mate	2015-11-10 18:02:55	\N	\N	\N	alpha60
+458	4	-35	En Club-Mate	2015-12-03 15:58:48	\N	\N	\N	alpha60
+475	4	-35	En Voksenbrus	2015-12-03 21:27:11	\N	\N	\N	alpha60
+228	5	-35	En Club-Mate	2015-10-17 18:10:39	\N	\N	\N	lkarsten
+230	5	-35	En Voksenbrus	2015-10-17 19:40:18	\N	\N	\N	lkarsten
+234	5	-35	En Club-Mate	2015-10-18 14:28:52	\N	\N	\N	lkarsten
+697	5	-35	En Club-Mate	2016-02-02 18:23:18	\N	\N	\N	lkarsten
+934	5	-35	En Club-Mate	2016-04-16 20:31:24	\N	\N	\N	lkarsten
+960	5	-35	En Club-Mate	2016-04-26 19:14:30	\N	\N	\N	lkarsten
+1401	5	-35	Club-Mate	2016-10-04 19:12:32.006954	\N	\N	\N	lkarsten
+1450	5	-35	Club-Mate	2016-10-18 19:27:23.494819	\N	\N	\N	lkarsten
+1455	5	-35	Cider	2016-10-18 20:48:50.87811	\N	\N	\N	lkarsten
+1595	5	-17	Julebrus	2016-11-26 19:22:23.772972	\N	\N	\N	lkarsten
+38	6	-35	En Club-Mate	2015-09-11 12:12:52	\N	\N	\N	krav
+39	6	-35	En Club-Mate	2015-09-11 14:34:32	\N	\N	\N	krav
+40	6	-35	En Club-Mate	2015-09-12 14:13:37	\N	\N	\N	krav
+45	6	-35	En Club-Mate	2015-09-12 17:40:16	\N	\N	\N	krav
+46	6	-35	En Club-Mate	2015-09-12 17:40:26	\N	\N	\N	krav
+47	6	70	Kilt seg	2015-09-12 17:41:43	\N	\N	\N	krav
+49	6	-35	En Voksenbrus	2015-09-12 19:15:27	\N	\N	\N	krav
+51	6	-35	En Club-Mate	2015-09-13 19:15:55	\N	\N	\N	krav
+54	6	-35	En Club-Mate	2015-09-15 16:18:04	\N	\N	\N	krav
+59	6	-35	En Club-Mate	2015-09-15 20:56:51	\N	\N	\N	krav
+60	6	-35	En Club-Mate	2015-09-16 18:45:00	\N	\N	\N	krav
+66	6	-35	En Club-Mate	2015-09-18 12:05:21	\N	\N	\N	krav
+68	6	-35	En Club-Mate	2015-09-19 15:12:42	\N	\N	\N	krav
+76	6	-35	En Club-Mate	2015-09-19 20:55:45	\N	\N	\N	krav
+78	6	-35	En Club-Mate	2015-09-20 14:57:03	\N	\N	\N	krav
+80	6	-35	En Club-Mate	2015-09-20 15:25:31	\N	\N	\N	krav
+82	6	35	Manually added by krav.	2015-09-20 15:33:25	\N	\N	\N	krav
+86	6	-35	En Club-Mate	2015-09-22 11:18:37	\N	\N	\N	krav
+99	6	177	Kjøp av nfc-kort	2015-09-24 11:20:57	\N	\N	\N	krav
+167	6	-35	En Club-Mate	2015-10-06 11:46:11	\N	\N	\N	krav
+170	6	-35	En Club-Mate	2015-10-06 16:26:00	\N	\N	\N	krav
+177	6	-35	En Club-Mate	2015-10-06 21:05:00	\N	\N	\N	krav
+184	6	-35	En Club-Mate	2015-10-10 15:35:05	\N	\N	\N	krav
+193	6	60	test	2015-10-10 18:04:34	\N	\N	\N	krav
+194	6	-35	En Club-Mate	2015-10-10 18:04:54	\N	\N	\N	krav
+196	6	-35	En Club-Mate	2015-10-10 21:07:58	\N	\N	\N	krav
+199	6	500	Transfer with Stripe.	2015-10-13 15:59:34	\N	\N	\N	krav
+200	6	-35	En Club-Mate	2015-10-13 16:00:50	\N	\N	\N	krav
+214	6	-35	En Voksenbrus	2015-10-13 19:56:59	\N	\N	\N	krav
+215	6	-35	En Club-Mate	2015-10-13 20:27:06	\N	\N	\N	krav
+218	6	-35	En Club-Mate	2015-10-14 13:50:58	\N	\N	\N	krav
+219	6	-35	En Club-Mate	2015-10-16 11:53:18	\N	\N	\N	krav
+221	6	-35	En Club-Mate	2015-10-16 18:16:42	\N	\N	\N	krav
+231	6	-35	En Club-Mate	2015-10-18 12:44:41	\N	\N	\N	krav
+265	6	-35	En Club-Mate	2015-10-24 16:46:38	\N	\N	\N	krav
+268	6	-35	En Club-Mate	2015-10-26 13:43:18	\N	\N	\N	krav
+274	6	-35	En Club-Mate	2015-10-27 19:45:42	\N	\N	\N	krav
+276	6	500	Transfer with Stripe.	2015-10-28 14:34:07	\N	\N	\N	krav
+277	6	-35	En Club-Mate	2015-10-28 15:22:39	\N	\N	\N	krav
+278	6	-35	En Club-Mate	2015-10-28 18:07:45	\N	\N	\N	krav
+279	6	-35	En Club-Mate	2015-10-30 13:14:23	\N	\N	\N	krav
+287	6	-40	En Voksenbrus	2015-10-30 21:34:22	\N	\N	\N	krav
+288	6	40	Manually added by krav.	2015-10-30 21:35:21	\N	\N	\N	krav
+289	6	-35	En Voksenbrus	2015-10-30 21:38:49	\N	\N	\N	krav
+301	6	-35	En Club-Mate	2015-11-02 14:39:49	\N	\N	\N	krav
+313	6	-35	En Club-Mate	2015-11-03 22:47:40	\N	\N	\N	krav
+319	6	-35	En Club-Mate	2015-11-06 13:37:08	\N	\N	\N	krav
+323	6	-30	En Julmust	2015-11-06 19:33:02	\N	\N	\N	krav
+325	6	-35	En Club-Mate	2015-11-07 16:16:43	\N	\N	\N	krav
+332	6	-35	En Club-Mate	2015-11-08 15:56:55	\N	\N	\N	krav
+333	6	-35	En Club-Mate	2015-11-08 20:37:39	\N	\N	\N	krav
+341	6	-35	En Club-Mate	2015-11-10 17:34:32	\N	\N	\N	krav
+357	6	-35	En Club-Mate	2015-11-12 16:12:07	\N	\N	\N	krav
+401	6	-35	En Club-Mate	2015-11-21 18:55:03	\N	\N	\N	krav
+408	6	-35	En Club-Mate	2015-11-21 23:27:18	\N	\N	\N	krav
+410	6	-35	En Club-Mate	2015-11-23 13:58:52	\N	\N	\N	krav
+419	6	-35	En Club-Mate	2015-11-25 15:38:52	\N	\N	\N	krav
+422	6	-35	En Club-Mate	2015-11-26 15:08:17	\N	\N	\N	krav
+426	6	-35	En Club-Mate	2015-11-27 14:49:02	\N	\N	\N	krav
+429	6	-35	En Club-Mate	2015-11-28 15:16:30	\N	\N	\N	krav
+444	6	-35	En Club-Mate	2015-11-30 14:30:03	\N	\N	\N	krav
+447	6	-35	En Club-Mate	2015-12-01 11:07:37	\N	\N	\N	krav
+449	6	-35	En Club-Mate	2015-12-01 14:47:18	\N	\N	\N	krav
+455	6	-35	En Club-Mate	2015-12-02 13:40:58	\N	\N	\N	krav
+467	6	490	Transfer with Stripe.	2015-12-03 19:31:57	\N	\N	\N	krav
+469	6	-35	En Voksenbrus	2015-12-03 19:47:49	\N	\N	\N	krav
+476	6	-35	En Voksenbrus	2015-12-03 21:49:18	\N	\N	\N	krav
+552	6	20	Manually added by krav.	2016-01-05 17:35:38	\N	\N	\N	krav
+579	6	-35	En Club-Mate	2016-01-13 12:57:20	\N	\N	\N	krav
+583	6	-35	En Club-Mate	2016-01-16 16:01:19	\N	\N	\N	krav
+648	6	-35	En Club-Mate	2016-01-21 22:44:35	\N	\N	\N	krav
+649	6	-35	En Club-Mate	2016-01-21 22:44:43	\N	\N	\N	krav
+652	6	-20	En Munkholm	2016-01-23 18:21:34	\N	\N	\N	krav
+653	6	20	Manually added by krav.	2016-01-23 18:24:00	\N	\N	\N	krav
+660	6	-35	En Club-Mate	2016-01-23 22:33:22	\N	\N	\N	krav
+673	6	-35	En Club-Mate	2016-01-26 19:44:25	\N	\N	\N	krav
+678	6	-35	En Club-Mate	2016-01-26 20:30:38	\N	\N	\N	krav
+700	6	-35	En Club-Mate	2016-02-02 19:29:44	\N	\N	\N	krav
+707	6	-30	En Tuborg	2016-02-02 21:06:55	\N	\N	\N	krav
+708	6	-30	En Tuborg	2016-02-02 21:07:42	\N	\N	\N	krav
+709	6	-30	En Tuborg	2016-02-02 21:08:47	\N	\N	\N	krav
+710	6	-30	En Tuborg	2016-02-02 21:09:42	\N	\N	\N	krav
+718	6	-20	En Munkholm	2016-02-06 18:00:24	\N	\N	\N	krav
+719	6	-35	En Sagene p1lz	2016-02-06 18:00:31	\N	\N	\N	krav
+946	6	-35	En Club-Mate	2016-04-19 19:12:03	\N	\N	\N	krav
+949	6	-35	En Club-Mate	2016-04-22 07:02:05	\N	\N	\N	krav
+997	6	-35	En Club-Mate	2016-04-30 22:27:58	\N	\N	\N	krav
+999	6	-35	En Club-Mate	2016-04-30 23:51:37	\N	\N	\N	krav
+1007	6	-35	En Club-Mate	2016-05-04 07:01:56	\N	\N	\N	krav
+1025	6	-35	En Club-Mate	2016-05-08 19:20:17	\N	\N	\N	krav
+1054	6	500	Transfer with Stripe.	2016-05-20 18:41:32	\N	\N	\N	krav
+1055	6	-35	En Club-Mate	2016-05-20 19:14:30	\N	\N	\N	krav
+1056	6	-35	En Club-Mate	2016-05-20 19:14:39	\N	\N	\N	krav
+1058	6	-35	En Club-Mate	2016-05-21 15:57:59	\N	\N	\N	krav
+1064	6	-35	En Club-Mate	2016-05-21 19:04:56	\N	\N	\N	krav
+1128	6	35	Manually added by krav.	2016-06-07 17:24:20	\N	\N	\N	krav
+1131	6	-35	En Club-Mate	2016-06-07 18:06:52	\N	\N	\N	krav
+1132	6	35	Manually added by krav.	2016-06-07 18:07:30	\N	\N	\N	krav
+1135	6	-35	En Club-Mate	2016-06-07 20:38:42	\N	\N	\N	krav
+1158	6	25	Transfer with Stripe.	2016-06-19 20:21:09	\N	\N	\N	krav
+1159	6	21	Transfer with Stripe.	2016-06-19 20:44:09	\N	\N	\N	krav
+1160	6	20	Transfer with Stripe.	2016-06-19 20:44:34	\N	\N	\N	krav
+1161	6	10	Transfer with Stripe.	2016-06-20 00:33:47.989193	\N	\N	\N	krav
+1162	6	-3	tut	2016-06-20 00:47:51.21869	\N	\N	\N	krav
+1163	6	-35	Club-Mate	2016-06-20 10:00:12.319815	\N	\N	\N	krav
+1164	6	-35	Club-Mate	2016-06-20 10:00:24.305214	\N	\N	\N	krav
+1165	6	100	Manually added by krav.	2016-06-20 10:05:24.385976	\N	\N	\N	krav
+1166	6	-35	Club-Mate	2016-06-20 10:05:35.846728	\N	\N	\N	krav
+1167	6	-35	Club-Mate	2016-06-20 10:05:51.378162	\N	\N	\N	krav
+1168	6	-35	Club-Mate	2016-06-20 10:05:52.278389	\N	\N	\N	krav
+1170	6	65	Manually added by krav.	2016-06-20 19:44:43.196649	\N	\N	\N	krav
+1173	6	-35	Club-Mate	2016-06-21 18:08:08.677267	\N	\N	\N	krav
+1174	6	-35	Club-Mate	2016-06-21 18:10:33.616567	\N	\N	\N	krav
+1175	6	70	Manually added by krav.	2016-06-21 18:12:06.056295	\N	\N	\N	krav
+1176	6	-35	Club-Mate	2016-06-21 18:12:09.275436	\N	\N	\N	krav
+1177	6	-35	Club-Mate	2016-06-21 18:16:24.064775	\N	\N	\N	krav
+1178	6	35	Manually added by krav.	2016-06-21 18:20:17.380152	\N	\N	\N	krav
+1182	6	-35	Club-Mate	2016-06-22 17:18:03.703414	\N	\N	\N	krav
+1261	6	175	Kjøpt øl 	2016-07-23 19:11:05.295258	\N	\N	\N	krav
+1262	6	-35	Club-Mate	2016-08-04 20:33:06.768677	\N	\N	\N	krav
+1264	6	-35	Club-Mate	2016-08-05 14:33:03.425333	\N	\N	\N	krav
+1266	6	-35	Club-Mate	2016-08-05 19:28:57.921033	\N	\N	\N	krav
+1277	6	-35	Club-Mate	2016-08-08 16:30:08.164179	\N	\N	\N	krav
+1278	6	-35	Club-Mate	2016-08-09 17:04:23.585531	\N	\N	\N	krav
+1279	6	-35	Club-Mate	2016-08-09 21:00:32.065677	\N	\N	\N	krav
+1282	6	-35	Club-Mate	2016-08-13 14:59:23.451758	\N	\N	\N	krav
+1284	6	-35	Club-Mate	2016-08-13 22:03:41.020963	\N	\N	\N	krav
+1294	6	-35	Club-Mate	2016-08-23 20:45:15.779192	\N	\N	\N	krav
+1301	6	500	Transfer with Stripe.	2016-08-30 18:47:51.65338	\N	\N	\N	krav
+1305	6	-35	Club-Mate	2016-08-30 22:26:59.796289	\N	\N	\N	krav
+1311	6	-35	Club-Mate	2016-09-06 17:46:42.731124	\N	\N	\N	krav
+1319	6	-35	Club-Mate	2016-09-06 21:42:16.882718	\N	\N	\N	krav
+1320	6	-35	Club-Mate	2016-09-10 13:38:00.626978	\N	\N	\N	krav
+1324	6	-35	Club-Mate	2016-09-10 20:16:19.877277	\N	\N	\N	krav
+1327	6	-35	Club-Mate	2016-09-13 14:38:50.289427	\N	\N	\N	krav
+1329	6	192	clas o	2016-09-13 19:08:53.092182	\N	\N	\N	krav
+1330	6	-35	Club-Mate	2016-09-13 19:45:06.697225	\N	\N	\N	krav
+1333	6	35	solgt i baren	2016-09-13 20:24:32.399576	\N	\N	\N	krav
+1364	6	-35	Sagene	2016-09-23 18:29:51.795223	\N	\N	\N	krav
+1365	6	-25	Tuborg	2016-09-23 20:14:09.023781	\N	\N	\N	krav
+1371	6	-100		2016-09-24 13:17:05.147944	\N	\N	\N	krav
+1377	6	-35	Club-Mate	2016-09-24 21:51:20.305532	\N	\N	\N	krav
+1390	6	-35	Club-Mate	2016-09-27 20:33:04.474984	\N	\N	\N	krav
+1396	6	-35	Club-Mate	2016-10-01 20:46:39.059083	\N	\N	\N	krav
+1403	6	-35	Club-Mate	2016-10-05 16:45:55.757698	\N	\N	\N	krav
+1404	6	-35	Club-Mate	2016-10-05 18:18:34.945963	\N	\N	\N	krav
+1424	6	-35	Club-Mate	2016-10-13 12:07:59.102036	\N	\N	\N	krav
+1425	6	-35	Club-Mate	2016-10-13 14:41:05.088	\N	\N	\N	krav
+1426	6	-35	Club-Mate	2016-10-13 14:41:20.008221	\N	\N	\N	krav
+1427	6	-35	Club-Mate	2016-10-15 16:36:49.543207	\N	\N	\N	krav
+1430	6	-35	Sagene	2016-10-15 18:09:58.294382	\N	\N	\N	krav
+1434	6	-35	Sagene	2016-10-15 20:21:42.504907	\N	\N	\N	krav
+1437	6	-35	Cider	2016-10-15 22:18:43.010356	\N	\N	\N	krav
+1441	6	-35	Cider	2016-10-15 23:26:23.109617	\N	\N	\N	krav
+1443	6	-35	Club-Mate	2016-10-16 19:30:49.341865	\N	\N	\N	krav
+1445	6	-35	Club-Mate	2016-10-17 19:10:32.505069	\N	\N	\N	krav
+1453	6	-35	Club-Mate	2016-10-18 20:31:59.988381	\N	\N	\N	krav
+1457	6	-35	Club-Mate	2016-10-18 22:28:21.670549	\N	\N	\N	krav
+1459	6	-35	Cider	2016-10-21 21:03:19.690523	\N	\N	\N	krav
+1490	6	-35	Club-Mate	2016-10-27 15:27:16.970641	\N	\N	\N	krav
+1492	6	-35	Club-Mate	2016-10-27 20:42:16.91974	\N	\N	\N	krav
+1499	6	-35	Club-Mate	2016-10-29 22:06:15.434927	\N	\N	\N	krav
+1500	6	-35	Club-Mate	2016-10-31 16:48:48.603678	\N	\N	\N	krav
+1501	6	-35	Club-Mate	2016-10-31 16:49:04.762007	\N	\N	\N	krav
+1507	6	-35	Club-Mate	2016-11-01 21:31:16.755672	\N	\N	\N	krav
+1508	6	-35	Club-Mate	2016-11-04 14:32:53.947641	\N	\N	\N	krav
+1523	6	-35	Club-Mate	2016-11-05 20:40:23.532403	\N	\N	\N	krav
+1529	6	-35	Club-Mate	2016-11-08 17:18:06.470167	\N	\N	\N	krav
+1532	6	-35	Club-Mate	2016-11-08 19:10:32.115876	\N	\N	\N	krav
+1539	6	-35	Club-Mate	2016-11-08 23:07:39.115252	\N	\N	\N	krav
+1542	6	-35	Club-Mate	2016-11-11 19:40:24.868602	\N	\N	\N	krav
+1543	6	-35	Club-Mate	2016-11-11 19:40:33.116613	\N	\N	\N	krav
+1546	6	-35	Club-Mate	2016-11-12 16:59:27.967443	\N	\N	\N	krav
+1551	6	-35	Club-Mate	2016-11-12 22:46:31.360201	\N	\N	\N	krav
+1557	6	-35	Club-Mate	2016-11-13 00:28:16.636143	\N	\N	\N	krav
+1559	6	-35	Club-Mate	2016-11-14 18:41:19.026508	\N	\N	\N	krav
+1566	6	35	Manually added by krav.	2016-11-17 13:43:48.933021	\N	\N	\N	krav
+1567	6	-35	Club-Mate	2016-11-17 13:44:40.355795	\N	\N	\N	krav
+1582	6	43	Manually added by krav.	2016-11-22 20:43:16.432017	\N	\N	\N	krav
+1584	6	-17	Julebrus	2016-11-22 21:39:26.564212	\N	\N	\N	krav
+1589	6	-35	Sagene	2016-11-24 16:30:57.51603	\N	\N	\N	krav
+1596	6	599	Manually added by krav.	2016-11-26 19:45:24.717352	\N	\N	\N	krav
+1597	6	-17	Julebrus	2016-11-26 19:45:36.690082	\N	\N	\N	krav
+1599	6	-35	Sagene	2016-11-26 20:59:15.336336	\N	\N	\N	krav
+1663	6	-35	Club-Mate	2016-12-22 18:40:13.159428	\N	\N	\N	krav
+1664	6	-35	Club-Mate	2016-12-22 19:23:00.456039	\N	\N	\N	krav
+1665	6	-35	Club-Mate	2016-12-22 19:23:07.068229	\N	\N	\N	krav
+1666	6	-35	Club-Mate	2016-12-22 20:40:39.373539	\N	\N	\N	krav
+1669	6	200	Manually added by krav.	2016-12-22 21:57:53.489525	\N	\N	\N	krav
+1670	6	-35	Club-Mate	2016-12-22 21:58:00.948895	\N	\N	\N	krav
+1671	6	-35	Club-Mate	2016-12-22 21:58:07.596876	\N	\N	\N	krav
+438	11	-35	En Club-Mate	2015-11-28 20:44:15	\N	\N	\N	enrico
+459	11	-35	En Club-Mate	2015-12-03 16:36:23	\N	\N	\N	enrico
+462	11	-40	En Voksenbrus	2015-12-03 17:36:36	\N	\N	\N	enrico
+463	11	-40	En Voksenbrus	2015-12-03 18:02:05	\N	\N	\N	enrico
+465	11	-40	En Voksenbrus	2015-12-03 18:46:29	\N	\N	\N	enrico
+468	11	-40	En Voksenbrus	2015-12-03 19:33:06	\N	\N	\N	enrico
+471	11	-35	En Voksenbrus	2015-12-03 20:20:17	\N	\N	\N	enrico
+472	11	350	Transfer with Stripe.	2015-12-03 21:04:51	\N	\N	\N	enrico
+473	11	-35	En Voksenbrus	2015-12-03 21:05:10	\N	\N	\N	enrico
+478	11	-35	En Voksenbrus	2015-12-03 22:20:39	\N	\N	\N	enrico
+479	11	-35	En Voksenbrus	2015-12-03 23:00:24	\N	\N	\N	enrico
+482	11	-35	En Voksenbrus	2015-12-03 23:33:54	\N	\N	\N	enrico
+483	11	-35	En Voksenbrus	2015-12-04 00:19:18	\N	\N	\N	enrico
+484	11	-35	En Club-Mate	2015-12-05 14:07:53	\N	\N	\N	enrico
+486	11	-35	En Club-Mate	2015-12-05 16:35:21	\N	\N	\N	enrico
+493	11	-35	En Club-Mate	2015-12-05 18:55:31	\N	\N	\N	enrico
+520	11	-35	En Voksenbrus	2015-12-12 17:32:37	\N	\N	\N	enrico
+521	11	-35	En Voksenbrus	2015-12-12 18:12:56	\N	\N	\N	enrico
+525	11	200	Transfer with Stripe.	2015-12-12 19:13:01	\N	\N	\N	enrico
+526	11	-35	En Voksenbrus	2015-12-12 19:14:42	\N	\N	\N	enrico
+529	11	-35	En Voksenbrus	2015-12-12 20:01:07	\N	\N	\N	enrico
+532	11	-35	En Voksenbrus	2015-12-12 21:02:48	\N	\N	\N	enrico
+533	11	-35	En Voksenbrus	2015-12-12 21:41:35	\N	\N	\N	enrico
+588	11	-30	En Tuborg	2016-01-16 19:12:46	\N	\N	\N	enrico
+589	11	-30	En Tuborg	2016-01-16 19:26:42	\N	\N	\N	enrico
+590	11	300	Transfer with Stripe.	2016-01-16 20:22:34	\N	\N	\N	enrico
+591	11	-30	En Tuborg	2016-01-16 20:26:59	\N	\N	\N	enrico
+592	11	-30	En Tuborg	2016-01-16 21:04:58	\N	\N	\N	enrico
+593	11	-20	En Munkholm	2016-01-16 21:06:12	\N	\N	\N	enrico
+595	11	-30	En Tuborg	2016-01-16 21:52:42	\N	\N	\N	enrico
+596	11	-30	En Tuborg	2016-01-16 22:09:27	\N	\N	\N	enrico
+597	11	-30	En Tuborg	2016-01-16 22:43:35	\N	\N	\N	enrico
+607	11	-35	En Club-Mate	2016-01-20 17:03:48	\N	\N	\N	enrico
+608	11	-35	En Club-Mate	2016-01-20 17:05:52	\N	\N	\N	enrico
+610	11	-35	En Club-Mate	2016-01-20 19:08:57	\N	\N	\N	enrico
+611	11	-30	En Tuborg	2016-01-20 19:47:37	\N	\N	\N	enrico
+615	11	500	Transfer with Stripe.	2016-01-21 16:50:06	\N	\N	\N	enrico
+616	11	-35	En Club-Mate	2016-01-21 16:50:28	\N	\N	\N	enrico
+624	11	-35	En Club-Mate	2016-01-21 17:55:47	\N	\N	\N	enrico
+635	11	-30	En Tuborg	2016-01-21 20:58:51	\N	\N	\N	enrico
+636	11	-30	En Tuborg	2016-01-21 21:00:19	\N	\N	\N	enrico
+639	11	-30	En Tuborg	2016-01-21 21:27:44	\N	\N	\N	enrico
+640	11	-30	En Tuborg	2016-01-21 21:52:06	\N	\N	\N	enrico
+642	11	-30	En Tuborg	2016-01-21 22:06:35	\N	\N	\N	enrico
+645	11	-30	En Tuborg	2016-01-21 22:37:53	\N	\N	\N	enrico
+646	11	-30	En Tuborg	2016-01-21 22:39:46	\N	\N	\N	enrico
+650	11	-35	En Club-Mate	2016-01-23 14:45:05	\N	\N	\N	enrico
+657	11	-35	En Club-Mate	2016-01-23 20:28:54	\N	\N	\N	enrico
+664	11	-30	En Tuborg	2016-01-26 17:15:31	\N	\N	\N	enrico
+665	11	-35	En Club-Mate	2016-01-26 17:15:57	\N	\N	\N	enrico
+667	11	-35	En Club-Mate	2016-01-26 17:53:18	\N	\N	\N	enrico
+669	11	-30	En Tuborg	2016-01-26 18:39:43	\N	\N	\N	enrico
+675	11	200	Transfer with Stripe.	2016-01-26 19:45:49	\N	\N	\N	enrico
+676	11	-35	En Voksenbrus	2016-01-26 19:49:59	\N	\N	\N	enrico
+680	11	-35	En Voksenbrus	2016-01-26 22:30:22	\N	\N	\N	enrico
+681	11	-35	En Club-Mate	2016-01-26 22:30:33	\N	\N	\N	enrico
+683	11	-35	En Voksenbrus	2016-01-26 23:08:20	\N	\N	\N	enrico
+730	11	-35	En Sagene p1lz	2016-02-09 17:04:27	\N	\N	\N	enrico
+731	11	-35	En Sagene p1lz	2016-02-09 17:37:38	\N	\N	\N	enrico
+733	11	250	Transfer with Stripe.	2016-02-09 19:37:23	\N	\N	\N	enrico
+734	11	-35	En Sagene p1lz	2016-02-09 19:39:43	\N	\N	\N	enrico
+738	11	-35	En Sagene p1lz	2016-02-09 20:54:39	\N	\N	\N	enrico
+758	11	-35	En Club-Mate	2016-02-20 16:32:39	\N	\N	\N	enrico
+759	11	-35	En Club-Mate	2016-02-20 17:49:06	\N	\N	\N	enrico
+760	11	-35	En Club-Mate	2016-02-20 17:59:55	\N	\N	\N	enrico
+761	11	-35	En Sagene p1lz	2016-02-20 18:17:18	\N	\N	\N	enrico
+762	11	-35	En Sagene p1lz	2016-02-20 18:17:27	\N	\N	\N	enrico
+770	11	70	Transfer with Stripe.	2016-02-20 21:56:59	\N	\N	\N	enrico
+771	11	-35	En Sagene p1lz	2016-02-20 21:58:56	\N	\N	\N	enrico
+772	11	-35	En Sagene p1lz	2016-02-20 23:03:19	\N	\N	\N	enrico
+778	11	10	Transfer with Stripe.	2016-02-21 00:21:17	\N	\N	\N	enrico
+779	11	-35	En Sagene p1lz	2016-02-21 00:21:25	\N	\N	\N	enrico
+800	11	200	Transfer with Stripe.	2016-02-27 22:23:04	\N	\N	\N	enrico
+801	11	-35	En Club-Mate	2016-02-27 22:23:19	\N	\N	\N	enrico
+809	11	-35	En Club-Mate	2016-03-01 19:05:09	\N	\N	\N	enrico
+810	11	-35	En Club-Mate	2016-03-01 19:53:52	\N	\N	\N	enrico
+811	11	-35	En Sagene p1lz	2016-03-01 19:54:10	\N	\N	\N	enrico
+813	11	-35	En Sagene p1lz	2016-03-01 20:59:24	\N	\N	\N	enrico
+815	11	300	Transfer with Stripe.	2016-03-03 16:36:21	\N	\N	\N	enrico
+816	11	-35	En Sagene p1lz	2016-03-03 16:36:26	\N	\N	\N	enrico
+817	11	-35	En Sagene p1lz	2016-03-03 17:51:52	\N	\N	\N	enrico
+818	11	-35	En Sagene p1lz	2016-03-03 17:55:21	\N	\N	\N	enrico
+819	11	-35	En Sagene p1lz	2016-03-03 19:45:27	\N	\N	\N	enrico
+820	11	-35	En Club-Mate	2016-03-03 19:47:56	\N	\N	\N	enrico
+821	11	-35	En Sagene p1lz	2016-03-03 20:24:57	\N	\N	\N	enrico
+822	11	500	Transfer with Stripe.	2016-03-03 20:47:18	\N	\N	\N	enrico
+823	11	-35	En Club-Mate	2016-03-03 21:05:53	\N	\N	\N	enrico
+824	11	-35	En Sagene p1lz	2016-03-03 21:11:23	\N	\N	\N	enrico
+825	11	-35	En Sagene p1lz	2016-03-03 21:12:06	\N	\N	\N	enrico
+826	11	-35	En Sagene p1lz	2016-03-03 22:10:03	\N	\N	\N	enrico
+827	11	-35	En Sagene p1lz	2016-03-03 23:18:51	\N	\N	\N	enrico
+829	11	-35	En Sagene p1lz	2016-03-05 18:33:31	\N	\N	\N	enrico
+832	11	-35	En Sagene p1lz	2016-03-05 19:32:40	\N	\N	\N	enrico
+833	11	-35	En Sagene p1lz	2016-03-05 20:03:26	\N	\N	\N	enrico
+834	11	-35	En Sagene p1lz	2016-03-05 20:54:09	\N	\N	\N	enrico
+848	11	-35	En Sagene p1lz	2016-03-12 17:03:42	\N	\N	\N	enrico
+852	11	-35	En Sagene p1lz	2016-03-12 18:17:13	\N	\N	\N	enrico
+857	11	-35	En Sagene p1lz	2016-03-12 20:09:50	\N	\N	\N	enrico
+858	11	-35	En Sagene p1lz	2016-03-12 21:37:56	\N	\N	\N	enrico
+865	11	-35	En Club-Mate	2016-03-14 18:08:31	\N	\N	\N	enrico
+872	11	-35	En Club-Mate	2016-03-17 17:39:56	\N	\N	\N	enrico
+873	11	-35	En Club-Mate	2016-03-17 17:40:18	\N	\N	\N	enrico
+874	11	-35	En Club-Mate	2016-03-17 18:06:58	\N	\N	\N	enrico
+875	11	500	Transfer with Stripe.	2016-03-17 18:44:28	\N	\N	\N	enrico
+876	11	-35	En Club-Mate	2016-03-17 18:44:51	\N	\N	\N	enrico
+877	11	-35	En Club-Mate	2016-03-17 19:21:55	\N	\N	\N	enrico
+878	11	-35	En Club-Mate	2016-03-17 20:04:10	\N	\N	\N	enrico
+879	11	-35	En Club-Mate	2016-03-17 20:04:33	\N	\N	\N	enrico
+884	11	-35	En Club-Mate	2016-03-17 20:53:35	\N	\N	\N	enrico
+885	11	-35	En Club-Mate	2016-03-17 21:30:54	\N	\N	\N	enrico
+886	11	-35	En Club-Mate	2016-03-17 21:31:01	\N	\N	\N	enrico
+887	11	-35	En Club-Mate	2016-03-17 22:26:02	\N	\N	\N	enrico
+904	11	-35	En Club-Mate	2016-03-26 17:18:05	\N	\N	\N	enrico
+905	11	-35	En Club-Mate	2016-03-26 17:34:46	\N	\N	\N	enrico
+906	11	-35	En Club-Mate	2016-03-26 18:00:10	\N	\N	\N	enrico
+907	11	-35	En Club-Mate	2016-03-26 18:45:45	\N	\N	\N	enrico
+908	11	-35	En Club-Mate	2016-03-26 19:17:15	\N	\N	\N	enrico
+910	11	-35	En Club-Mate	2016-03-26 19:50:43	\N	\N	\N	enrico
+912	11	10045	Transfer with Stripe.	2016-03-26 20:25:24	\N	\N	\N	enrico
+913	11	-35	En Club-Mate	2016-03-26 20:25:29	\N	\N	\N	enrico
+917	11	-35	En Club-Mate	2016-04-05 17:30:45	\N	\N	\N	enrico
+918	11	-35	En Club-Mate	2016-04-05 18:00:49	\N	\N	\N	enrico
+919	11	-35	En Club-Mate	2016-04-05 18:25:43	\N	\N	\N	enrico
+921	11	-35	En Club-Mate	2016-04-05 19:36:05	\N	\N	\N	enrico
+922	11	-35	En Club-Mate	2016-04-05 20:05:18	\N	\N	\N	enrico
+927	11	-35	En Club-Mate	2016-04-16 14:45:37	\N	\N	\N	enrico
+928	11	-35	En Club-Mate	2016-04-16 15:33:43	\N	\N	\N	enrico
+931	11	-35	En Club-Mate	2016-04-16 18:45:18	\N	\N	\N	enrico
+939	11	-35	En Club-Mate	2016-04-19 16:49:23	\N	\N	\N	enrico
+940	11	-35	En Club-Mate	2016-04-19 16:59:55	\N	\N	\N	enrico
+943	11	-35	En Club-Mate	2016-04-19 18:28:18	\N	\N	\N	enrico
+944	11	-35	En Club-Mate	2016-04-19 18:44:29	\N	\N	\N	enrico
+947	11	-35	En Club-Mate	2016-04-19 19:36:38	\N	\N	\N	enrico
+956	11	-35	En Club-Mate	2016-04-26 17:57:04	\N	\N	\N	enrico
+957	11	-35	En Club-Mate	2016-04-26 18:08:53	\N	\N	\N	enrico
+959	11	-35	En Club-Mate	2016-04-26 19:11:58	\N	\N	\N	enrico
+963	11	-9480	Fratrekk even steven	2016-04-26 20:40:00	\N	\N	\N	enrico
+977	11	500	Transfer with Stripe.	2016-04-30 16:06:44	\N	\N	\N	enrico
+978	11	-35	En Club-Mate	2016-04-30 16:07:41	\N	\N	\N	enrico
+979	11	-35	En Club-Mate	2016-04-30 16:47:23	\N	\N	\N	enrico
+981	11	-35	En Club-Mate	2016-04-30 17:57:07	\N	\N	\N	enrico
+982	11	-35	En Club-Mate	2016-04-30 18:19:20	\N	\N	\N	enrico
+983	11	-35	En Club-Mate	2016-04-30 18:51:39	\N	\N	\N	enrico
+984	11	-35	En Club-Mate	2016-04-30 19:05:31	\N	\N	\N	enrico
+989	11	-35	En Club-Mate	2016-04-30 19:38:13	\N	\N	\N	enrico
+990	11	-35	En Club-Mate	2016-04-30 20:24:31	\N	\N	\N	enrico
+994	11	-35	En Club-Mate	2016-04-30 21:20:56	\N	\N	\N	enrico
+995	11	-35	En Club-Mate	2016-04-30 21:39:49	\N	\N	\N	enrico
+998	11	-35	En Club-Mate	2016-04-30 22:33:51	\N	\N	\N	enrico
+1000	11	-35	En Club-Mate	2016-04-30 23:54:30	\N	\N	\N	enrico
+1005	11	-80		2016-05-03 17:39:13	\N	\N	\N	enrico
+1075	11	500	Transfer with Stripe.	2016-05-24 17:38:34	\N	\N	\N	enrico
+1076	11	-140	4 pils	2016-05-24 17:39:11	\N	\N	\N	enrico
+1082	11	-110	3 pils	2016-05-24 19:56:55	\N	\N	\N	enrico
+1195	11	-70	øl*2	2016-06-28 19:29:58.201815	\N	\N	\N	enrico
+1197	11	-30	en tuborg grøn	2016-06-28 20:15:17.200555	\N	\N	\N	enrico
+1200	11	-30		2016-06-28 20:43:03.785893	\N	\N	\N	enrico
+1201	11	-30		2016-06-28 21:53:22.866902	\N	\N	\N	enrico
+1209	11	-90	3 tuborg	2016-07-05 18:47:55.909535	\N	\N	\N	enrico
+1253	11	-95	2 toborg + mate	2016-07-15 20:33:26.100626	\N	\N	\N	enrico
+1258	11	-250	t-kjorte	2016-07-18 21:50:10.227823	\N	\N	\N	enrico
+1259	11	-70	2 mate	2016-07-18 21:50:22.60475	\N	\N	\N	enrico
+1260	11	500	Transfer with Stripe.	2016-07-18 21:51:20.192573	\N	\N	\N	enrico
+1338	11	500	Transfer with Stripe.	2016-09-17 19:43:37.81539	\N	\N	\N	enrico
+1339	11	-280	2 mate 4 øl	2016-09-17 19:44:41.50931	\N	\N	\N	enrico
+1374	11	-35	en mate	2016-09-24 17:13:16.500899	\N	\N	\N	enrico
+1375	11	-35	Sagene	2016-09-24 20:46:36.469783	\N	\N	\N	enrico
+1376	11	-35	Sagene	2016-09-24 21:38:04.663418	\N	\N	\N	enrico
+1378	11	-35	Sagene	2016-09-24 22:37:48.113565	\N	\N	\N	enrico
+1380	11	-35	Sagene	2016-09-24 23:19:44.178288	\N	\N	\N	enrico
+1381	11	-35	Sagene	2016-09-25 00:20:30.556637	\N	\N	\N	enrico
+1398	11	-35	Sagene	2016-10-04 18:29:40.699513	\N	\N	\N	enrico
+1400	11	-35	Sagene	2016-10-04 18:53:29.226946	\N	\N	\N	enrico
+1408	11	350	Transfer with Stripe.	2016-10-08 16:41:51.40231	\N	\N	\N	enrico
+1409	11	-35	Club-Mate	2016-10-08 16:42:25.025003	\N	\N	\N	enrico
+1410	11	-35	Club-Mate	2016-10-08 16:44:42.889342	\N	\N	\N	enrico
+1411	11	-35	Sagene	2016-10-08 18:12:56.09073	\N	\N	\N	enrico
+1412	11	-35	Sagene	2016-10-08 19:05:07.37145	\N	\N	\N	enrico
+1413	11	-35	Sagene	2016-10-08 20:03:50.918214	\N	\N	\N	enrico
+1414	11	-35	Sagene	2016-10-08 21:13:35.539218	\N	\N	\N	enrico
+1415	11	-35	Sagene	2016-10-08 22:07:36.998341	\N	\N	\N	enrico
+1416	11	-35	Club-Mate	2016-10-11 18:32:17.030042	\N	\N	\N	enrico
+1435	11	-35	Club-Mate	2016-10-15 20:53:55.740492	\N	\N	\N	enrico
+1436	11	-35	Sagene	2016-10-15 22:03:36.567025	\N	\N	\N	enrico
+1438	11	500	Transfer with Stripe.	2016-10-15 22:57:09.533951	\N	\N	\N	enrico
+1439	11	-35	Sagene	2016-10-15 22:57:40.592355	\N	\N	\N	enrico
+1442	11	-35	Sagene	2016-10-15 23:59:24.154385	\N	\N	\N	enrico
+1463	11	-35	Club-Mate	2016-10-22 19:51:55.059788	\N	\N	\N	enrico
+1464	11	-35	Club-Mate	2016-10-22 20:05:18.810075	\N	\N	\N	enrico
+1465	11	-35	Club-Mate	2016-10-22 20:05:28.423485	\N	\N	\N	enrico
+1466	11	-35	Club-Mate	2016-10-22 20:05:53.420516	\N	\N	\N	enrico
+1467	11	-35	Club-Mate	2016-10-22 20:06:33.291739	\N	\N	\N	enrico
+1470	11	-35	Club-Mate	2016-10-22 20:47:51.27525	\N	\N	\N	enrico
+1474	11	-35	Club-Mate	2016-10-22 23:26:36.445804	\N	\N	\N	enrico
+1483	11	-35	Club-Mate	2016-10-25 18:13:30.460615	\N	\N	\N	enrico
+1484	11	-35	Club-Mate	2016-10-25 18:35:46.811698	\N	\N	\N	enrico
+1485	11	-35	Club-Mate	2016-10-25 18:35:56.292127	\N	\N	\N	enrico
+1486	11	-35	Club-Mate	2016-10-25 18:36:04.976784	\N	\N	\N	enrico
+1495	11	-35	Club-Mate	2016-10-29 17:50:44.418331	\N	\N	\N	enrico
+1498	11	-35	Club-Mate	2016-10-29 21:40:12.050688	\N	\N	\N	enrico
+1503	11	500	Transfer with Stripe.	2016-11-01 18:59:57.511516	\N	\N	\N	enrico
+1504	11	-35	Club-Mate	2016-11-01 19:00:03.444204	\N	\N	\N	enrico
+1505	11	-35	Club-Mate	2016-11-01 20:00:24.839174	\N	\N	\N	enrico
+1541	11	-35	Club-Mate	2016-11-11 18:39:17.003169	\N	\N	\N	enrico
+1544	11	-35	Club-Mate	2016-11-11 20:55:19.018323	\N	\N	\N	enrico
+1545	11	-35	Club-Mate	2016-11-12 14:19:40.563858	\N	\N	\N	enrico
+1547	11	-35	Club-Mate	2016-11-12 20:09:51.253119	\N	\N	\N	enrico
+1548	11	-35	Club-Mate	2016-11-12 20:48:52.671179	\N	\N	\N	enrico
+1549	11	-35	Club-Mate	2016-11-12 21:09:44.888336	\N	\N	\N	enrico
+1550	11	-35	Club-Mate	2016-11-12 21:40:09.286858	\N	\N	\N	enrico
+1569	11	-35	Club-Mate	2016-11-19 18:46:49.295636	\N	\N	\N	enrico
+1573	11	-35	Club-Mate	2016-11-22 18:08:17.465611	\N	\N	\N	enrico
+1574	11	-35	Club-Mate	2016-11-22 18:49:33.346842	\N	\N	\N	enrico
+1590	11	-35	Sagene	2016-11-25 16:18:24.473681	\N	\N	\N	enrico
+1605	11	-35	Sagene	2016-12-03 16:03:06.878049	\N	\N	\N	enrico
+1610	11	140	Transfer with Stripe.	2016-12-03 19:05:53.314731	\N	\N	\N	enrico
+1611	11	-20	Munkholm	2016-12-03 19:06:35.340281	\N	\N	\N	enrico
+1612	11	-20	Munkholm	2016-12-03 20:04:43.194836	\N	\N	\N	enrico
+1625	11	-35	Sagene	2016-12-10 18:33:34.13099	\N	\N	\N	enrico
+1628	11	-35	Sagene	2016-12-10 20:51:28.644745	\N	\N	\N	enrico
+1631	11	-20	Munkholm	2016-12-10 23:19:01.257383	\N	\N	\N	enrico
+1676	11	-20	Munkholm	2017-01-03 19:45:33.531506	\N	\N	\N	enrico
+1678	11	100	Transfer with Stripe.	2017-01-03 22:16:47.483916	\N	\N	\N	enrico
+1679	11	-20	Munkholm	2017-01-03 22:20:01.642813	\N	\N	\N	enrico
+1691	11	-20	Munkholm	2017-01-10 18:04:56.280587	\N	\N	\N	enrico
+1693	11	-35	Club-Mate	2017-01-10 18:31:35.318669	\N	\N	\N	enrico
+1694	11	200	Transfer with Stripe.	2017-01-10 19:47:34.710187	\N	\N	\N	enrico
+1695	11	-35	Club-Mate	2017-01-10 19:47:57.417819	\N	\N	\N	enrico
+1700	11	-35	Club-Mate	2017-01-10 22:18:43.44678	\N	\N	\N	enrico
+1715	11	-20	Munkholm	2017-01-17 17:42:55.208798	\N	\N	\N	enrico
+1719	11	-20	Munkholm	2017-01-17 18:55:31.809908	\N	\N	\N	enrico
+1732	11	-35	Club-Mate	2017-01-17 21:59:46.288518	\N	\N	\N	enrico
+1734	11	-35	Club-Mate	2017-01-17 22:47:24.658666	\N	\N	\N	enrico
+158	12	200	Transfer with Stripe.	2015-10-03 21:32:50	\N	\N	\N	ctp
+159	12	-35	En Club-Mate	2015-10-03 21:36:32	\N	\N	\N	ctp
+162	12	-35	En Voksenbrus	2015-10-03 23:20:13	\N	\N	\N	ctp
+165	12	-35	En Club-Mate	2015-10-04 15:50:03	\N	\N	\N	ctp
+166	12	-35	En Club-Mate	2015-10-04 17:27:09	\N	\N	\N	ctp
+180	12	-35	En Voksenbrus	2015-10-09 19:48:35	\N	\N	\N	ctp
+290	12	500	Transfer with Stripe.	2015-10-30 22:24:22	\N	\N	\N	ctp
+291	12	-40	En Voksenbrus	2015-10-30 22:24:55	\N	\N	\N	ctp
+292	12	-40	En Voksenbrus	2015-10-30 22:25:11	\N	\N	\N	ctp
+299	12	-40	En Voksenbrus	2015-10-31 22:14:59	\N	\N	\N	ctp
+310	12	-40	En Voksenbrus	2015-11-03 19:41:12	\N	\N	\N	ctp
+312	12	-40	En Voksenbrus	2015-11-03 21:25:44	\N	\N	\N	ctp
+351	12	-40	En Voksenbrus	2015-11-10 20:22:16	\N	\N	\N	ctp
+353	12	-35	En Voksenbrus	2015-11-10 21:02:58	\N	\N	\N	ctp
+402	12	-35	En Voksenbrus	2015-11-21 20:11:46	\N	\N	\N	ctp
+405	12	-35	En Voksenbrus	2015-11-21 21:19:45	\N	\N	\N	ctp
+414	12	-35	En Club-Mate	2015-11-24 18:07:57	\N	\N	\N	ctp
+439	12	-35	En Club-Mate	2015-11-28 21:11:40	\N	\N	\N	ctp
+487	12	-35	En Club-Mate	2015-12-05 16:56:15	\N	\N	\N	ctp
+492	12	-35	En Club-Mate	2015-12-05 18:48:30	\N	\N	\N	ctp
+494	12	-35	En Club-Mate	2015-12-05 20:12:04	\N	\N	\N	ctp
+523	12	500	Transfer with Stripe.	2015-12-12 18:35:21	\N	\N	\N	ctp
+524	12	-35	En Voksenbrus	2015-12-12 18:38:44	\N	\N	\N	ctp
+528	12	-35	En Voksenbrus	2015-12-12 19:42:27	\N	\N	\N	ctp
+531	12	-35	En Voksenbrus	2015-12-12 20:19:11	\N	\N	\N	ctp
+542	12	-35	En Voksenbrus	2016-01-02 19:07:01	\N	\N	\N	ctp
+544	12	-35	En Voksenbrus	2016-01-02 20:30:05	\N	\N	\N	ctp
+545	12	-35	En Voksenbrus	2016-01-02 21:28:47	\N	\N	\N	ctp
+546	12	-35	En Voksenbrus	2016-01-03 20:23:10	\N	\N	\N	ctp
+553	12	-35	En Voksenbrus	2016-01-05 17:38:57	\N	\N	\N	ctp
+555	12	-35	En Club-Mate	2016-01-05 19:37:38	\N	\N	\N	ctp
+556	12	-35	En Club-Mate	2016-01-05 19:38:00	\N	\N	\N	ctp
+558	12	-35	En Voksenbrus	2016-01-05 21:56:36	\N	\N	\N	ctp
+559	12	-35	En Voksenbrus	2016-01-07 13:49:08	\N	\N	\N	ctp
+560	12	-35	En Club-Mate	2016-01-07 15:17:28	\N	\N	\N	ctp
+571	12	-35	En Club-Mate	2016-01-09 19:45:33	\N	\N	\N	ctp
+613	12	500	Transfer with Stripe.	2016-01-21 16:04:44	\N	\N	\N	ctp
+620	12	-35	En Club-Mate	2016-01-21 17:43:58	\N	\N	\N	ctp
+621	12	-30	En Tuborg	2016-01-21 17:44:26	\N	\N	\N	ctp
+622	12	-35	En Club-Mate	2016-01-21 17:44:46	\N	\N	\N	ctp
+629	12	-35	En Club-Mate	2016-01-21 19:20:15	\N	\N	\N	ctp
+632	12	-30	En Tuborg	2016-01-21 20:19:41	\N	\N	\N	ctp
+723	12	-35	En Club-Mate	2016-02-06 20:37:22	\N	\N	\N	ctp
+727	12	-35	En Club-Mate	2016-02-08 17:59:34	\N	\N	\N	ctp
+728	12	-35	En Club-Mate	2016-02-08 19:47:40	\N	\N	\N	ctp
+744	12	-35	En Sagene p1lz	2016-02-13 18:44:22	\N	\N	\N	ctp
+775	12	-35	En Sagene p1lz	2016-02-20 23:25:55	\N	\N	\N	ctp
+1014	12	-35	En Club-Mate	2016-05-07 18:36:55	\N	\N	\N	ctp
+1015	12	-35	En Sagene p1lz	2016-05-07 20:19:18	\N	\N	\N	ctp
+1130	12	-35	En Club-Mate	2016-06-07 17:58:24	\N	\N	\N	ctp
+1133	12	-35	En Club-Mate	2016-06-07 18:55:21	\N	\N	\N	ctp
+1488	12	-35	Cider	2016-10-25 19:54:38.357135	\N	\N	\N	ctp
+56	15	300	Transfer with Stripe.	2015-09-15 17:22:05	\N	\N	\N	tazjin
+58	15	-35	En Club-Mate	2015-09-15 19:25:28	\N	\N	\N	tazjin
+71	15	-35	En Club-Mate	2015-09-19 17:35:27	\N	\N	\N	tazjin
+72	15	-35	En Club-Mate	2015-09-19 17:35:37	\N	\N	\N	tazjin
+73	15	-35	En Club-Mate	2015-09-19 17:35:59	\N	\N	\N	tazjin
+74	15	200	Transfer with Stripe.	2015-09-19 20:20:22	\N	\N	\N	tazjin
+75	15	-250	Membership September	2015-09-19 20:20:59	\N	\N	\N	tazjin
+97	15	-35	En Club-Mate	2015-09-22 19:12:25	\N	\N	\N	tazjin
+98	15	-35	En Club-Mate	2015-09-22 19:46:51	\N	\N	\N	tazjin
+130	15	-35	En Club-Mate	2015-09-29 17:31:29	\N	\N	\N	tazjin
+131	15	500	Transfer with Stripe.	2015-09-29 17:44:33	\N	\N	\N	tazjin
+136	15	-35	En Voksenbrus	2015-09-29 19:55:25	\N	\N	\N	tazjin
+137	15	-35	En Club-Mate	2015-09-29 20:45:20	\N	\N	\N	tazjin
+153	15	-35	En Club-Mate	2015-10-03 18:02:47	\N	\N	\N	tazjin
+160	15	-35	En Club-Mate	2015-10-03 21:36:47	\N	\N	\N	tazjin
+161	15	-35	En Voksenbrus	2015-10-03 21:59:24	\N	\N	\N	tazjin
+172	15	-35	En Club-Mate	2015-10-06 17:52:18	\N	\N	\N	tazjin
+178	15	-35	En Club-Mate	2015-10-06 21:07:33	\N	\N	\N	tazjin
+188	15	-35	En Club-Mate	2015-10-10 17:38:37	\N	\N	\N	tazjin
+189	15	-35	En Club-Mate	2015-10-10 17:38:48	\N	\N	\N	tazjin
+190	15	-35	En Club-Mate	2015-10-10 17:38:58	\N	\N	\N	tazjin
+191	15	-35	En Club-Mate	2015-10-10 17:39:09	\N	\N	\N	tazjin
+210	15	100	Transfer with Stripe.	2015-10-13 19:55:53	\N	\N	\N	tazjin
+211	15	-35	En Club-Mate	2015-10-13 19:56:11	\N	\N	\N	tazjin
+212	15	-35	En Club-Mate	2015-10-13 19:56:20	\N	\N	\N	tazjin
+213	15	-35	En Club-Mate	2015-10-13 19:56:29	\N	\N	\N	tazjin
+229	15	-35	En Club-Mate	2015-10-17 18:11:45	\N	\N	\N	tazjin
+262	15	-35	En Club-Mate	2015-10-24 14:57:40	\N	\N	\N	tazjin
+263	15	-35	En Club-Mate	2015-10-24 14:57:51	\N	\N	\N	tazjin
+281	15	500	Transfer with Stripe.	2015-10-30 16:27:38	\N	\N	\N	tazjin
+282	15	-35	En Club-Mate	2015-10-30 16:28:27	\N	\N	\N	tazjin
+293	15	-35	En Club-Mate	2015-10-31 00:03:28	\N	\N	\N	tazjin
+303	15	-40	En Voksenbrus	2015-11-03 17:33:00	\N	\N	\N	tazjin
+308	15	-35	En Club-Mate	2015-11-03 18:59:25	\N	\N	\N	tazjin
+318	15	-40	En Voksenbrus	2015-11-05 16:33:55	\N	\N	\N	tazjin
+320	15	-35	En Club-Mate	2015-11-06 15:30:49	\N	\N	\N	tazjin
+321	15	-35	En Club-Mate	2015-11-06 15:30:59	\N	\N	\N	tazjin
+324	15	-30	En Julmust	2015-11-06 20:32:26	\N	\N	\N	tazjin
+327	15	-30	En Julmust	2015-11-07 18:40:08	\N	\N	\N	tazjin
+329	15	-40	En Voksenbrus	2015-11-07 19:36:41	\N	\N	\N	tazjin
+334	15	-30	En Julmust	2015-11-09 16:13:54	\N	\N	\N	tazjin
+335	15	-35	En Club-Mate	2015-11-10 08:17:18	\N	\N	\N	tazjin
+336	15	-30	En Julmust	2015-11-10 13:34:26	\N	\N	\N	tazjin
+364	15	-30	En Julmust	2015-11-14 17:09:30	\N	\N	\N	tazjin
+365	15	300	Transfer with Stripe.	2015-11-14 18:37:16	\N	\N	\N	tazjin
+366	15	-30	En Julmust	2015-11-14 18:37:29	\N	\N	\N	tazjin
+367	15	-35	En Club-Mate	2015-11-14 18:37:46	\N	\N	\N	tazjin
+368	15	-35	En Club-Mate	2015-11-14 18:44:59	\N	\N	\N	tazjin
+380	15	-30	En Julmust	2015-11-17 15:18:21	\N	\N	\N	tazjin
+382	15	-35	En Club-Mate	2015-11-17 17:18:31	\N	\N	\N	tazjin
+399	15	-30	En Julmust	2015-11-21 17:22:22	\N	\N	\N	tazjin
+404	15	-35	En Club-Mate	2015-11-21 21:09:09	\N	\N	\N	tazjin
+409	15	-30	En Julmust	2015-11-22 00:16:45	\N	\N	\N	tazjin
+431	15	-30	En Julmust	2015-11-28 16:17:21	\N	\N	\N	tazjin
+434	15	-30	En Julmust	2015-11-28 17:23:52	\N	\N	\N	tazjin
+534	15	300	Transfer with Stripe.	2015-12-15 18:15:52	\N	\N	\N	tazjin
+535	15	-30	En Julmust	2015-12-15 18:16:01	\N	\N	\N	tazjin
+540	15	-30	En Tuborg	2015-12-31 01:49:11	\N	\N	\N	tazjin
+541	15	-20	En Munkholm	2015-12-31 01:49:40	\N	\N	\N	tazjin
+554	15	-35	En Club-Mate	2016-01-05 18:44:41	\N	\N	\N	tazjin
+623	15	-35	En Club-Mate	2016-01-21 17:50:03	\N	\N	\N	tazjin
+656	15	-35	En Club-Mate	2016-01-23 20:05:25	\N	\N	\N	tazjin
+692	15	-35	En Club-Mate	2016-02-02 16:49:39	\N	\N	\N	tazjin
+693	15	-20	En Munkholm	2016-02-02 16:49:45	\N	\N	\N	tazjin
+694	15	-35	En Club-Mate	2016-02-02 16:50:07	\N	\N	\N	tazjin
+713	15	-35	En Club-Mate	2016-02-02 22:17:24	\N	\N	\N	tazjin
+721	15	300	Transfer with Stripe.	2016-02-06 18:22:01	\N	\N	\N	tazjin
+722	15	-35	En Club-Mate	2016-02-06 18:22:13	\N	\N	\N	tazjin
+725	15	-35	En Club-Mate	2016-02-08 16:49:19	\N	\N	\N	tazjin
+740	15	-35	En Club-Mate	2016-02-09 21:07:56	\N	\N	\N	tazjin
+742	15	-35	En Club-Mate	2016-02-13 17:32:16	\N	\N	\N	tazjin
+743	15	-35	En Club-Mate	2016-02-13 17:32:24	\N	\N	\N	tazjin
+749	15	-35	En Club-Mate	2016-02-16 18:14:51	\N	\N	\N	tazjin
+754	15	-35	En Club-Mate	2016-02-17 15:44:45	\N	\N	\N	tazjin
+765	15	-35	En Club-Mate	2016-02-20 19:20:29	\N	\N	\N	tazjin
+766	15	100	Transfer with Stripe.	2016-02-20 19:21:45	\N	\N	\N	tazjin
+767	15	-35	En Sagene p1lz	2016-02-20 19:22:06	\N	\N	\N	tazjin
+776	15	-35	En Sagene p1lz	2016-02-20 23:26:44	\N	\N	\N	tazjin
+777	15	-20	En Munkholm	2016-02-20 23:26:51	\N	\N	\N	tazjin
+789	15	100	Transfer with Stripe.	2016-02-27 17:40:03	\N	\N	\N	tazjin
+790	15	-35	En Club-Mate	2016-02-27 17:40:41	\N	\N	\N	tazjin
+796	15	-35	En Club-Mate	2016-02-27 20:20:12	\N	\N	\N	tazjin
+803	15	-35	En Club-Mate	2016-03-01 17:24:16	\N	\N	\N	tazjin
+806	15	150	Transfer with Stripe.	2016-03-01 19:01:40	\N	\N	\N	tazjin
+807	15	-35	En Club-Mate	2016-03-01 19:01:52	\N	\N	\N	tazjin
+812	15	-40	Dead Pony	2016-03-01 20:29:14	\N	\N	\N	tazjin
+830	15	-40	Dead Pony	2016-03-05 18:42:13	\N	\N	\N	tazjin
+831	15	-40	Dead Pony	2016-03-05 19:20:48	\N	\N	\N	tazjin
+837	15	100	Transfer with Stripe.	2016-03-09 00:00:22	\N	\N	\N	tazjin
+838	15	-35	En Club-Mate	2016-03-09 17:25:34	\N	\N	\N	tazjin
+839	15	-35	En Club-Mate	2016-03-09 17:47:43	\N	\N	\N	tazjin
+840	15	-35	En Club-Mate	2016-03-11 21:55:57	\N	\N	\N	tazjin
+843	15	200	Transfer with Stripe.	2016-03-12 14:51:07	\N	\N	\N	tazjin
+844	15	-35	En Club-Mate	2016-03-12 14:51:20	\N	\N	\N	tazjin
+845	15	-35	En Club-Mate	2016-03-12 14:51:34	\N	\N	\N	tazjin
+892	15	-35	En Club-Mate	2016-03-19 11:37:17	\N	\N	\N	tazjin
+911	15	-20	En Munkholm	2016-03-26 20:13:00	\N	\N	\N	tazjin
+936	15	-35	En Club-Mate	2016-04-19 15:25:50	\N	\N	\N	tazjin
+948	15	-35	En Club-Mate	2016-04-19 20:47:47	\N	\N	\N	tazjin
+952	15	120	Transfer with Stripe.	2016-04-23 21:00:20	\N	\N	\N	tazjin
+953	15	-35	En Club-Mate	2016-04-23 21:07:30	\N	\N	\N	tazjin
+969	15	-35	En Club-Mate	2016-04-29 16:10:35	\N	\N	\N	tazjin
+1013	15	-35	En Club-Mate	2016-05-07 17:53:53	\N	\N	\N	tazjin
+1018	15	200	Transfer with Stripe.	2016-05-07 21:13:42	\N	\N	\N	tazjin
+1019	15	-35	En Sagene p1lz	2016-05-07 21:14:07	\N	\N	\N	tazjin
+1020	15	-35	En Sagene p1lz	2016-05-07 21:14:14	\N	\N	\N	tazjin
+1028	15	-35	En Club-Mate	2016-05-10 18:35:00	\N	\N	\N	tazjin
+1033	15	-35	En Club-Mate	2016-05-14 09:34:49	\N	\N	\N	tazjin
+1034	15	-35	En Club-Mate	2016-05-14 09:34:55	\N	\N	\N	tazjin
+1042	15	100	Transfer with Stripe.	2016-05-14 15:17:45	\N	\N	\N	tazjin
+1043	15	-35	En Club-Mate	2016-05-14 17:22:00	\N	\N	\N	tazjin
+1071	15	-35	En Club-Mate	2016-05-24 14:14:04	\N	\N	\N	tazjin
+1073	15	-35	En Club-Mate	2016-05-24 15:49:46	\N	\N	\N	tazjin
+1086	15	-35	En Club-Mate	2016-05-29 15:23:38	\N	\N	\N	tazjin
+1087	15	100	Transfer with Stripe.	2016-05-29 18:30:23	\N	\N	\N	tazjin
+1088	15	-35	En Club-Mate	2016-05-29 18:30:46	\N	\N	\N	tazjin
+1089	15	-35	En Club-Mate	2016-05-31 15:17:53	\N	\N	\N	tazjin
+1099	15	100	Transfer with Stripe.	2016-05-31 17:51:58	\N	\N	\N	tazjin
+1100	15	-35	En Club-Mate	2016-05-31 18:17:40	\N	\N	\N	tazjin
+1116	15	-35	En Club-Mate	2016-06-04 17:28:43	\N	\N	\N	tazjin
+1117	15	-35	En Club-Mate	2016-06-04 17:29:00	\N	\N	\N	tazjin
+1137	15	100	Transfer with Stripe.	2016-06-11 17:06:35	\N	\N	\N	tazjin
+1138	15	-35	En Club-Mate	2016-06-11 17:06:39	\N	\N	\N	tazjin
+1139	15	-35	En Club-Mate	2016-06-11 17:06:49	\N	\N	\N	tazjin
+1140	15	-35	En Club-Mate	2016-06-11 18:02:43	\N	\N	\N	tazjin
+1142	15	100	Transfer with Stripe.	2016-06-11 20:29:58	\N	\N	\N	tazjin
+1143	15	-35	En Club-Mate	2016-06-11 20:29:58	\N	\N	\N	tazjin
+1144	15	35	Manually added by krav.	2016-06-11 20:57:04	\N	\N	\N	tazjin
+1147	15	-35	En Club-Mate	2016-06-14 15:21:04	\N	\N	\N	tazjin
+1153	15	-35	En Club-Mate	2016-06-14 20:08:11	\N	\N	\N	tazjin
+1171	15	100	Transfer with Stripe.	2016-06-21 17:36:53.781928	\N	\N	\N	tazjin
+1172	15	-70	To Club Mate	2016-06-21 17:37:09.695056	\N	\N	\N	tazjin
+1185	15	-35	Club-Mate	2016-06-26 13:47:48.53835	\N	\N	\N	tazjin
+1190	15	-35	Club-Mate	2016-06-28 17:26:43.679098	\N	\N	\N	tazjin
+1191	15	100	Transfer with Stripe.	2016-06-28 17:29:24.532593	\N	\N	\N	tazjin
+1192	15	-35	Club-Mate	2016-06-28 17:30:06.61597	\N	\N	\N	tazjin
+1217	15	-35	Club-Mate	2016-07-09 19:04:59.214591	\N	\N	\N	tazjin
+1218	15	-35	Club-Mate	2016-07-09 19:06:34.958801	\N	\N	\N	tazjin
+1226	15	100	Transfer with Stripe.	2016-07-11 16:43:50.604686	\N	\N	\N	tazjin
+1227	15	-35	Club-Mate	2016-07-11 16:44:15.292503	\N	\N	\N	tazjin
+1228	15	-35	Club-Mate	2016-07-12 12:20:35.598758	\N	\N	\N	tazjin
+1229	15	-35	Club-Mate	2016-07-12 13:25:11.944204	\N	\N	\N	tazjin
+1237	15	200	Transfer with Stripe.	2016-07-12 21:05:15.315702	\N	\N	\N	tazjin
+1238	15	-35	Club-Mate	2016-07-12 21:05:35.445264	\N	\N	\N	tazjin
+1239	15	-20	Munkholm	2016-07-12 21:05:43.980365	\N	\N	\N	tazjin
+1247	15	-35	Club-Mate	2016-07-13 14:00:31.73091	\N	\N	\N	tazjin
+1290	15	-35	Club-Mate	2016-08-23 17:35:53.599272	\N	\N	\N	tazjin
+1291	15	-35	Club-Mate	2016-08-23 17:36:07.981633	\N	\N	\N	tazjin
+1313	15	200	Transfer with Stripe.	2016-09-06 18:14:41.732218	\N	\N	\N	tazjin
+1314	15	-35	Club-Mate	2016-09-06 18:14:49.090317	\N	\N	\N	tazjin
+1328	15	-35	Club-Mate	2016-09-13 17:32:38.195077	\N	\N	\N	tazjin
+1337	15	-35	Club-Mate	2016-09-16 18:01:30.474089	\N	\N	\N	tazjin
+1367	15	-25	Tuborg	2016-09-23 23:01:55.214554	\N	\N	\N	tazjin
+1368	15	-25	Tuborg	2016-09-23 23:02:06.195859	\N	\N	\N	tazjin
+1393	15	-35	Club-Mate	2016-09-30 21:11:04.742197	\N	\N	\N	tazjin
+1419	15	-35	Club-Mate	2016-10-11 19:37:30.087853	\N	\N	\N	tazjin
+1480	15	200	Transfer with Stripe.	2016-10-25 17:59:17.069362	\N	\N	\N	tazjin
+1481	15	-35	Club-Mate	2016-10-25 17:59:39.464826	\N	\N	\N	tazjin
+1482	15	-35	Club-Mate	2016-10-25 17:59:49.074576	\N	\N	\N	tazjin
+1646	15	-35	Sagene	2016-12-17 13:27:10.767406	\N	\N	\N	tazjin
+1647	15	-35	Sagene	2016-12-17 13:27:28.7383	\N	\N	\N	tazjin
+1688	15	-35	En Club Mate	2017-01-07 21:27:24.997599	\N	\N	\N	tazjin
+1738	15	-35	Sagene	2017-01-21 15:45:44.031801	\N	\N	\N	tazjin
+81	16	65	Manually added by krav.	2015-09-20 15:33:14	\N	\N	\N	bsb
+258	17	500	Transfer with Stripe.	2015-10-22 21:52:00	\N	\N	\N	lafa
+259	17	-100	3x ting	2015-10-22 21:52:21	\N	\N	\N	lafa
+387	17	-35	En Club-Mate	2015-11-17 19:16:48	\N	\N	\N	lafa
+460	17	-40	En Voksenbrus	2015-12-03 17:13:56	\N	\N	\N	lafa
+461	17	-40	En Voksenbrus	2015-12-03 17:14:16	\N	\N	\N	lafa
+464	17	-35	En Voksenbrus	2015-12-03 18:06:32	\N	\N	\N	lafa
+466	17	-35	En Voksenbrus	2015-12-03 19:22:55	\N	\N	\N	lafa
+470	17	-35	En Voksenbrus	2015-12-03 20:17:53	\N	\N	\N	lafa
+474	17	-35	En Voksenbrus	2015-12-03 21:22:02	\N	\N	\N	lafa
+477	17	-35	En Voksenbrus	2015-12-03 22:06:50	\N	\N	\N	lafa
+480	17	-35	En Voksenbrus	2015-12-03 23:08:28	\N	\N	\N	lafa
+481	17	-35	En Voksenbrus	2015-12-03 23:09:13	\N	\N	\N	lafa
+609	17	-30	En Tuborg	2016-01-20 18:22:27	\N	\N	\N	lafa
+617	17	250	Transfer with Stripe.	2016-01-21 17:00:08	\N	\N	\N	lafa
+618	17	-35	En Club-Mate	2016-01-21 17:00:26	\N	\N	\N	lafa
+626	17	-35	En Club-Mate	2016-01-21 18:31:28	\N	\N	\N	lafa
+634	17	-70	o/l	2016-01-21 20:51:57	\N	\N	\N	lafa
+643	17	-30	En Tuborg	2016-01-21 22:19:22	\N	\N	\N	lafa
+644	17	-30	En Tuborg	2016-01-21 22:19:30	\N	\N	\N	lafa
+923	17	-35	En Club-Mate	2016-04-08 15:49:46	\N	\N	\N	lafa
+1552	17	500	Transfer with Stripe.	2016-11-12 22:55:43.000621	\N	\N	\N	lafa
+1553	17	-35	Cider	2016-11-12 22:57:26.541044	\N	\N	\N	lafa
+1554	17	-35	Cider	2016-11-12 23:38:18.460984	\N	\N	\N	lafa
+1555	17	-35	Cider	2016-11-13 00:08:04.610247	\N	\N	\N	lafa
+1617	17	-20	Munkholm	2016-12-07 01:05:33.940528	\N	\N	\N	lafa
+1618	17	-17	Julebrus	2016-12-07 01:05:44.948068	\N	\N	\N	lafa
+1619	17	-35	Club-Mate	2016-12-07 01:05:53.714293	\N	\N	\N	lafa
+1620	17	-35	Sagene	2016-12-07 01:05:59.496672	\N	\N	\N	lafa
+1635	17	100	Nettlaug	2016-12-12 13:36:46.135743	\N	\N	\N	lafa
+1637	17	100	Nettlaug x 2	2016-12-12 13:37:10.786157	\N	\N	\N	lafa
+658	18	200	Transfer with Stripe.	2016-01-23 21:14:31	\N	\N	\N	koffein
+659	18	-35	En Club-Mate	2016-01-23 21:17:42	\N	\N	\N	koffein
+668	18	-35	En Club-Mate	2016-01-26 18:28:41	\N	\N	\N	koffein
+698	18	-35	En Club-Mate	2016-02-02 18:38:24	\N	\N	\N	koffein
+716	18	-35	En Club-Mate	2016-02-06 15:26:17	\N	\N	\N	koffein
+732	18	-35	En Club-Mate	2016-02-09 18:44:43	\N	\N	\N	koffein
+1332	21	10000	Manually added by krav.	2016-09-13 20:22:40.96702	\N	\N	\N	barkort
+1348	21	-35	Club-Mate	2016-09-20 18:40:08.902549	\N	\N	\N	barkort
+1349	21	-35	Club-Mate	2016-09-20 18:40:18.918834	\N	\N	\N	barkort
+1350	21	-35	Club-Mate	2016-09-20 18:43:22.781008	\N	\N	\N	barkort
+1351	21	-25	Tuborg	2016-09-20 19:01:01.429107	\N	\N	\N	barkort
+1363	21	-25	Tuborg	2016-09-23 17:22:29.762273	\N	\N	\N	barkort
+1366	21	-25	Tuborg	2016-09-23 20:44:34.113602	\N	\N	\N	barkort
+1373	21	-35	Club-Mate	2016-09-24 17:12:24.248493	\N	\N	\N	barkort
+1379	21	-35	Club-Mate	2016-09-24 23:19:30.753613	\N	\N	\N	barkort
+1431	21	-35	Sagene	2016-10-15 19:37:36.527581	\N	\N	\N	barkort
+1440	21	-35	Cider	2016-10-15 23:26:01.100588	\N	\N	\N	barkort
+1556	21	-35	Club-Mate	2016-11-13 00:28:00.586976	\N	\N	\N	barkort
+1558	21	-35	Club-Mate	2016-11-13 00:36:15.362167	\N	\N	\N	barkort
+1577	21	-35	Cider	2016-11-22 20:30:22.216133	\N	\N	\N	barkort
+1578	21	-35	Cider	2016-11-22 20:30:38.155782	\N	\N	\N	barkort
+1583	21	-35	Club-Mate	2016-11-22 21:10:05.102928	\N	\N	\N	barkort
+1627	21	-35	Sagene	2016-12-10 19:14:37.875291	\N	\N	\N	barkort
+1689	21	-35	Sagene	2017-01-07 21:29:37.353022	\N	\N	\N	barkort
+1690	21	-35	Sagene	2017-01-07 21:31:59.055482	\N	\N	\N	barkort
+1742	21	-35	Club-Mate	2017-01-21 21:07:36.980026	\N	\N	\N	barkort
+1761	21	-35	Club-Mate	2017-01-28 21:50:13.093136	\N	\N	\N	barkort
+1344	22	200	Transfer with Stripe.	2016-09-20 10:58:17.206503	\N	\N	\N	etath
+1354	22	-25	Tuborg	2016-09-20 20:35:59.43653	\N	\N	\N	etath
+1405	22	-35	Club-Mate	2016-10-08 13:19:16.170161	\N	\N	\N	etath
+1388	24	105	Transfer with Stripe.	2016-09-27 20:02:06.973559	\N	\N	\N	sshow
+1389	24	-35	Club-Mate	2016-09-27 20:02:44.477367	\N	\N	\N	sshow
+1460	24	-5	Pant	2016-10-22 18:16:26.706445	\N	\N	\N	sshow
+1475	24	-35	Club-Mate	2016-10-22 23:27:41.182448	\N	\N	\N	sshow
+1533	24	5	Manually added by krav.	2016-11-08 19:11:19.077454	\N	\N	\N	sshow
+1534	24	-35	Club-Mate	2016-11-08 19:11:34.100538	\N	\N	\N	sshow
+1585	24	210	Transfer with Stripe.	2016-11-23 13:30:21.095175	\N	\N	\N	sshow
+1586	24	-17	Julebrus	2016-11-23 13:30:45.36177	\N	\N	\N	sshow
+1587	24	-17	Julebrus	2016-11-23 14:51:27.958772	\N	\N	\N	sshow
+1588	24	-17	Julebrus	2016-11-23 16:46:47.979334	\N	\N	\N	sshow
+1592	24	171	Julebrus	2016-11-26 18:20:25.793372	\N	\N	\N	sshow
+1593	24	-17	varm julebrus	2016-11-26 18:58:50.79529	\N	\N	\N	sshow
+1594	24	-17	Julebrus	2016-11-26 18:59:30.434113	\N	\N	\N	sshow
+1598	24	-35	Sagene	2016-11-26 19:53:05.351903	\N	\N	\N	sshow
+1607	24	-35	Club-Mate	2016-12-03 18:48:04.755692	\N	\N	\N	sshow
+1615	24	-35	Club-Mate	2016-12-06 19:49:40.276571	\N	\N	\N	sshow
+1616	24	-35	Club-Mate	2016-12-06 20:57:27.886994	\N	\N	\N	sshow
+1624	24	-35	Sagene	2016-12-10 17:04:34.857196	\N	\N	\N	sshow
+1626	24	-35	Sagene	2016-12-10 19:12:50.22563	\N	\N	\N	sshow
+1630	24	-20	Munkholm	2016-12-10 22:27:06.241141	\N	\N	\N	sshow
+1642	24	-35	Sagene	2016-12-13 18:59:51.091217	\N	\N	\N	sshow
+1650	24	124	Transfer with Stripe.	2016-12-17 17:55:18.053547	\N	\N	\N	sshow
+1651	24	-35	Club-Mate	2016-12-17 17:58:56.25558	\N	\N	\N	sshow
+1656	24	-20	Munkholm	2016-12-17 21:12:52.158527	\N	\N	\N	sshow
+1659	24	-35	Sagene	2016-12-20 19:12:19.536252	\N	\N	\N	sshow
+1697	24	-35	Sagene	2017-01-10 20:28:37.132605	\N	\N	\N	sshow
+1703	24	40	Transfer with Stripe.	2017-01-12 19:33:53.307094	\N	\N	\N	sshow
+1704	24	-35	Sagene	2017-01-12 19:40:44.831805	\N	\N	\N	sshow
+1707	24	-35	Sagene	2017-01-14 18:05:34.268443	\N	\N	\N	sshow
+1717	24	35	Transfer with Stripe.	2017-01-17 18:28:35.571236	\N	\N	\N	sshow
+1718	24	-35	Sagene	2017-01-17 18:28:51.114594	\N	\N	\N	sshow
+1722	24	55	Transfer with Stripe.	2017-01-17 20:03:53.382445	\N	\N	\N	sshow
+1723	24	-20	Munkholm	2017-01-17 20:04:16.253408	\N	\N	\N	sshow
+1730	24	-20	Munkholm	2017-01-17 21:50:09.079509	\N	\N	\N	sshow
+1739	24	350	Transfer with Stripe.	2017-01-21 17:17:46.736687	\N	\N	\N	sshow
+1740	24	-35	Sagene	2017-01-21 17:17:52.552281	\N	\N	\N	sshow
+1743	24	-20	Munkholm	2017-01-21 21:31:29.131658	\N	\N	\N	sshow
+1746	24	-20	Munkholm	2017-01-24 20:05:58.669061	\N	\N	\N	sshow
+1747	24	-35	Sagene	2017-01-24 21:43:00.94435	\N	\N	\N	sshow
+1752	24	-20	Munkholm	2017-01-27 20:15:57.296722	\N	\N	\N	sshow
+1760	24	-35	Sagene	2017-01-28 21:32:14.582494	\N	\N	\N	sshow
+1496	25	400	Transfer with Stripe.	2016-10-29 20:44:45.968689	\N	\N	\N	bezaban
+1497	25	-35	Manuell Cider	2016-10-29 20:47:15.240695	\N	\N	\N	bezaban
+1514	25	-35	Club-Mate	2016-11-05 16:32:17.841199	\N	\N	\N	bezaban
+1692	25	-35	Sagene	2017-01-10 18:05:40.1249	\N	\N	\N	bezaban
+1698	26	200	Transfer with Stripe.	2017-01-10 21:46:18.530078	\N	\N	\N	lassegs
+1699	26	-35	Sagene	2017-01-10 21:46:45.397949	\N	\N	\N	lassegs
+1724	26	-35	Sagene	2017-01-17 20:07:16.899481	\N	\N	\N	lassegs
+2045	\N	-35	Club-Mate	2017-05-27 14:33:23.625388	\N	\N	\N	tazjin
+2046	\N	245		2017-05-27 14:36:24.583934	\N	\N	\N	tazjin
+2047	\N	-210	6x mate	2017-05-27 14:36:52.335074	\N	\N	\N	tazjin
+2048	\N	-35	Club Mate	2017-05-27 19:20:30.224465	\N	\N	\N	sshow
+2049	\N	-35	Club Mate	2017-05-28 15:13:40.87699	\N	\N	\N	sshow
+2050	\N	-35		2017-05-28 15:13:44.408973	\N	\N	\N	krav
+\.
+
+
+--
+-- Name: transactions_tid_seq; Type: SEQUENCE SET; Schema: public; Owner: brus
+--
+
+SELECT pg_catalog.setval('transactions_tid_seq', 2249, true);
+
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: brus
+--
+
+COPY users (uid, username, card_data, enabled, admin, access_areas, phone, email, address, realname, password, sshkey, stripe_id) FROM stdin;
+2	comotion	034428398f2a6e02517ee809def08f01e2be7b4f051d9fe8c4e3123f995a69d2	1	0	\N	94394126	comotion@hackeriet.no	Brreg		aed0498c71f2f53ef78c4a2b193e3f71747c3a558ff32675b08d1c3f9b81af4d	\N	\N
+7	fnords	a26d9278e0c13e754e4fc2969f8e36bfefbf20f0cec3f7bbc7cef1804aeca027	1	0	\N		fnords@hackeriet.no			4790be5b7a8a7976e95499bf236112d55fb8bcc54aef22b74701ed175c45f14b	\N	\N
+9	karltk	9e2fc371eb6b5807315a7fc6a129c79a579c08bbb9b4e2bbe26ae49bd1606024	1	0	\N	+4740892230	karltk@gmail.com	Oslo		df1b0480fd72d60b3823c796b06a9300e0e1091458d8b9fa69780b03c88cb8d2	\N	\N
+12	ctp	c8620f8a4fad42f202dbcb70b428410c668b0c49473b6f29793eace7e4aefe1d	1	0	\N	93961896	c.pilka@asconix.com	Wilhelms Gate 5b		bd76bf04d85d1dc13ad32d5fc850ee2e9a54cfd55ea3530c771c139bb6c4911e	\N	\N
+13	JonasR	d0f73b21435bc6313d25948ad67c7805ec504cd0f0b0bc211ef45894866f84c1	1	0	\N	92651961	jonas@royeng.no	Beverstien 2		e8b7c7c7ad127919b17319d542f196cf27127eeadb1f3151804b9d53e1ecad70	\N	\N
+14	ln2v	2300bc62e6fdd43a6387c5bc2f2520d4edb628f54c3a03ef556a9129ab0b52d6	1	0	\N	98067776	lln.wbr@gmail.com	Hauketoaasen 17		78b61bafc19d0614fc9b242199f19bdc0c7b05b49610e742c02e70e9ed8167aa	\N	\N
+16	bsb	5c2b697a1208313914c99c6d4355ee3cb49f3a138fd8781bc815f0cb688fe0d2	1	0	\N		bsb@hackeriet.no		bsb	4ffab1dea026662d4d66beeab9a6bf83192a67b1a59e0ef4d431c236a4a1d74e	\N	\N
+18	koffein	4294485a771911665f413766999c4abb60d53bba3ca7215ba7e6bff345ba0bdf	1	0	\N	45456376	koffein@hackeriet.no	Osterhaus' gate 5B, 0183 Oslo	Karl Fredrik Haugland	e6bf7b03cf7e3fb9054f88f3b94b5f6d950aef5b601ab5797511ea06786e5790	\N	\N
+19	linalipanek	97d5245a2286420091048b6848df032c19a93b1958202ef300b06da0aef0aebe	1	0	\N	90543181	linalipanek@gmail.com	helgesensgate 21 0553 oslo	lina lipanek	28dd5148d93c4cd7ea17728077777ffd6f01855d728df67ff642db94ff4b8a09	\N	\N
+20	Sofia	33bd7d3af76dd8d8b60a08a1fff20946f4ded8519eff49c6a33a0b49231cbe4f	1	0	\N	90811957	sofia.kestifanos@gmail.com	Waldemar Thranes gate 55a, 0173 Oslo	Sofia Knudsen Estifanos	e6189a34900bc80e6844404ba62e71ce1a89ce373688ad9058d037fec3632691	\N	\N
+15	tazjin	bddb93e3ca9638122669d2bc17eb0938c2d6a6b50c34e66fe118bc8dd2727663	1	0	\N	+4746501243	tazjin@gmail.com	Ormoeybakken 12c	Vincent	4c94a7a0b56f78d465e786c8a5db5967b6f8c2344313a712484fc5a7c4f059b7	\N	cus_8gDMPQQgPoYAHy
+1	capitol	a897727d09201f4da68aaea86406dd71bd32505d44dad67694b116701454573e	1	0	\N	94796862	alexander.kjall@gmail.com	Urtegata 6b		856ab8a0c79c5252f1201277ceb2e5454e3809dd08fa006cefe0485e731296aa	\N	cus_8hfiE5Mu2BbKCZ
+8	atluxity	322c685bd5415bba3d70e776560bdbd96d62ae37ba2d06bae0ed0b871088cd06	1	0	\N	95728209	atluxity@1kb.no			c5c094b4644629fc8773651489691a915bd20bba27f945c59eed8519a4d60e0d	\N	cus_8i3XO11LgPNxf2
+5	lkarsten	128b18f8339c2d5a8600ce8c14af0b357ce1671544d1877431facdd2b5dab42b	1	0	\N	91573259	lkarsten@hackeriet.no	Herslebsgate 2a		6d1332b25e14fe6cac4f88507bea842c1d0cf13ebc4bce32d254289b6af68a7a	\N	cus_8isYfMbzLP2jNQ
+10	sjn	7e5b88088dcb541a4137c91f1db802720c4be254a9af3b22b3c8641587ae4686	1	0	\N		sjn@hackeriet.no			f336b6a959b28ae790fdf4955f3e68fb11b1bbc9641a9d08b0499b7210542a73	\N	cus_8mxGwrstoGTtsI
+6	krav	ce3db048e615d05c8942a983b0c304475eac02004a246c25d5345ddd84ee03e2	1	1	\N	92605529	kristoffer@microdisko.no			72ee172673bf4bebd7b4dde99002d1c9693944fb6d56c16abe0f2934b0778395	\N	cus_96SKei9LNRhoei
+3	aevin	76448138ebd217887b5a2fea7ba29a68d4f844174a3102a2a05665eb1e337100	1	0	\N	97659182	eivindsy@pvv.org	Grenseveien 56, 0579 Oslo		2437dc8e0e9b81ebd73eaf72caf9ddd76146071a9eeba5b59410c6ea31e28f06	\N	cus_9AbgBytom2TE7X
+21	barkort	1dd79f7a099bc994906a44cc6e7f6acaa1ba5a9e109473035b8bcaf5eb8ddd25	1	0	\N	\N	\N	\N	\N	72ee172673bf4bebd7b4dde99002d1c9693944fb6d56c16abe0f2934b0778395	\N	\N
+23	sofia	42ad4a8fe6433b93ff27079c4c73a62b8fed255348f365ce267b5ae7925c9b7a	1	0	\N	\N	\N	\N	\N	e81898fae219301ea595be21f279a30115697a23a57509a4b0cd71ca70e24c61	\N	\N
+25	bezaban	a2d72b67e92ad2871e7c9c92c290f3eb2d1f0013341896742fc0bfb443d39d56	1	0	\N	\N			Paul Bergene	5e8b8b5cbb630fb7dcd0038320b714cbfe6e37eff0bdd2bb2b6c5932160fdd73	\N	cus_9SxmTPvcyK8GR0
+22	etath	9dba2b0fa52b7c8e7acc025f8cbb99c81c94d786eca021c8959fec4021a1bf69	1	0	\N	\N	\N	\N	\N	f1e397d332d4577b995964246ccb6263564ec952e05a83c621a1b916a34d4542	\N	cus_9ECV4UtLJgyLxq
+11	enrico	24c447f9a778600cb0e520574a727693d2eb2a38963fa8e9be5c8465411dc90b	1	0	\N		subvertao@inventati.org			8acb906e26cf9a44f49ee2f8a23a3f4e560b35f20a7248d9a7c683cc03498262	\N	cus_8qOZp2SgbqrEpE
+24	sshow	81be9c6cb2bc0e6ca23eee1f2b661c58f1fbcc9af38e7634b5c814f4624ebbaa	1	0	\N	\N	\N	\N	\N	e9aa5add4ee1458b8ead1269d1c2645a02c76b1976dafb3616b26d396f92723d	\N	cus_9GxrwgchcmMIlG
+4	alpha60	7af7badd70160f66b737997bab50a7110bc2fce2173d230cf31a6c4661c41665	1	0	\N	98005371	idamberge@gmail.com	Bygdoy Alle 61, c\\o Snoen, 0265 Oslo		a86ab2dbf483cff48a459c6882596c7da2d6d9fb320e6536057a8fe677717639	\N	cus_9VbChrg5xhb6O7
+17	lafa	93dafacd8792c64b493b5a3b4b5db5652978b98538301374ff9fe995d8eaa50b	1	0	\N	92042090	olav@fwt.no	Braathengate 45b, 1515 MOSS	Olav Frengstad	2fef01c83504be4d9e844ac9b6ac534039f25be223bdf26c1bc2d96ddc8ca6f4	\N	cus_9YG1p2AcT10Oej
+26	lassegs	22bd1da9b4a45257ece238eec1b7a8b52803edf312ae3f625b5625a01d6d93c8	1	0	\N	\N				29b451f9e3c54f38ec69dcd1fd9a2d4da3ac5980e584c02d2e0fc1ea3d563e31	\N	cus_9uLF2xq3vJB1H8
+\.
+
+
+--
+-- Name: users_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: brus
+--
+
+SELECT pg_catalog.setval('users_uid_seq', 26, true);
+
+
+--
+-- Name: machine_pkey; Type: CONSTRAINT; Schema: public; Owner: brus; Tablespace: 
+--
+
+ALTER TABLE ONLY machine
+    ADD CONSTRAINT machine_pkey PRIMARY KEY (machine);
+
+
+--
+-- Name: product_pkey; Type: CONSTRAINT; Schema: public; Owner: brus; Tablespace: 
+--
+
+ALTER TABLE ONLY product
+    ADD CONSTRAINT product_pkey PRIMARY KEY (pid);
+
+
+--
+-- Name: slot_product_pkey; Type: CONSTRAINT; Schema: public; Owner: brus; Tablespace: 
+--
+
+ALTER TABLE ONLY slot_product
+    ADD CONSTRAINT slot_product_pkey PRIMARY KEY (spid);
+
+
+--
+-- Name: transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: brus; Tablespace: 
+--
+
+ALTER TABLE ONLY transactions
+    ADD CONSTRAINT transactions_pkey PRIMARY KEY (tid);
+
+
+--
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: brus; Tablespace: 
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: users_username_key; Type: CONSTRAINT; Schema: public; Owner: brus; Tablespace: 
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_username_key UNIQUE (username);
+
+
+--
+-- Name: slot_product_machine_fkey; Type: FK CONSTRAINT; Schema: public; Owner: brus
+--
+
+ALTER TABLE ONLY slot_product
+    ADD CONSTRAINT slot_product_machine_fkey FOREIGN KEY (machine) REFERENCES machine(machine);
+
+
+--
+-- Name: slot_product_product_fkey; Type: FK CONSTRAINT; Schema: public; Owner: brus
+--
+
+ALTER TABLE ONLY slot_product
+    ADD CONSTRAINT slot_product_product_fkey FOREIGN KEY (product) REFERENCES product(pid);
+
+
+--
+-- Name: transactions_machine_fkey; Type: FK CONSTRAINT; Schema: public; Owner: brus
+--
+
+ALTER TABLE ONLY transactions
+    ADD CONSTRAINT transactions_machine_fkey FOREIGN KEY (machine) REFERENCES machine(machine);
+
+
+--
+-- Name: transactions_product_fkey; Type: FK CONSTRAINT; Schema: public; Owner: brus
+--
+
+ALTER TABLE ONLY transactions
+    ADD CONSTRAINT transactions_product_fkey FOREIGN KEY (product) REFERENCES product(pid);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+GRANT USAGE ON SCHEMA public TO vending;
+
+
+--
+-- Name: machine; Type: ACL; Schema: public; Owner: brus
+--
+
+REVOKE ALL ON TABLE machine FROM PUBLIC;
+REVOKE ALL ON TABLE machine FROM brus;
+GRANT ALL ON TABLE machine TO brus;
+GRANT SELECT ON TABLE machine TO vending;
+
+
+--
+-- Name: product; Type: ACL; Schema: public; Owner: brus
+--
+
+REVOKE ALL ON TABLE product FROM PUBLIC;
+REVOKE ALL ON TABLE product FROM brus;
+GRANT ALL ON TABLE product TO brus;
+GRANT SELECT ON TABLE product TO vending;
+
+
+--
+-- Name: product_pid_seq; Type: ACL; Schema: public; Owner: brus
+--
+
+REVOKE ALL ON SEQUENCE product_pid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE product_pid_seq FROM brus;
+GRANT ALL ON SEQUENCE product_pid_seq TO brus;
+GRANT SELECT,USAGE ON SEQUENCE product_pid_seq TO vending;
+
+
+--
+-- Name: slot_product; Type: ACL; Schema: public; Owner: brus
+--
+
+REVOKE ALL ON TABLE slot_product FROM PUBLIC;
+REVOKE ALL ON TABLE slot_product FROM brus;
+GRANT ALL ON TABLE slot_product TO brus;
+GRANT SELECT ON TABLE slot_product TO vending;
+
+
+--
+-- Name: slot_product_spid_seq; Type: ACL; Schema: public; Owner: brus
+--
+
+REVOKE ALL ON SEQUENCE slot_product_spid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE slot_product_spid_seq FROM brus;
+GRANT ALL ON SEQUENCE slot_product_spid_seq TO brus;
+GRANT SELECT,USAGE ON SEQUENCE slot_product_spid_seq TO vending;
+
+
+--
+-- Name: transactions; Type: ACL; Schema: public; Owner: brus
+--
+
+REVOKE ALL ON TABLE transactions FROM PUBLIC;
+REVOKE ALL ON TABLE transactions FROM brus;
+GRANT ALL ON TABLE transactions TO brus;
+GRANT SELECT,INSERT ON TABLE transactions TO vending;
+
+
+--
+-- Name: transactions_tid_seq; Type: ACL; Schema: public; Owner: brus
+--
+
+REVOKE ALL ON SEQUENCE transactions_tid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE transactions_tid_seq FROM brus;
+GRANT ALL ON SEQUENCE transactions_tid_seq TO brus;
+GRANT SELECT,USAGE ON SEQUENCE transactions_tid_seq TO vending;
+
+
+--
+-- Name: users; Type: ACL; Schema: public; Owner: brus
+--
+
+REVOKE ALL ON TABLE users FROM PUBLIC;
+REVOKE ALL ON TABLE users FROM brus;
+GRANT ALL ON TABLE users TO brus;
+GRANT SELECT ON TABLE users TO vending;
+
+
+--
+-- Name: users_uid_seq; Type: ACL; Schema: public; Owner: brus
+--
+
+REVOKE ALL ON SEQUENCE users_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE users_uid_seq FROM brus;
+GRANT ALL ON SEQUENCE users_uid_seq TO brus;
+GRANT SELECT,USAGE ON SEQUENCE users_uid_seq TO vending;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE ALL ON TABLES  FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE ALL ON TABLES  FROM postgres;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES  TO brus;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES  TO vending;
+
+
+--
+-- PostgreSQL database dump complete
+--
+

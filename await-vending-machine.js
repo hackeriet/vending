@@ -13,23 +13,18 @@ async function event (emitter, eventName) {
 const Machine = require('./await-machine.js')
 const CardReader = require('./await-card-reader.js')
 const LCD = require('./await-lcd.js')
-const User = require('./await-user.js')
+const UserManager = require('./await-user.js')
 
 // A complete working vending machine setup
 class VendingMachine {
   constructor (opts={}) {
-    const { machine, cardReader, lcd } = opts
+    const { machine, cardReader, lcd, products } = opts
     this.machine = machine || new Machine()
     this.cardReader = cardReader || new CardReader()
     this.lcd = lcd || new LCD()
 
-    this.products = [
-      { name: 'slot 1', price: 1 },
-      { name: 'slot 2', price: 2 },
-      { name: 'slot 3', price: 3 },
-      { name: 'slot 4', price: 4 },
-      { name: 'slot 5', price: 5 }
-    ]
+    // An array of items { name: 'name', price: 42 }
+    this.products = products
 
     this._exiting = false
   }
@@ -41,7 +36,7 @@ class VendingMachine {
         this.lcd.write('Ready')
 
         const cardId = await this.cardReader.read({ timeout: 1000 })
-        const user = await User.findByCardId(cardId)
+        const user = await User.getUserByCardId(cardId)
         const slotId = await this.machine.waitSelection({ timeout: 7000 })
         const product = this.products[slotId]
         const userHasFunds = user.funds >= product.price

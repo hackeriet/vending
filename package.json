@@ -10,7 +10,8 @@
   "license": "CC0-1.0",
   "dependencies": {
     "event-stream": "^3.3.4",
-    "pg-promise": "^7.3.2",
+    "lcd": "^2.0.2",
+    "pg-promise": "^7.5.4",
     "superagent": "^3.8.2",
     "winston": "^2.4.0"
   }

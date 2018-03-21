@@ -1,0 +1,14 @@
+[Unit]
+Description=Control the vending machine
+
+[Service]
+Type=simple
+Environment=DEBUG=1
+User=vending
+WorkingDirectory=/opt/vending
+ExecStart=/opt/vending/bin/vending
+Restart=always
+RestartSec=15s
+
+[Install]
+WantedBy=default.target

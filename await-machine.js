@@ -8,7 +8,7 @@ class Machine {
   }
 
   async waitSelection () {
-    const mockedSelection = 3
+    const mockedSelection = 4
     return new Promise(resolve => {
       setTimeout(() => resolve(mockedSelection), 1250)
     })

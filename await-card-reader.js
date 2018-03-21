@@ -4,7 +4,7 @@ class CardReader {
   }
 
   async read () {
-    const value = '0x767676'
+    const value = '0xf5e5b83e'
     return new Promise(resolve => {
       setTimeout(() => resolve(value), 1250)
     })
