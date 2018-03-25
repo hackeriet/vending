@@ -4,14 +4,16 @@ const es = require('event-stream')
 
 const log = require('./logger.js')
 
-const script = './bin/poll_pin.sh'
+const BUTTON_SCRIPT = './bin/poll_pin.sh'
 const PRESSED = 0
 
-function buttonWatcher (pins) {
+// Returns an EventEmitter that emits 'pressed' events with slot index
+// as first argument.
+module.exports = function (buttonPins) {
   const emitter = new EventEmitter()
 
-  const procs = pins.map((p) => execFile(script, [p]))
-  const streams = procs.map(p => p.stdout)
+  const procs = buttonPins.map((pin) => execFile(BUTTON_SCRIPT, [pin]))
+  const streams = procs.map(btn => btn.stdout)
 
   // Read all stdout streams collectively
   es.merge(streams)
@@ -26,7 +28,7 @@ function buttonWatcher (pins) {
         const state = Number(matches[2])
 
         if (state === PRESSED) {
-          const button = pins.indexOf(pin)
+          const button = buttonPins.indexOf(pin)
           emitter.emit('pressed', button)
         }
       }
@@ -35,9 +37,8 @@ function buttonWatcher (pins) {
     }))
 
   // Let stderr bubble upwards
-  es.merge(procs.map(p => p.stderr)).on('data', (data) => log.debug(line))
+  es.merge(procs.map(p => p.stderr)).on('data', (data) => log.debug(data))
 
   return emitter
 }
 
-module.exports = buttonWatcher

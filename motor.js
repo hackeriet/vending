@@ -1,7 +1,7 @@
 const execa = require('execa')
 
-module.exports = async function initMotor (motorPin, slotPins) {
-  return function startMotor (slotIndex, cb) {
+module.exports = function initMotor (motorPin, slotPins) {
+  return function startMotor (slotIndex) {
     const slot = slotPins[slotIndex]
     const args = [motorPin, slot]
     const opts = { timeout: 1000 * 10 }
