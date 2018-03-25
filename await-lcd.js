@@ -1,20 +1,16 @@
-class LCD {
-  constructor (lib) {
-    this.ready = true
-  }
+const dgram = require('dgram')
 
-  async waitReady () {
-    if (this.ready)
-      return Promise.resolve()
+module.exports = function LCD (address, port) {
+  const socket = dgram.createSocket('udp4')
 
-    // TODO ...
-  }
-
-  async write (msg) {
-    console.log('LCD print:', msg)
-    return Promise.resolve()
+  return {
+    print: async (msg) => new Promise((resolve, reject) => {
+      const buf = Buffer.from(msg)
+      socket.send(buf, port, address, (err) => {
+        if (err) return reject(err)
+        resolve()
+      })
+    })
   }
 }
-
-module.exports = LCD
 

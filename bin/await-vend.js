@@ -4,29 +4,51 @@ async function sleep (ms) {
 }
 
 // Await an event to be emitted
-async function event (emitter, eventName) {
-  return new Promise((resolve) => {
-    emitter.once(eventName, resolve)
+async function event (emitter, eventName, options={}) {
+  return new Promise((resolve, reject) => {
+    let timeoutId = -1 // Invalid timeout ID's are alright
+
+    const eventHandler = (...args) => {
+      console.log('CARD READ', args)
+      clearTimeout(timeoutId)
+      resolve(...args)
+    }
+
+    // If a timeout has been specified, reject when time is up
+    if (options.timeout) {
+      timeoutId = setTimeout(() => {
+        emitter.removeListener(eventName, eventHandler)
+        reject(new Error('Timed out'))
+      }, options.timeout)
+    }
+
+    // Resolve when the event is emitted
+    emitter.once(eventName, eventHandler)
   })
 }
 
 const databaseOptions = {
-  host: '127.0.0.1',
+  host: 'matrix.hackeriet.no',
   port: 5432,
-  database: 'vending',
-  user: 'postgres',
+  database: 'brus',
+  user: 'vending',
+  password: process.env.DB_PASSWORD,
   // password: process.env.DB_PASS,
-  ssl: false,
+  ssl: true,
   applicationName: 'vending-test'
 }
 
+const SLOT_PINS = [21, 22, 23, 24, 25]
+const MOTOR_PIN = 29
+const BUTTON_PINS = [7, 2, 5, 3, 4]
+
 // Product database
 const products = [
-  { name: 'Munkholm 0,33', price: 35 },
-  { name: 'Club Mate', price: 35 },
-  { name: 'Tuborg', price: 35 },
+  { name: 'Munkholm 0,33', price: 0 },
+  { name: 'Club Mate', price: 0 },
   null, // Slot is empty
-  { name: 'Club Mate', price: 35 }
+  { name: 'Tuborg', price: 0 },
+  { name: 'Club Mate', price: 0 }
 ]
 
 // Where to download new card info
@@ -36,11 +58,13 @@ const cardAuthPass = 'ClerfecNabkuCytdildo'
 
 // Dependencies
 const Postgres = require('pg-promise')
-const Machine = require('../await-machine.js')
-const CardReader = require('../await-card-reader.js')
+//const CardReader = require('../await-card-reader.js')
+const CardReader = require('../cardreader.js')
+const Motor = require('../motor.js')
 const LCD = require('../await-lcd.js')
 const UserManager = require('../await-user.js')
 const superagent = require('superagent')
+const Buttons = require('../buttons.js')
 
 let isExiting = false
 let _updateInterval = null
@@ -49,15 +73,16 @@ let _updateInterval = null
 ;(async () => {
 
   const db = await Postgres()(databaseOptions)
+  await db.connect()
+  console.log('Connected to database')
+
   const cardUsers = [] // Passed by reference and updated regularly in main loop
   const users = new UserManager(db, cardUsers)
-  const machine = new Machine()
+  const vendFromSlot = Motor(MOTOR_PIN, SLOT_PINS)
+  const buttons = Buttons(BUTTON_PINS)
   const cardReader = new CardReader()
-  const lcd = new LCD()
+  const lcd = new LCD('10.10.3.22', '2121')
   const httpAgent = superagent.agent().auth(cardAuthUser, cardAuthPass)
-
-  // Initial machine setup
-  await lcd.waitReady()
 
   // Update card data
   async function updateCardData () {
@@ -88,16 +113,19 @@ let _updateInterval = null
 
     try {
 
-      lcd.write('Ready')
+      lcd.print('Ready               Scan card')
 
-      const cardId = await cardReader.read({ timeout: 1000 })
+      const cardId = await event(cardReader, 'card')
       const username = await users.getUsernameByCardId(cardId)
-      const slotId = await machine.waitSelection({ timeout: 7000 })
-      const product = products[slotId]
+      await lcd.print(`Select product, ${username}`)
 
+      const slotIndex = await event(buttons, 'pressed', { timeout: 7000 })
+      const product = products[slotIndex]
       if (!product) {
-        throw new Error(`Slot #${slotId} has no dranks`)
+        throw new Error(`Slot #${slotIndex} has no dranks`)
       }
+
+      await lcd.print(`Selected a ${product.name}`)
 
       const availableFunds = await users.getUserAccountBalance(username)
 
@@ -105,24 +133,28 @@ let _updateInterval = null
         throw new Error('Insufficient funds')
       }
 
+      console.log('Has enough funds')
+
       // TODO: Throw exception if vend failed!
-      await machine.vend(slotId)
+      await vendFromSlot(slotIndex)
+      console.log('Vending from slot', slotIndex)
+
       await users.recordUserPurchase(username, product.price, product.name)
 
       // TODO: Leave a nice random message
-      lcd.write('Vending complete!')
+      lcd.print('Vending complete!')
       await sleep(2000)
 
     } catch (err) {
 
       // Write errors to LCD and let it sit there for a while
-      lcd.write(err.message)
+      lcd.print(err.message)
       await sleep(3000)
 
     }
   }
 
-  lcd.write('Exiting...')
+  lcd.print('Exiting...')
   await sleep(2000)
 
   // TODO: Will not exit until database times out. Disconnect explicitly here.
@@ -130,9 +162,9 @@ let _updateInterval = null
 
 })()
 
-process.on('SIGINT', () => {
-  isExiting = true
-  clearInterval(_updateInterval)
-  console.log('SIGINT received. Exiting...')
-})
+//process.on('SIGINT', () => {
+//  isExiting = true
+//  clearInterval(_updateInterval)
+//  console.log('SIGINT received. Exiting...')
+//})
 
