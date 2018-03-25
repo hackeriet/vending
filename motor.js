@@ -1,14 +1,10 @@
-const assert = require('assert')
-const execFile = require('child_process').execFile
+const execa = require('execa')
 
-const MOTOR_SCRIPT = './bin/motor.sh'
-
-module.exports = function (motorPin, slotPins) {
-  return (slotIndex, cb) => {
+module.exports = async function initMotor (motorPin, slotPins) {
+  return function startMotor (slotIndex, cb) {
     const slot = slotPins[slotIndex]
     const args = [motorPin, slot]
-    const opts = {timeout: 1000 * 10}
-
-    return execFile(MOTOR_SCRIPT, args, opts, cb)
+    const opts = { timeout: 1000 * 10 }
+    return execa('./bin/motor.sh', args, opts)
   }
 }
