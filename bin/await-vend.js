@@ -117,7 +117,7 @@ let _updateInterval = null
 
       const cardId = await event(cardReader, 'card')
       const username = await users.getUsernameByCardId(cardId)
-      await lcd.print(`Select product, ${username}`)
+      await lcd.print(`Select product      ${username} <3`)
 
       const slotIndex = await event(buttons, 'pressed', { timeout: 7000 })
       const product = products[slotIndex]
