@@ -44,11 +44,11 @@ const BUTTON_PINS = [7, 2, 5, 3, 4]
 
 // Product database
 const products = [
-  { name: 'Munkholm 0,33', price: 0 },
-  { name: 'Club Mate', price: 0 },
+  { name: 'Munkholm 0,33', price: 20 },
+  { name: 'Club Mate', price: 35 },
   null, // Slot is empty
-  { name: 'Tuborg', price: 0 },
-  { name: 'Club Mate', price: 0 }
+  { name: 'Tuborg', price: 35 },
+  { name: 'Club Mate', price: 35 }
 ]
 
 // Where to download new card info
