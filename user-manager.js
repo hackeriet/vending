@@ -1,4 +1,5 @@
 const request = require('superagent')
+const logger = require('./logging.js')
 
 class UserManager {
   // client should be a pg-promise shared connection object.
@@ -63,21 +64,21 @@ if (!module.parent) {
     }
     const db = await pg()(cnn)
     await db.connect()
-    console.log('Connected to db')
+    logger.info('Connected to db')
 
     const mgr = new UserManager(db, cardTestUsers)
 
     const testUser = await mgr.getUsernameByCardId('0x1337')
-    console.log('Found a user!', testUser)
+    logger.info('Found a user!', testUser)
 
     const balance = await mgr.getUserAccountBalance(testUser)
-    console.log('Got balance!', balance)
+    logger.info('Got balance!', balance)
 
     const res = await mgr.recordUserPurchase(testUser, 1, 'vend test')
-    console.log('Recorded a purchase with amount of 7. (tid=%s)', res)
+    logger.info('Recorded a purchase with amount of 7. (tid=%s)', res)
 
     const newBalance = await mgr.getUserAccountBalance(testUser)
-    console.log('Got new balance!', newBalance)
+    logger.info('Got new balance!', newBalance)
   })()
 }
 

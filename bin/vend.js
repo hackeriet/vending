@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const { event, sleep } = require('../utils.js')
+const logger = require('../logger.js')
 
 const databaseOptions = {
   host: 'matrix.hackeriet.no',
@@ -48,7 +49,7 @@ let _updateInterval = null
 
   const db = await Postgres()(databaseOptions)
   await db.connect()
-  console.log('Connected to database')
+  logger.info('Connected to database')
 
   const cardUsers = [] // Passed by reference and updated regularly in main loop
   const users = new UserManager(db, cardUsers)
@@ -70,11 +71,11 @@ let _updateInterval = null
         throw new Error('Downloaded data is not an array')
 
       cardUsers.splice(0, cardUsers.length, ...newCards)
-      console.log('Updated card data (%d total cards)', cardUsers.length)
+      logger.info('Updated card data (%d total cards)', cardUsers.length)
 
     } catch (err) {
 
-      console.error('Failed to update new card data', err)
+      logger.error('Failed to update new card data', err)
 
     }
   }
@@ -107,11 +108,11 @@ let _updateInterval = null
         throw new Error('Insufficient funds')
       }
 
-      console.log('Has enough funds')
+      logger.info('Has enough funds')
 
       // TODO: Throw exception if vend failed!
       await vendFromSlot(slotIndex)
-      console.log('Vending from slot', slotIndex)
+      logger.info('Vending from slot', slotIndex)
 
       await users.recordUserPurchase(username, product.price, product.name)
 
@@ -132,13 +133,13 @@ let _updateInterval = null
   await sleep(2000)
 
   // TODO: Will not exit until database times out. Disconnect explicitly here.
-  console.log('Waiting for database connection to time out...')
+  logger.info('Waiting for database connection to time out...')
 
 })()
 
 //process.on('SIGINT', () => {
 //  isExiting = true
 //  clearInterval(_updateInterval)
-//  console.log('SIGINT received. Exiting...')
+//  logger.info('SIGINT received. Exiting...')
 //})
 
