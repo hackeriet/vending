@@ -1,5 +1,5 @@
 const request = require('superagent')
-const logger = require('./logging.js')
+const logger = require('./logger.js')
 
 class UserManager {
   // client should be a pg-promise shared connection object.
