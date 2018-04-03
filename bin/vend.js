@@ -11,7 +11,7 @@ const databaseOptions = {
   password: process.env.DB_PASSWORD,
   // password: process.env.DB_PASS,
   ssl: true,
-  applicationName: 'vending-test'
+  applicationName: 'vending'
 }
 
 const SLOT_PINS = [21, 22, 23, 24, 25]
