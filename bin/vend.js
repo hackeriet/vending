@@ -130,10 +130,9 @@ let _updateInterval = null
   }
 
   lcd.print('Exiting...')
-  await sleep(2000)
-
-  // TODO: Will not exit until database times out. Disconnect explicitly here.
-  logger.info('Waiting for database connection to time out...')
+  logger.info('Waiting for database connection to close...')
+  await db.$pool.end()
+  logger.info('Database connection closed')
 
 })()
 
