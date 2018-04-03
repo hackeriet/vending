@@ -60,8 +60,8 @@ const cardAuthPass = 'ClerfecNabkuCytdildo'
 const Postgres = require('pg-promise')
 const CardReader = require('../cardreader.js')
 const Motor = require('../motor.js')
-const LCD = require('../await-lcd.js')
-const UserManager = require('../await-user.js')
+const LCD = require('../lcd.js')
+const UserManager = require('../user-manager.js')
 const superagent = require('superagent')
 const Buttons = require('../buttons.js')
 
