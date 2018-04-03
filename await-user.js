@@ -53,15 +53,13 @@ if (!module.parent) {
   ;(async function () {
     const pg = require('pg-promise')
     const cnn = {
-      //host: '127.0.0.1',
-      host: '185.35.202.224',
+      host: process.env.DB_HOST,
       port: 5432,
-      database: 'brus',
-      user: 'vending',
-      password: 'TZmSOfUKl5J55X48HEu4ROv0mWhey8GvseNB',
-      // password: process.env.DB_PASS,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS,
       ssl: true,
-      applicationName: 'vending-test'
+      applicationName: 'vending'
     }
     const db = await pg()(cnn)
     await db.connect()

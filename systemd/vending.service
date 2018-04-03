@@ -1,14 +1,14 @@
 [Unit]
 Description=Control the vending machine
+After=network.target
 
 [Service]
-Type=simple
-Environment=DEBUG=1
-User=vending
-WorkingDirectory=/opt/vending
-ExecStart=/opt/vending/bin/vending
+Environment="DB_HOST=" "DB_USER=" "DB_PASSWORD="
+User=sshow
+WorkingDirectory=/home/sshow/vending
+ExecStart=/usr/bin/node /opt/vending/bin/await-vend.js
 Restart=always
-RestartSec=15s
+RestartSec=10s
 
 [Install]
 WantedBy=default.target
