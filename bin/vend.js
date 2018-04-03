@@ -75,7 +75,7 @@ let _updateInterval = null
 
     } catch (err) {
 
-      logger.error('Failed to update new card data', err)
+      logger.error('Failed to update new card data:', err)
 
     }
   }
@@ -93,6 +93,7 @@ let _updateInterval = null
       const cardId = await event(cardReader, 'card')
       const username = await users.getUsernameByCardId(cardId)
       await lcd.print(`Select product      ${username} <3`)
+      logger.info(`User authenticated: ${username}`)
 
       const slotIndex = await event(buttons, 'pressed', { timeout: 7000 })
       const product = products[slotIndex]
@@ -101,6 +102,7 @@ let _updateInterval = null
       }
 
       await lcd.print(`Selected a ${product.name}`)
+      logger.info(`Selected ${product.name} from slot #${slotIndex}`)
 
       const availableFunds = await users.getUserAccountBalance(username)
 
@@ -108,7 +110,7 @@ let _updateInterval = null
         throw new Error('Insufficient funds')
       }
 
-      logger.info('Has enough funds')
+      logger.info('User has sufficient funds')
 
       // TODO: Throw exception if vend failed!
       await vendFromSlot(slotIndex)
@@ -124,7 +126,8 @@ let _updateInterval = null
 
       // Write errors to LCD and let it sit there for a while
       lcd.print(err.message)
-      await sleep(3000)
+      logger.info(err.message)
+      await sleep(2000)
 
     }
   }
