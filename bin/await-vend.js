@@ -8,8 +8,8 @@ async function event (emitter, eventName, options={}) {
   return new Promise((resolve, reject) => {
     let timeoutId = -1 // Invalid timeout ID's are alright
 
+    // Called when an event is emitted
     const eventHandler = (...args) => {
-      console.log('CARD READ', args)
       clearTimeout(timeoutId)
       resolve(...args)
     }
@@ -58,7 +58,6 @@ const cardAuthPass = 'ClerfecNabkuCytdildo'
 
 // Dependencies
 const Postgres = require('pg-promise')
-//const CardReader = require('../await-card-reader.js')
 const CardReader = require('../cardreader.js')
 const Motor = require('../motor.js')
 const LCD = require('../await-lcd.js')
