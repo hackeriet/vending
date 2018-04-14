@@ -13,7 +13,6 @@ class UserManager {
   async getUsernameByCardId (cardId) {
     const card = this.cardUsers.find((card) => card.card_number === cardId)
     if (card) {
-      await createVendUserIfNotExists(card.username)
       return Promise.resolve(card.username)
     }
     else {
@@ -45,6 +44,8 @@ class UserManager {
   async recordUserPurchase (username, amount, description) {
     if (amount < 0)
       return Promise.reject(new Error('Amount must be greater than 0'))
+
+    await createVendUserIfNotExists(card.username)
 
     return this.db.tx(t => {
       // Make sure username exists before attempting to record a purchase
