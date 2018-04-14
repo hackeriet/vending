@@ -45,10 +45,12 @@ class UserManager {
     if (amount < 0)
       return Promise.reject(new Error('Amount must be greater than 0'))
 
+    // Make sure username exists before attempting to record a purchase.
+    // If not, the user will not be deducted due to the transaction failing
+    // due to a failed .one()-query
     await createVendUserIfNotExists(card.username)
 
     return this.db.tx(t => {
-      // Make sure username exists before attempting to record a purchase
       return t.batch([
         t.one('SELECT uid FROM users WHERE username = $1', username),
         t.one(`INSERT INTO transactions(username, value, descr)
