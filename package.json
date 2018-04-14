@@ -1,6 +1,6 @@
 {
   "name": "vending",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Soda vending machine daemon",
   "bin": "bin/vending",
   "scripts": {
