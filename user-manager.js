@@ -12,10 +12,13 @@ class UserManager {
 
   async getUsernameByCardId (cardId) {
     const card = this.cardUsers.find((card) => card.card_number === cardId)
-    if (!card)
-      return Promise.reject(new Error(`Card with id '${cardId}' not found`))
-    else
+    if (card) {
+      await createVendUserIfNotExists(card.username)
       return Promise.resolve(card.username)
+    }
+    else {
+      return Promise.reject(new Error(`Card with id '${cardId}' not found`))
+    }
   }
 
   async getUserAccountBalance (username) {
@@ -24,6 +27,19 @@ class UserManager {
         username
       )
       .then(result => result.sum)
+  }
+
+  async createVendUserIfNotExists (username) {
+    const query = await this.db.one('SELECT username FROM users WHERE username = $1', username)
+    if (!query) {
+      const userId = await this.db.insert(
+        'INSERT INTO users(username, enabled, admin) VALUES($1, $2, $3) RETURNING uid',
+        [username, 1, 0]
+      )
+      logger.debug(`Created username in database (${userId})`)
+    } else {
+      logger.debug('User already exists (which is a good thing)')
+    }
   }
 
   async recordUserPurchase (username, amount, description) {
