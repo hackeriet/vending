@@ -5,7 +5,7 @@ const logger = require('./logger.js')
 
 const cardIdPattern = /CARDSEEN: (0x[0-9a-f]{6,8})/i
 
-// Return an emmiter that emits 'card' events when a card has been read
+// Return an emitter that emits 'card' events when a card has been read.
 function cardReader () {
   const emitter = new EventEmitter()
   const cardreader = spawn('./nfcreader/nfcreader')
@@ -13,6 +13,13 @@ function cardReader () {
   // Forward output to debug log
   cardreader.stdout.on('data', (data) => logger.debug('cardreader out: ', data))
   cardreader.stderr.on('data', (data) => logger.debug('cardreader err: ', data))
+
+  cardreader.on('error', (err) => logger.error('cardreader sess err: ', err))
+  // Safeguarding in case of dead process
+  cardreader.on('exit', (code, signal) => {
+    logger.error('Cardreader exited. Restarting.')
+    throw new Error('Cardreader exited.')
+  })
 
   // Process output from script
   cardreader.stdout
