@@ -48,7 +48,7 @@ class UserManager {
     // Make sure username exists before attempting to record a purchase.
     // If not, the user will not be deducted due to the transaction failing
     // due to a failed .one()-query
-    await this.createVendUserIfNotExists(card.username)
+    await this.createVendUserIfNotExists(username)
 
     return this.db.tx(t => {
       return t.batch([
