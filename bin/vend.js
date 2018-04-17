@@ -119,7 +119,7 @@ let _updateInterval = null
       await users.recordUserPurchase(username, product.price, product.name)
 
       // TODO: Leave a nice random message
-      lcd.print('Vending complete!')
+      lcd.print(`Vending complete!   ${availableFunds - product.price} coinz left`)
       await sleep(2000)
 
     } catch (err) {
