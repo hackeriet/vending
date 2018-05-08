@@ -29,9 +29,12 @@ class UserManager {
   }
 
   async createVendUserIfNotExists (username) {
-    const query = await this.db.one('SELECT username FROM users WHERE username = $1', username)
-    if (!query) {
-      const userId = await this.db.insert(
+    const result = await this.db.oneOrNone(
+      'SELECT username FROM users WHERE username = $1',
+      username
+    )
+    if (!result) {
+      const userId = await this.db.one(
         'INSERT INTO users(username, enabled, admin) VALUES($1, $2, $3) RETURNING uid',
         [username, 1, 0]
       )
