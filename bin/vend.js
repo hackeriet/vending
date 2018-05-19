@@ -29,8 +29,8 @@ const products = [
 
 // Where to download new card info
 const cardURL = 'https://hackeriet.no/hula/member/all_members.json'
-const cardAuthUser = 'blade_syncaccounts'
-const cardAuthPass = 'ClerfecNabkuCytdildo'
+const cardAuthUser = process.env.CARD_AUTH_USER
+const cardAuthPass = process.env.CARD_AUTH_PASS
 
 // Dependencies
 const Postgres = require('pg-promise')

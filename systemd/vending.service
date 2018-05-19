@@ -3,7 +3,7 @@ Description=Control the vending machine
 After=network.target
 
 [Service]
-Environment="DB_HOST=" "DB_USER=" "DB_PASSWORD="
+Environment="DB_HOST=" "DB_USER=" "DB_PASSWORD=" "CARD_AUTH_USER=" "CARD_AUTH_PASS="
 User=sshow
 WorkingDirectory=/home/sshow/vending
 ExecStart=/usr/bin/node /opt/vending/bin/vend.js
