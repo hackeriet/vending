@@ -11,10 +11,10 @@ function cardReader () {
   const cardreader = spawn('./nfcreader/nfcreader')
 
   // Forward output to debug log
-  cardreader.stdout.on('data', (data) => logger.debug('cardreader out: ', data))
-  cardreader.stderr.on('data', (data) => logger.debug('cardreader err: ', data))
+  cardreader.stdout.on('data', (data) => logger.debug('cardreader out: %s', data))
+  //cardreader.stderr.on('data', (data) => logger.debug('cardreader err: %s', data))
 
-  cardreader.on('error', (err) => logger.error('cardreader sess err: ', err))
+  cardreader.on('error', (err) => logger.error('cardreader sess err: %s', err))
   // Safeguarding in case of dead process
   cardreader.on('exit', (code, signal) => {
     logger.error('Cardreader exited. Restarting.')
