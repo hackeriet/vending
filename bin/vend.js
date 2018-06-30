@@ -92,8 +92,10 @@ let _updateInterval = null
 
       const cardId = await event(cardReader, 'card')
       const username = await users.getUsernameByCardId(cardId)
-      await lcd.print(`Select product      ${username} <3`)
-      logger.info(`User authenticated: ${username}`)
+      const availableFunds = await users.getUserAccountBalance(username)
+
+      await lcd.print(`Select product      ${username} <3                            ${availableFunds} coinz`)
+      logger.info(`User authenticated: ${username}    funds: ${availableFunds} `)
 
       const slotIndex = await event(buttons, 'pressed', { timeout: 7000 })
       const product = products[slotIndex]
@@ -104,7 +106,6 @@ let _updateInterval = null
       await lcd.print(`Selected a ${product.name}`)
       logger.info(`Selected ${product.name} from slot #${slotIndex}`)
 
-      const availableFunds = await users.getUserAccountBalance(username)
 
       if (availableFunds < product.price) {
         throw new Error('Insufficient funds')
