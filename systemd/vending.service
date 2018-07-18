@@ -6,8 +6,12 @@ After=network.target
 Environment="DB_HOST=" "DB_USER=" "DB_PASSWORD=" "CARD_AUTH_USER=" "CARD_AUTH_PASS="
 WorkingDirectory=/opt/vending
 ExecStart=/usr/bin/node bin/vend.js
+Type=notify
+NotifyAccess=all
+TimeoutSec=5
+WatchdogSec=10
 Restart=always
-RestartSec=10s
+RestartSec=10
 
 [Install]
 WantedBy=default.target

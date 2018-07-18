@@ -16,6 +16,8 @@ Background information:
 #include <stdlib.h>
 #include <signal.h>
 
+#include <systemd/sd-daemon.h> // sd_notify
+
 #include "nfc/nfc.h"
 #include "nfc/nfc-types.h"
 
@@ -23,6 +25,7 @@ Background information:
 
 static volatile bool keep_running = true;
 int DEBUG = 1;
+static const int WATCHDOG = true;
 
 #define debug_print(fmt, ...) \
       do { if (DEBUG) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
@@ -61,6 +64,11 @@ int main(int argc, const char *argv[]) {
   }
   printf("# NFC reader %s opened\n", nfc_device_get_name(pnd));
 
+  if (WATCHDOG) {
+    // Tell watchdog that NFC init was successful
+    sd_notify(0, "READY=1\n");
+  }
+
   // http://www.libnfc.org/api/group__initiator.html#gaed2949299759f9a889f6c93f5c365296
   const uint8_t pollnr = 3;
   const uint8_t period = 1;
@@ -75,6 +83,13 @@ int main(int argc, const char *argv[]) {
 
     res = nfc_initiator_poll_target(pnd, nmMifare, szModulations, pollnr,
                                     period, &nt);
+
+    // Tell systemd we are healthy on each iteration.
+    // It is suspected that this loop stops iterating for some reason yet
+    // to be known.
+    if (WATCHDOG) {
+      sd_notify(0, "WATCHDOG=1\n");
+    }
 
     if (res == NFC_ETIMEOUT || res == NFC_ECHIP) {
       debug_print("%s\n", "# no card found.");
@@ -102,6 +117,11 @@ int main(int argc, const char *argv[]) {
       debug_print("%s\n", "# card has been removed.");
     }
   } // while (keep_running)
+
+  if (WATCHDOG) {
+    sd_notify(0, "STOPPING=1\n");
+  }
+
   nfc_close(pnd);
   nfc_exit(context);
 

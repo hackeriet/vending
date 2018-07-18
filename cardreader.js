@@ -26,8 +26,9 @@ function cardReader () {
 
   cardreader.on('error', (err) => logger.error('nfcreader process err: %s', err))
   cardreader.on('exit', (code, signal) => {
-    logger.error('Cardreader exited. Restarting.')
-    throw new Error('Cardreader exited.')
+    // We now rely on the watchdog inside nfcreader program to handle this
+    // service's lifecycle
+    logger.error('Cardreader process exited')
   })
 
   // Process output from script
