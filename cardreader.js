@@ -3,40 +3,29 @@ const { spawn } = require('child_process')
 const es = require('event-stream')
 const logger = require('./logger.js')
 const fs = require('fs')
+const { basename } = require('path')
 
 const cardIdPattern = /CARDSEEN: (0x[0-9a-f]{6,8})/i
 
 // Return an emitter that emits 'card' events when a card has been read.
 function cardReader () {
-  logger.info('Card reader called')
   const emitter = new EventEmitter()
   const cardreader = spawn('./nfcreader/nfcreader')
-  logger.info('Card reader spawned')
+  logger.debug('Card reader process spawned')
 
-  cardreader.stdout.on('data', (data) => {
-    logger.debug('nfcreader: %s', data)
-  })
-  cardreader.stderr.on('data', (data) => {
-    if (data.toString().startsWith('#')) {
-      logger.debug('nfcreader: %s', data)
-    } else {
-      logger.error('nfcreader: %s', data);
-    }
-  })
-
-  cardreader.on('error', (err) => logger.error('nfcreader process err: %s', err))
+  cardreader.on('error', (err) => logger.error('Card reader process error: %s', err))
   cardreader.on('exit', (code, signal) => {
     // We now rely on the watchdog inside nfcreader program to handle this
     // service's lifecycle
-    logger.error('Cardreader process exited')
+    logger.error('Card reader process exited')
   })
 
   // Process output from script
-  logger.info('processing card')
   cardreader.stdout
     .pipe(es.split())
     .pipe(es.map((line, next) => {
-      logger.info('Found a card')
+      logger.debug('nfcreader: %s', line)
+
       const search = cardIdPattern.exec(line)
 
       if (search && search.length === 2) {
@@ -44,8 +33,18 @@ function cardReader () {
         logger.info(`Card detected: ${cardId}`)
         emitter.emit('card', cardId)
       }
-      logger.info('calling next')
 
+      next()
+    }))
+
+  cardreader.stderr
+    .pipe(es.split())
+    .pipe(es.map((line, next) => {
+      if (line.toString().startsWith('#')) {
+        logger.debug('nfcreader: %s', line)
+      } else {
+        logger.error('nfcreader: %s', line);
+      }
       next()
     }))
 
