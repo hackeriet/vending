@@ -16,15 +16,15 @@ const databaseOptions = {
 
 const SLOT_PINS = [21, 22, 23, 24, 25]
 const MOTOR_PIN = 29
-const BUTTON_PINS = [7, 2, 5, 3, 4]
+const BUTTON_PINS = [7, 2, 0, 3, 4]
 
 // Product database
 const products = [
-  { name: 'Munkholm 0,33', price: 20 },
   { name: 'Club Mate', price: 35 },
-  null, // Slot is empty
-  { name: 'Tuborg', price: 35 },
-  { name: 'Club Mate', price: 35 }
+  { name: 'Club Mate', price: 35 },
+  { name: 'Kraftstoff IceT', price: 35}, // Slot is empty
+  { name: 'Guyaki Orange', price: 35 },
+  { name: 'Tuborg', price: 35 }
 ]
 
 // Where to download new card info
@@ -90,11 +90,14 @@ let _updateInterval = null
 
       lcd.print('Ready               Scan card')
 
+      logger.info('card reader')
       const cardId = await event(cardReader, 'card')
+      logger.info('card reader done')
       const username = await users.getUsernameByCardId(cardId)
       const availableFunds = await users.getUserAccountBalance(username)
 
-      await lcd.print(`Select product      ${username} <3                            ${availableFunds} coinz`)
+	//await lcd.print("Select brus".padStart(20))
+	await lcd.print(`Select product: ${username} <3 ${availableFunds} coinz`)
       logger.info(`User authenticated: ${username}    funds: ${availableFunds} `)
 
       const slotIndex = await event(buttons, 'pressed', { timeout: 7000 })
