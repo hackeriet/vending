@@ -10,21 +10,21 @@ const cardIdPattern = /CARDSEEN: (0x[0-9a-f]{6,8})/i
 function cardReader () {
   logger.info('Card reader called')
   const emitter = new EventEmitter()
-  const cardreader = spawn('./nfcreader/nfcreader', {
-	  stdio: [
-		  0,
-		  'pipe',
-		  fs.openSync('err.out','w')
-	  ]})
+  const cardreader = spawn('./nfcreader/nfcreader')
   logger.info('Card reader spawned')
 
-  // Forward output to debug log
-  cardreader.stdout.on('data', (data) => logger.debug('cardreader out: %s', data))
-  //cardreader.stderr.on('data', (data) => logger.debug('cardreader err: %s', data))
-  //cardreader.stderr.on('error', (data) => logger.error(data))
+  cardreader.stdout.on('data', (data) => {
+    logger.debug('nfcreader: %s', data)
+  })
+  cardreader.stderr.on('data', (data) => {
+    if (data.toString().startsWith('#')) {
+      logger.debug('nfcreader: %s', data)
+    } else {
+      logger.error('nfcreader: %s', data);
+    }
+  })
 
-  cardreader.on('error', (err) => logger.error('cardreader sess err: %s', err))
-  // Safeguarding in case of dead process
+  cardreader.on('error', (err) => logger.error('nfcreader process err: %s', err))
   cardreader.on('exit', (code, signal) => {
     logger.error('Cardreader exited. Restarting.')
     throw new Error('Cardreader exited.')
