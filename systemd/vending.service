@@ -4,9 +4,8 @@ After=network.target
 
 [Service]
 Environment="DB_HOST=" "DB_USER=" "DB_PASSWORD=" "CARD_AUTH_USER=" "CARD_AUTH_PASS="
-User=sshow
-WorkingDirectory=/home/sshow/vending
-ExecStart=/usr/bin/node /opt/vending/bin/vend.js
+WorkingDirectory=/opt/vending
+ExecStart=/usr/bin/node bin/vend.js
 Restart=always
 RestartSec=10s
 
