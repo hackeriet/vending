@@ -96,8 +96,7 @@ let _updateInterval = null
       const username = await users.getUsernameByCardId(cardId)
       const availableFunds = await users.getUserAccountBalance(username)
 
-	//await lcd.print("Select brus".padStart(20))
-	await lcd.print(`Select product: ${username} <3 ${availableFunds} coinz`)
+      await lcd.print(`Select product: ${username} <3 ${availableFunds} coinz`)
       logger.info(`User authenticated: ${username}    funds: ${availableFunds} `)
 
       const slotIndex = await event(buttons, 'pressed', { timeout: 7000 })
