@@ -1,5 +1,8 @@
 const { assert } = require('chai')
 const sinon = require('sinon')
+const chai = require('chai')
+const chaiAsPromised = require('chai-as-promised')
+chai.use(chaiAsPromised)
 
 const dgram = require('dgram')
 
@@ -26,27 +29,56 @@ describe('LCD', function () {
   })
 
   describe('print()', function () {
+    let fakeSend
+    let fakeSocket
+    let lcd
+
+    beforeEach(function () {
+      fakeSend = sinon.spy()
+      fakeSocket = {
+        send: fakeSend
+      }
+      lcd = new LCD({ _socket: fakeSocket })
+    })
+
+    it('returns a promise', function () {
+      const prom = lcd.print()
+      assert.instanceOf(prom, Promise)
+    })
 
     it('calls on socket.send()', function () {
-      const _socket = {
-        send: sinon.fake()
-      }
-      const lcd = new LCD({ _socket })
       lcd.print()
-      assert(_socket.send.called)
+      assert(fakeSend.called)
+    })
+
+    it('rejects on errors', async function () {
+      const sock = {
+        send: sinon.stub().callsArgWith(3, 'my error msg')
+      }
+      const lcd = new LCD({ _socket: sock })
+      const prom = lcd.print('msg')
+      await assert.isRejected(prom, 'my error msg')
+    })
+
+    it('resolves on success', async function () {
+      const sock = {
+        send: sinon.stub().callsArg(3)
+      }
+      const lcd = new LCD({ _socket: sock })
+      const prom = lcd.print('msg')
+      await assert.isFulfilled(prom)
     })
 
     it('passes buffer and connection info to socket.send()', function () {
-      const send = sinon.spy()
-      const msg = new Buffer('Hello world')
       const opts = {
-        _socket: { send },
+        _socket: fakeSocket,
         address: '1.2.3.4',
         port: 77
       }
       const lcd = new LCD(opts)
+      const msg = new Buffer('Hello world')
       lcd.print(msg)
-      assert(send.calledWith(msg, opts.port, opts.address))
+      assert(fakeSend.calledWith(msg, opts.port, opts.address))
     })
   })
 })
