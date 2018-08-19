@@ -36,7 +36,7 @@ const cardAuthPass = process.env.CARD_AUTH_PASS
 const Postgres = require('pg-promise')
 const CardReader = require('../cardreader.js')
 const Motor = require('../motor.js')
-const LCD = require('../lcd.js')
+const DatagramLCD = require('../lcd.js')
 const UserManager = require('../user-manager.js')
 const superagent = require('superagent')
 const Buttons = require('../buttons.js')
@@ -56,7 +56,7 @@ let _updateInterval = null
   const vendFromSlot = Motor(MOTOR_PIN, SLOT_PINS)
   const buttons = Buttons(BUTTON_PINS)
   const cardReader = new CardReader()
-  const lcd = new LCD('10.10.3.22', '2121')
+  const lcd = new DatagramLCD({ address: '10.10.3.22', port: '2121' })
   const httpAgent = superagent.agent().auth(cardAuthUser, cardAuthPass)
 
   // Update card data

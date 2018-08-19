@@ -1,20 +1,18 @@
 const dgram = require('dgram')
 
-function LCD (address, port) {
-  this.socket = dgram.createSocket('udp4')
-  this.address = address
-  this.port = port
+function DatagramLCD (opts={}) {
+  this.options = opts
+  this._socket = opts._socket || dgram.createSocket('udp4')
 }
 
-LCD.prototype.print = async function (msg) {
-  new Promise((resolve, reject) => {
-    const buf = Buffer.from(msg)
-    this.socket.send(buf, this.port, this.address, (err) => {
+DatagramLCD.prototype.print = function (msg) {
+  return new Promise((resolve, reject) => {
+    this._socket.send(msg, this.options.port, this.options.address, (err) => {
       if (err) return reject(err)
       resolve()
     })
   })
 }
 
-module.exports = LCD
+module.exports = DatagramLCD
 
