@@ -4,7 +4,8 @@
   "description": "Soda vending machine daemon",
   "bin": "bin/vending",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha",
+    "mocha": "mocha"
   },
   "author": "sshow",
   "license": "CC0-1.0",
@@ -15,5 +16,11 @@
     "pg-promise": "^7.5.4",
     "superagent": "^3.8.2",
     "winston": "^2.4.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^5.2.0",
+    "sinon": "^6.1.5"
   }
 }
