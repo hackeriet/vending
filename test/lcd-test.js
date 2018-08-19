@@ -13,23 +13,16 @@ describe('LCD', function () {
     assert.isFunction(LCD);
   })
 
-  it('has a member _socket', function () {
-    const lcd = new LCD()
-    assert.property(lcd, '_socket')
-  })
+  describe('_socket', function () {
+    it('is an instance member', function () {
+      const lcd = new LCD()
+      assert.property(lcd, '_socket')
+    })
 
-  it('socket is a UDP socket', function () {
-    const lcd = new LCD()
-    assert.instanceOf(lcd._socket, dgram.Socket)
-  })
-
-  it('implements member function print()', function () {
-    const lcd = new LCD()
-    assert.isFunction(lcd.print)
-  })
-
-  it('does not expose print() as non-member function', function () {
-    assert.notProperty(LCD, 'print')
+    it('is a UDP socket by default', function () {
+      const lcd = new LCD()
+      assert.instanceOf(lcd._socket, dgram.Socket)
+    })
   })
 
   describe('print()', function () {
@@ -43,6 +36,14 @@ describe('LCD', function () {
         send: fakeSend
       }
       lcd = new LCD({ _socket: fakeSocket })
+    })
+
+    it('exposed in prototype as instance method', function () {
+      assert.isFunction(LCD.prototype.print)
+    })
+
+    it('does not expose print() as non-member function', function () {
+      assert.notProperty(LCD, 'print')
     })
 
     it('returns a promise', function () {
@@ -67,7 +68,7 @@ describe('LCD', function () {
       await assert.isFulfilled(prom)
     })
 
-    it('passes buffer and connection info to socket.send()', function () {
+    it('passes message, port and address args to socket.send()', function () {
       const opts = {
         _socket: fakeSocket,
         address: '1.2.3.4',
