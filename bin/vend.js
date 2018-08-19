@@ -88,7 +88,7 @@ let _updateInterval = null
 
     try {
 
-      lcd.print('Ready               Scan card')
+      await lcd.print('Ready               Scan card')
 
       logger.info('card reader')
       const cardId = await event(cardReader, 'card')
@@ -122,20 +122,20 @@ let _updateInterval = null
       await users.recordUserPurchase(username, product.price, product.name)
 
       // TODO: Leave a nice random message
-      lcd.print(`Vending complete!   ${availableFunds - product.price} coinz left`)
+      await lcd.print(`Vending complete!   ${availableFunds - product.price} coinz left`)
       await sleep(2000)
 
     } catch (err) {
 
       // Write errors to LCD and let it sit there for a while
-      lcd.print(err.message)
+      await lcd.print(err.message)
       logger.info(err.message)
       await sleep(2000)
 
     }
   }
 
-  lcd.print('Exiting...')
+  await lcd.print('Exiting...')
   logger.info('Waiting for database connection to close...')
   await db.$pool.end()
   logger.info('Database connection closed')
