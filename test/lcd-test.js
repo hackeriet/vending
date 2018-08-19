@@ -28,13 +28,17 @@ describe('LCD', function () {
     assert.isFunction(lcd.print)
   })
 
+  it('does not expose print() as non-member function', function () {
+    assert.notProperty(LCD, 'print')
+  })
+
   describe('print()', function () {
     let fakeSend
     let fakeSocket
     let lcd
 
     beforeEach(function () {
-      fakeSend = sinon.spy()
+      fakeSend = sinon.stub()
       fakeSocket = {
         send: fakeSend
       }
@@ -52,19 +56,13 @@ describe('LCD', function () {
     })
 
     it('rejects on errors', async function () {
-      const sock = {
-        send: sinon.stub().callsArgWith(3, 'my error msg')
-      }
-      const lcd = new LCD({ _socket: sock })
+      fakeSend.callsArgWith(3, 'my error msg')
       const prom = lcd.print('msg')
       await assert.isRejected(prom, 'my error msg')
     })
 
     it('resolves on success', async function () {
-      const sock = {
-        send: sinon.stub().callsArg(3)
-      }
-      const lcd = new LCD({ _socket: sock })
+      fakeSend.callsArg(3)
       const prom = lcd.print('msg')
       await assert.isFulfilled(prom)
     })
@@ -76,7 +74,7 @@ describe('LCD', function () {
         port: 77
       }
       const lcd = new LCD(opts)
-      const msg = new Buffer('Hello world')
+      const msg = Buffer.from('Hello world')
       lcd.print(msg)
       assert(fakeSend.calledWith(msg, opts.port, opts.address))
     })
