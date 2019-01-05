@@ -40,12 +40,15 @@ const DatagramLCD = require('../lcd.js')
 const UserManager = require('../user-manager.js')
 const superagent = require('superagent')
 const Buttons = require('../buttons.js')
+const pkg = require('../package.json')
 
 let isExiting = false
 let _updateInterval = null
 
 // Main function
 ;(async () => {
+
+  logger.info('%s %s', pkg.name, pkg.version)
 
   const db = await Postgres()(databaseOptions)
   await db.connect()
