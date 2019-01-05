@@ -22,7 +22,7 @@ const BUTTON_PINS = [7, 2, 0, 3, 4]
 const products = [
   { name: 'Club Mate', price: 35 },
   { name: 'Club Mate', price: 35 },
-  { name: 'Kraftstoff IceT', price: 35},
+  { name: 'Kraftstoff', price: 35 },
   { name: 'Guayaki Yerba Mate Orange', price: 35 },
   { name: 'Tuborg', price: 35 }
 ]
@@ -36,16 +36,19 @@ const cardAuthPass = process.env.CARD_AUTH_PASS
 const Postgres = require('pg-promise')
 const CardReader = require('../cardreader.js')
 const Motor = require('../motor.js')
-const LCD = require('../lcd.js')
+const DatagramLCD = require('../lcd.js')
 const UserManager = require('../user-manager.js')
 const superagent = require('superagent')
 const Buttons = require('../buttons.js')
+const pkg = require('../package.json')
 
 let isExiting = false
 let _updateInterval = null
 
 // Main function
 ;(async () => {
+
+  logger.info('%s %s', pkg.name, pkg.version)
 
   const db = await Postgres()(databaseOptions)
   await db.connect()
@@ -56,21 +59,22 @@ let _updateInterval = null
   const vendFromSlot = Motor(MOTOR_PIN, SLOT_PINS)
   const buttons = Buttons(BUTTON_PINS)
   const cardReader = new CardReader()
-  const lcd = new LCD('10.10.3.22', '2121')
+  const lcd = new DatagramLCD({ address: '10.10.3.22', port: '2121' })
   const httpAgent = superagent.agent().auth(cardAuthUser, cardAuthPass)
 
   // Update card data
   async function updateCardData () {
     try {
 
-      const { body: newCards } = await httpAgent
-        .get(cardURL)
-        .accept('json')
+      const response = await httpAgent.get(cardURL).accept('json')
 
-      if (!Array.isArray(newCards))
+      if (!Array.isArray(response.body))
         throw new Error('Downloaded data is not an array')
 
-      cardUsers.splice(0, cardUsers.length, ...newCards)
+      const cards = response.body.filter(u => u.card_number)
+
+      // Re-add all array elements
+      cardUsers.splice(0, cardUsers.length, ...cards)
       logger.info('Updated card data (%d total cards)', cardUsers.length)
 
     } catch (err) {
@@ -88,7 +92,7 @@ let _updateInterval = null
 
     try {
 
-      lcd.print('Ready               Scan card')
+      await lcd.print('Ready               Scan card')
 
       logger.info('card reader')
       const cardId = await event(cardReader, 'card')
@@ -122,20 +126,20 @@ let _updateInterval = null
       await users.recordUserPurchase(username, product.price, product.name)
 
       // TODO: Leave a nice random message
-      lcd.print(`Vending complete!   ${availableFunds - product.price} coinz left`)
+      await lcd.print(`Vending complete!   ${availableFunds - product.price} coinz left`)
       await sleep(2000)
 
     } catch (err) {
 
       // Write errors to LCD and let it sit there for a while
-      lcd.print(err.message)
+      await lcd.print(err.message)
       logger.info(err.message)
       await sleep(2000)
 
     }
   }
 
-  lcd.print('Exiting...')
+  await lcd.print('Exiting...')
   logger.info('Waiting for database connection to close...')
   await db.$pool.end()
   logger.info('Database connection closed')
