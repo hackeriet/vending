@@ -22,7 +22,7 @@ const BUTTON_PINS = [7, 2, 0, 3, 4]
 const products = [
   { name: 'Club Mate', price: 35 },
   { name: 'Club Mate', price: 35 },
-  { name: 'Kraftstoff IceT', price: 35},
+  { name: 'Kraftstoff', price: 35 },
   { name: 'Guayaki Yerba Mate Orange', price: 35 },
   { name: 'Tuborg', price: 35 }
 ]
