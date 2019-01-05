@@ -63,14 +63,15 @@ let _updateInterval = null
   async function updateCardData () {
     try {
 
-      const { body: newCards } = await httpAgent
-        .get(cardURL)
-        .accept('json')
+      const response = await httpAgent.get(cardURL).accept('json')
 
-      if (!Array.isArray(newCards))
+      if (!Array.isArray(response.body))
         throw new Error('Downloaded data is not an array')
 
-      cardUsers.splice(0, cardUsers.length, ...newCards)
+      const cards = response.body.filter(u => u.card_number)
+
+      // Re-add all array elements
+      cardUsers.splice(0, cardUsers.length, ...cards)
       logger.info('Updated card data (%d total cards)', cardUsers.length)
 
     } catch (err) {
