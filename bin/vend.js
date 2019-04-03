@@ -14,6 +14,7 @@ const databaseOptions = {
   applicationName: 'vending'
 }
 
+// NOTE: Slot #5 might be weak now. Only fill with "light" bottles (like yerba)
 const SLOT_PINS = [21, 22, 23, 24, 25]
 const MOTOR_PIN = 29
 const BUTTON_PINS = [7, 2, 0, 3, 4]
@@ -23,8 +24,8 @@ const products = [
   { name: 'Club Mate', price: 35 },
   { name: 'Club Mate', price: 35 },
   null,
-  { name: 'Guayaki Yerba Mate Orange', price: 35 },
-  null
+  { name: 'Ice-Tea Kraftstoff', price: 35 },
+  { name: 'Yerba Mate Orange', price: 35 },
 ]
 
 // Where to download new card info
